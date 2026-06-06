@@ -4,7 +4,7 @@ import { products } from "@/lib/data/products";
 import { formatPrice } from "@/lib/utils";
 
 export const metadata = {
-  title: "Shop | Adorn Couture",
+  title: "Shop | Norex Fashion",
   description: "Browse our premium ready-to-wear fashion collections.",
 };
 

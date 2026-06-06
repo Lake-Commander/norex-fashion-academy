@@ -4,8 +4,8 @@ import { formatPrice } from "@/lib/utils";
 import { Clock, ArrowRight } from "lucide-react";
 
 export const metadata = {
-  title: "Courses | Adorn Couture Academy",
-  description: "Browse all fashion design courses at Adorn Couture Academy.",
+  title: "Courses | Norex Fashion Academy",
+  description: "Browse all fashion design courses at Norex Fashion Academy.",
 };
 
 export default function CoursesPage() {

@@ -17,7 +17,7 @@ export default async function AdminSidebar() {
   return (
     <aside style={{ width: "260px", backgroundColor: "#1a1a1a", padding: "2rem 1rem", display: "flex", flexDirection: "column", flexShrink: 0, minHeight: "100vh" }}>
       <div style={{ marginBottom: "2rem", paddingBottom: "1.5rem", borderBottom: "1px solid rgba(255,255,255,0.1)" }}>
-        <img src="/tolani-logo.png" alt="Adorn Couture" style={{ height: "50px", width: "auto", filter: "brightness(0) invert(1)" }} />
+        <img src="/tolani-logo.png" alt="Norex Fashion" style={{ height: "50px", width: "auto", filter: "brightness(0) invert(1)" }} />
         <p style={{ fontSize: "0.65rem", letterSpacing: "0.2em", textTransform: "uppercase", color: "rgba(255,255,255,0.3)", marginTop: "0.5rem" }}>Admin Dashboard</p>
       </div>
 

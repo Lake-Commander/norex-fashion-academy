@@ -31,7 +31,7 @@ export default function AdminLogin() {
     <div style={{ minHeight: "100vh", backgroundColor: "#1a1a1a", display: "flex", alignItems: "center", justifyContent: "center", padding: "2rem" }}>
       <div style={{ backgroundColor: "white", padding: "3rem", width: "100%", maxWidth: "420px" }}>
         <div style={{ textAlign: "center", marginBottom: "2.5rem" }}>
-          <img src="/tolani-logo.png" alt="Adorn Couture" style={{ height: "60px", width: "auto", margin: "0 auto 1rem" }} />
+          <img src="/tolani-logo.png" alt="Norex Fashion" style={{ height: "60px", width: "auto", margin: "0 auto 1rem" }} />
           <h1 style={{ fontFamily: "var(--font-playfair), Georgia, serif", fontSize: "1.5rem", fontWeight: 700, color: "#1a1a1a" }}>Admin Dashboard</h1>
           <p style={{ fontSize: "0.85rem", color: "#6b7280", marginTop: "0.5rem" }}>Sign in to manage your academy</p>
         </div>
@@ -42,7 +42,7 @@ export default function AdminLogin() {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="admin@adorncouture.com"
+              placeholder="admin@norexfashion.com"
               required
               style={{ width: "100%", border: "1px solid #e5e7eb", padding: "0.875rem 1rem", fontSize: "0.9rem", outline: "none", fontFamily: "inherit" }}
             />

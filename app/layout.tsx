@@ -16,14 +16,14 @@ const playfair = Playfair_Display({
 
 export const metadata: Metadata = {
   title: {
-    default: "Adorn Couture | Fashion & Academy",
-    template: "%s | Adorn Couture",
+    default: "Norex Fashion | Design & Academy",
+    template: "%s | Norex Fashion",
   },
-  description: "Adorn Couture — Premium ready-to-wear fashion collections and a world-class fashion design academy in Lagos, Nigeria.",
-  keywords: ["fashion", "couture", "Lagos", "Nigeria", "fashion academy", "ready-to-wear", "fashion design"],
+  description: "Norex Fashion — Premium ready-to-wear fashion collections and a world-class fashion design academy in Warri, Nigeria.",
+  keywords: ["fashion", "couture", "Warri", "Nigeria", "fashion academy", "ready-to-wear", "fashion design"],
   openGraph: {
-    title: "Adorn Couture | Fashion & Academy",
-    description: "Premium ready-to-wear fashion and world-class fashion education in Lagos, Nigeria.",
+    title: "Norex Fashion | Design & Academy",
+    description: "Premium ready-to-wear fashion and world-class fashion education in Warri, Nigeria.",
     type: "website",
     locale: "en_NG",
   },

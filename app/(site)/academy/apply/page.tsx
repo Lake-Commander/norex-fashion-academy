@@ -80,7 +80,7 @@ export default function ApplyPage() {
         {/* Header */}
         <div style={{ paddingTop: "8rem", paddingBottom: "4rem", backgroundColor: "#1a1a1a" }}>
           <div className="container-custom">
-            <p style={{ fontSize: "0.7rem", letterSpacing: "0.35em", textTransform: "uppercase", color: "#C9A84C", fontWeight: 500, marginBottom: "1rem", display: "block" }}>Adorn Couture Academy</p>
+            <p style={{ fontSize: "0.7rem", letterSpacing: "0.35em", textTransform: "uppercase", color: "#C9A84C", fontWeight: 500, marginBottom: "1rem", display: "block" }}>Norex Fashion Academy</p>
             <h1 style={{ fontFamily: "var(--font-playfair), Georgia, serif", fontSize: "clamp(2.5rem, 5vw, 4rem)", fontWeight: 700, color: "white", marginBottom: "1rem", lineHeight: 1.1 }}>
               Apply Now
             </h1>

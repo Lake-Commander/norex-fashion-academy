@@ -36,18 +36,6 @@ export default function ContactPage() {
     }
   };
 
-  const inputStyle: React.CSSProperties = {
-    width: "100%",
-    border: "1px solid #e5e7eb",
-    backgroundColor: "white",
-    padding: "0.875rem 1rem",
-    fontSize: "0.9rem",
-    color: "#1a1a1a",
-    outline: "none",
-    fontFamily: "inherit",
-    transition: "border-color 0.2s",
-  };
-
   const labelStyle: React.CSSProperties = {
     display: "block",
     fontSize: "0.7rem",
@@ -59,9 +47,9 @@ export default function ContactPage() {
   };
 
   const contactInfo = [
-    { icon: MapPin, label: "Our Location", value: "Lagos, Nigeria" },
+    { icon: MapPin, label: "Our Location", value: "Warri, Nigeria" },
     { icon: Phone, label: "Phone", value: "+234 800 000 0000" },
-    { icon: Mail, label: "Email", value: "hello@adorncouture.com" },
+    { icon: Mail, label: "Email", value: "hello@norexfashion.com" },
     { icon: Clock, label: "Working Hours", value: "Mon - Sat: 9am - 6pm" },
   ];
 
@@ -78,14 +66,90 @@ export default function ContactPage() {
         <style>{`
           .cform-grid { display: grid; grid-template-columns: 1fr; gap: 4rem; }
           @media(min-width: 1024px) { .cform-grid { grid-template-columns: 2fr 3fr; } }
+          
           .cinput-row { display: grid; grid-template-columns: 1fr; gap: 1.5rem; }
           @media(min-width: 640px) { .cinput-row { grid-template-columns: 1fr 1fr; } }
+
+          /* --- Form Inputs --- */
+          .custom-input {
+            width: 100%;
+            border: 1px solid #e5e7eb;
+            background-color: white;
+            padding: 0.875rem 1rem;
+            font-size: 0.9rem;
+            color: #1a1a1a;
+            outline: none;
+            font-family: inherit;
+            transition: all 0.3s ease;
+            border-radius: 2px;
+          }
+          .custom-input:hover {
+            border-color: #d1d5db;
+          }
+          .custom-input:focus {
+            border-color: #C9A84C;
+            box-shadow: 0 0 0 1px #C9A84C;
+          }
+
+          /* --- Buttons --- */
+          .btn-submit {
+            display: inline-flex; align-items: center; justify-content: center;
+            background-color: #C9A84C; color: white;
+            padding: 1rem 2.5rem; font-size: 0.8rem; font-weight: 600;
+            letter-spacing: 0.15em; text-transform: uppercase;
+            border: none; cursor: pointer; font-family: inherit;
+            transition: all 0.3s ease; border-radius: 2px; align-self: flex-start;
+          }
+          .btn-submit:hover:not(:disabled) {
+            background-color: #B49542;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(201, 168, 76, 0.4);
+          }
+          .btn-submit:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+          }
+
+          .btn-whatsapp-solid {
+            display: inline-flex; align-items: center; gap: 0.75rem;
+            background-color: #25D366; color: white;
+            padding: 0.875rem 1.75rem; font-size: 0.8rem; font-weight: 600;
+            letter-spacing: 0.15em; text-transform: uppercase; text-decoration: none;
+            transition: all 0.3s ease; border-radius: 2px;
+          }
+          .btn-whatsapp-solid:hover {
+            background-color: #20b558;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(37, 211, 102, 0.4);
+          }
+
+          /* --- Interactive Contact Cards --- */
+          .contact-item {
+            display: flex; align-items: flex-start; gap: 1.25rem;
+            transition: transform 0.3s ease;
+            cursor: default;
+          }
+          .contact-item:hover {
+            transform: translateX(5px);
+          }
+          .contact-item .icon-box {
+            width: 44px; height: 44px; background-color: #FAF7F4; border: 1px solid #f0ebe3;
+            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+            transition: all 0.3s ease; border-radius: 2px;
+          }
+          .contact-item:hover .icon-box {
+            background-color: #C9A84C; border-color: #C9A84C;
+            box-shadow: 0 4px 12px rgba(201, 168, 76, 0.3);
+          }
+          .contact-item:hover .icon-box svg {
+            color: white !important;
+          }
         `}</style>
 
         {/* Header */}
         <div style={{ paddingTop: "8rem", paddingBottom: "4rem", backgroundColor: "#FAF7F4", borderBottom: "1px solid #f0ebe3" }}>
           <div className="container-custom">
-            <p style={{ fontSize: "0.7rem", letterSpacing: "0.35em", textTransform: "uppercase", color: "#722F37", fontWeight: 500, marginBottom: "1rem", display: "block" }}>Get In Touch</p>
+            <p style={{ fontSize: "0.7rem", letterSpacing: "0.35em", textTransform: "uppercase", color: "#C9A84C", fontWeight: 600, marginBottom: "1rem", display: "block" }}>Get In Touch</p>
             <h1 style={{ fontFamily: "var(--font-playfair), Georgia, serif", fontSize: "clamp(2.5rem, 5vw, 4rem)", fontWeight: 700, color: "#1a1a1a", marginBottom: "1rem", lineHeight: 1.1 }}>Contact Us</h1>
             <p style={{ fontSize: "1rem", color: "#6b7280", maxWidth: "500px", lineHeight: 1.8 }}>We would love to hear from you. Reach out for orders, academy inquiries, or any questions.</p>
           </div>
@@ -102,12 +166,12 @@ export default function ContactPage() {
                 {contactInfo.map((item) => {
                   const Icon = item.icon;
                   return (
-                    <div key={item.label} style={{ display: "flex", alignItems: "flex-start", gap: "1.25rem" }}>
-                      <div style={{ width: "44px", height: "44px", backgroundColor: "#FAF7F4", border: "1px solid #f0ebe3", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                        <Icon size={16} style={{ color: "#722F37" }} />
+                    <div key={item.label} className="contact-item">
+                      <div className="icon-box">
+                        <Icon size={18} style={{ color: "#C9A84C", transition: "color 0.3s ease" }} />
                       </div>
                       <div>
-                        <p style={{ fontSize: "0.65rem", letterSpacing: "0.2em", textTransform: "uppercase", color: "#9ca3af", marginBottom: "0.25rem", fontWeight: 500 }}>{item.label}</p>
+                        <p style={{ fontSize: "0.65rem", letterSpacing: "0.2em", textTransform: "uppercase", color: "#9ca3af", marginBottom: "0.25rem", fontWeight: 600 }}>{item.label}</p>
                         <p style={{ fontSize: "0.95rem", color: "#1a1a1a", fontWeight: 500 }}>{item.value}</p>
                       </div>
                     </div>
@@ -116,9 +180,8 @@ export default function ContactPage() {
               </div>
               <div style={{ borderTop: "1px solid #f0ebe3", paddingTop: "2rem" }}>
                 <p style={{ fontSize: "0.85rem", color: "#6b7280", marginBottom: "1.25rem", lineHeight: 1.7 }}>Prefer to chat directly? Reach us on WhatsApp for faster responses.</p>
-                <a href="https://wa.me/2348000000000" target="_blank" rel="noopener noreferrer"
-                  style={{ display: "inline-flex", alignItems: "center", gap: "0.75rem", backgroundColor: "#25D366", color: "white", padding: "0.875rem 1.75rem", fontSize: "0.8rem", fontWeight: 600, letterSpacing: "0.15em", textTransform: "uppercase", textDecoration: "none" }}>
-                  <MessageCircle size={16} />
+                <a href="https://wa.me/2348000000000" target="_blank" rel="noopener noreferrer" className="btn-whatsapp-solid">
+                  <MessageCircle size={18} />
                   Chat on WhatsApp
                 </a>
               </div>
@@ -130,36 +193,38 @@ export default function ContactPage() {
                 <div className="cinput-row">
                   <div>
                     <label style={labelStyle}>Your Name</label>
-                    <input name="name" value={form.name} onChange={handleChange} placeholder="Full name" required style={inputStyle} />
+                    <input name="name" value={form.name} onChange={handleChange} placeholder="Full name" required className="custom-input" />
                   </div>
                   <div>
                     <label style={labelStyle}>Email Address</label>
-                    <input name="email" type="email" value={form.email} onChange={handleChange} placeholder="your@email.com" required style={inputStyle} />
+                    <input name="email" type="email" value={form.email} onChange={handleChange} placeholder="your@email.com" required className="custom-input" />
                   </div>
                 </div>
                 <div className="cinput-row">
                   <div>
                     <label style={labelStyle}>Phone (optional)</label>
-                    <input name="phone" value={form.phone} onChange={handleChange} placeholder="+234 800 000 0000" style={inputStyle} />
+                    <input name="phone" value={form.phone} onChange={handleChange} placeholder="+234 800 000 0000" className="custom-input" />
                   </div>
                   <div>
                     <label style={labelStyle}>Subject</label>
-                    <input name="subject" value={form.subject} onChange={handleChange} placeholder="What is this about?" required style={inputStyle} />
+                    <input name="subject" value={form.subject} onChange={handleChange} placeholder="What is this about?" required className="custom-input" />
                   </div>
                 </div>
                 <div>
                   <label style={labelStyle}>Message</label>
-                  <textarea name="message" value={form.message} onChange={handleChange} placeholder="Tell us more..." required rows={6} style={{ ...inputStyle, resize: "none" }} />
+                  <textarea name="message" value={form.message} onChange={handleChange} placeholder="Tell us more..." required rows={6} className="custom-input" style={{ resize: "none" }} />
                 </div>
+                
                 {status === "error" && (
                   <p style={{ fontSize: "0.85rem", color: "#dc2626" }}>Something went wrong. Please try again.</p>
                 )}
-                <button type="submit" disabled={status === "loading"}
-                  style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", backgroundColor: "#722F37", color: "white", padding: "1rem 2.5rem", fontSize: "0.8rem", fontWeight: 600, letterSpacing: "0.15em", textTransform: "uppercase", border: "none", cursor: "pointer", fontFamily: "inherit", alignSelf: "flex-start", opacity: status === "loading" ? 0.7 : 1 }}>
+                
+                <button type="submit" disabled={status === "loading"} className="btn-submit">
                   {status === "loading" ? "Sending..." : "Send Message"}
                 </button>
               </form>
             </div>
+            
           </div>
         </div>
       </div>

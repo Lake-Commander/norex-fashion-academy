@@ -63,7 +63,7 @@ export default async function ProductDetailPage({ params }: Props) {
             <p style={{ fontSize: "0.75rem", color: "#9ca3af", textAlign: "center", marginBottom: "2rem" }}>You will be redirected to WhatsApp to complete your order</p>
             <div style={{ height: "1px", backgroundColor: "#f0ebe3", marginBottom: "1.5rem" }} />
             <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-              {["Custom sizing available on request", "Delivery within Lagos: 2-3 business days", "Nationwide delivery available"].map((item) => (
+              {["Custom sizing available on request", "Delivery within Delta: 2-3 business days", "Nationwide delivery available"].map((item) => (
                 <div key={item} style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
                   <div style={{ width: "4px", height: "4px", borderRadius: "50%", backgroundColor: "#C9A84C", flexShrink: 0 }} />
                   <p style={{ fontSize: "0.85rem", color: "#6b7280" }}>{item}</p>

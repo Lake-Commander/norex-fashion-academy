@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
 
     // Notify admin
     await resend.emails.send({
-      from: "Adorn Couture <onboarding@resend.dev>",
+      from: "Norex Fashion <onboarding@resend.dev>",
       to: process.env.ADMIN_EMAIL!,
       subject: `New Message — ${subject}`,
       html: `
@@ -72,39 +72,39 @@ export async function POST(req: NextRequest) {
               View in Dashboard
             </a>
           </div>
-          <p style="text-align: center; font-size: 0.75rem; color: #9ca3af; margin-top: 1.5rem;">Adorn Couture Admin · Automated Notification</p>
+          <p style="text-align: center; font-size: 0.75rem; color: #9ca3af; margin-top: 1.5rem;">Norex Fashion Admin · Automated Notification</p>
         </div>
       `,
     });
 
     // Confirm to sender
     await resend.emails.send({
-      from: "Adorn Couture <onboarding@resend.dev>",
+      from: "Norex Fashion <onboarding@resend.dev>",
       to: email,
-      subject: "We got your message — Adorn Couture",
+      subject: "We got your message — Norex Fashion",
       html: `
         <div style="font-family: Georgia, serif; max-width: 600px; margin: 0 auto; padding: 2rem; background: #FAF7F4;">
           <div style="background: #722F37; padding: 2rem; text-align: center; margin-bottom: 2rem;">
-            <h1 style="color: white; margin: 0; font-size: 1.5rem; letter-spacing: 0.1em;">ADORN COUTURE</h1>
+            <h1 style="color: white; margin: 0; font-size: 1.5rem; letter-spacing: 0.1em;">NOREX FASHION</h1>
           </div>
           <div style="background: white; padding: 2rem; margin-bottom: 1rem;">
             <h2 style="color: #1a1a1a; font-size: 1.3rem; margin-bottom: 1rem;">Hi ${name},</h2>
             <p style="color: #4b5563; line-height: 1.8; margin-bottom: 1.5rem;">
-              Thank you for reaching out to <strong style="color: #722F37;">Adorn Couture</strong>. We have received your message and will get back to you within <strong>24 hours</strong>.
+              Thank you for reaching out to <strong style="color: #722F37;">Norex Fashion</strong>. We have received your message and will get back to you within <strong>24 hours</strong>.
             </p>
             <div style="background: #FAF7F4; border-left: 4px solid #722F37; padding: 1.25rem; margin-bottom: 1.5rem;">
               <p style="margin: 0 0 0.5rem; font-size: 0.8rem; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.1em;">Your message</p>
               <p style="margin: 0; color: #4b5563; font-size: 0.95rem; line-height: 1.7;">${message}</p>
             </div>
             <p style="color: #4b5563; line-height: 1.8;">For urgent inquiries, please reach us directly on WhatsApp.</p>
-            <p style="color: #722F37; font-weight: 600; margin-top: 1.5rem;">With elegance,<br/>The Adorn Couture Team</p>
+            <p style="color: #722F37; font-weight: 600; margin-top: 1.5rem;">With elegance,<br/>The Norex Fashion Team</p>
           </div>
           <div style="text-align: center; padding: 1rem;">
             <a href="https://wa.me/2349043371380" style="display: inline-block; background: #25D366; color: white; padding: 0.875rem 2rem; font-size: 0.8rem; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; text-decoration: none;">
               Chat on WhatsApp
             </a>
           </div>
-          <p style="text-align: center; font-size: 0.75rem; color: #9ca3af; margin-top: 1.5rem;">Adorn Couture · Lagos, Nigeria · hello@adorncouture.com</p>
+          <p style="text-align: center; font-size: 0.75rem; color: #9ca3af; margin-top: 1.5rem;">Norex Fashion · Warri, Nigeria · hello@norexfashion.com</p>
         </div>
       `,
     });

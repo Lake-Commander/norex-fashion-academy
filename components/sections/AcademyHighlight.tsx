@@ -37,7 +37,7 @@ export default function AcademyHighlight() {
         <ScrollReveal direction="up">
           <div style={{ maxWidth: "600px", marginBottom: "4rem" }}>
             <p style={{ fontSize: "0.7rem", letterSpacing: "0.35em", textTransform: "uppercase", color: "#C9A84C", fontWeight: 500, marginBottom: "1rem", display: "block" }}>
-              Adorn Couture Academy
+              Noxex Fashion Academy
             </p>
             <h2 style={{ fontFamily: "var(--font-playfair), Georgia, serif", fontSize: "clamp(2rem, 4vw, 3.5rem)", fontWeight: 700, color: "white", lineHeight: 1.1, marginBottom: "1.5rem" }}>
               Learn the Art of Fashion Design

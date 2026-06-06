@@ -2,12 +2,13 @@
 
 @layer base {
   :root {
-    --burgundy: #722F37;
-    --burgundy-dark: #5A2129;
-    --burgundy-light: #8B3A44;
+    /* Renamed variables to reflect the actual color scheme */
+    --primary: #C9A84C;        /* Main Gold */
+    --primary-dark: #B49542;   /* Darker Gold for hover states */
+    --primary-light: #EBD99F;  /* Lighter Gold for subtle backgrounds */
     --cream: #FAF7F4;
     --cream-dark: #F0EBE3;
-    --gold: #C9A84C;
+    --text-main: #1a1a1a;
   }
 
   * {
@@ -22,8 +23,8 @@
   }
 
   body {
-    background-color: #FAF7F4;
-    color: #1a1a1a;
+    background-color: var(--cream);
+    color: var(--text-main);
     font-family: var(--font-inter), sans-serif;
   }
 
@@ -51,45 +52,52 @@
     padding-bottom: 6rem;
   }
 
+  /* --- Buttons --- */
   .btn-primary {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    background-color: #722F37;
+    background-color: var(--primary);
     color: white;
     padding: 0.875rem 2rem;
     font-size: 0.8rem;
-    font-weight: 500;
+    font-weight: 600;
     letter-spacing: 0.15em;
     text-transform: uppercase;
-    transition: all 0.2s;
+    transition: all 0.3s ease;
     border: none;
     cursor: pointer;
+    border-radius: 2px;
   }
 
   .btn-primary:hover {
-    background-color: #5A2129;
+    background-color: var(--primary-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(201, 168, 76, 0.4);
   }
 
   .btn-outline {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    border: 1px solid #722F37;
-    color: #722F37;
+    border: 2px solid var(--primary);
+    color: var(--primary);
     padding: 0.875rem 2rem;
     font-size: 0.8rem;
-    font-weight: 500;
+    font-weight: 600;
     letter-spacing: 0.15em;
     text-transform: uppercase;
-    transition: all 0.2s;
+    transition: all 0.3s ease;
     background: transparent;
     cursor: pointer;
+    border-radius: 2px;
   }
 
   .btn-outline:hover {
-    background-color: #722F37;
+    background-color: var(--primary);
     color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(201, 168, 76, 0.2);
   }
 
   .btn-white {
@@ -97,19 +105,23 @@
     align-items: center;
     justify-content: center;
     background-color: white;
-    color: #722F37;
+    color: var(--primary);
     padding: 0.875rem 2rem;
     font-size: 0.8rem;
-    font-weight: 500;
+    font-weight: 600;
     letter-spacing: 0.15em;
     text-transform: uppercase;
-    transition: all 0.2s;
+    transition: all 0.3s ease;
     border: none;
     cursor: pointer;
+    border-radius: 2px;
   }
 
   .btn-white:hover {
-    background-color: #FAF7F4;
+    background-color: var(--cream);
+    color: var(--primary-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
   }
 
   .btn-whatsapp {
@@ -121,32 +133,36 @@
     color: white;
     padding: 0.875rem 2rem;
     font-size: 0.8rem;
-    font-weight: 500;
+    font-weight: 600;
     letter-spacing: 0.15em;
     text-transform: uppercase;
-    transition: all 0.2s;
+    transition: all 0.3s ease;
     border: none;
     cursor: pointer;
     width: 100%;
+    border-radius: 2px;
   }
 
   .btn-whatsapp:hover {
     background-color: #20b558;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(37, 211, 102, 0.4);
   }
 
+  /* --- Typography & Elements --- */
   .tag {
     font-size: 0.65rem;
     letter-spacing: 0.25em;
     text-transform: uppercase;
-    color: #722F37;
-    font-weight: 500;
+    color: var(--primary);
+    font-weight: 600;
   }
 
   .section-title {
     font-family: var(--font-playfair), Georgia, serif;
     font-size: clamp(2rem, 4vw, 3.5rem);
     font-weight: 600;
-    color: #1a1a1a;
+    color: var(--text-main);
     line-height: 1.1;
   }
 
@@ -157,39 +173,41 @@
     line-height: 1.0;
     letter-spacing: -0.02em;
   }
+
+  /* --- WhatsApp Floating Button --- */
   .wa-float {
-  position: fixed;
-  bottom: 2rem;
-  right: 2rem;
-  z-index: 100;
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  background-color: #25D366;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 4px 20px rgba(37,211,102,0.4);
-  transition: transform 0.2s, box-shadow 0.2s;
-  text-decoration: none;
-}
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    z-index: 100;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background-color: #25D366;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 20px rgba(37,211,102,0.4);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    text-decoration: none;
+  }
 
-.wa-float:hover {
-  transform: scale(1.1);
-  box-shadow: 0 6px 25px rgba(37,211,102,0.5);
-}
+  .wa-float:hover {
+    transform: scale(1.1) translateY(-5px);
+    box-shadow: 0 8px 25px rgba(37,211,102,0.6);
+  }
 
-.wa-pulse {
-  position: absolute;
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  background-color: #25D366;
-  animation: waPulse 2s ease-out infinite;
-}
+  .wa-pulse {
+    position: absolute;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background-color: #25D366;
+    animation: waPulse 2s ease-out infinite;
+  }
 
-@keyframes waPulse {
-  0% { transform: scale(1); opacity: 0.7; }
-  100% { transform: scale(1.6); opacity: 0; }
-}
+  @keyframes waPulse {
+    0% { transform: scale(1); opacity: 0.7; }
+    100% { transform: scale(1.6); opacity: 0; }
+  }
 }

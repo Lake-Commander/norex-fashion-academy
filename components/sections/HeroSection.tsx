@@ -132,7 +132,7 @@ export default function HeroSection() {
           <div style={{ display: "flex", alignItems: "center", gap: "1rem", marginBottom: "1.5rem", flexWrap: "wrap" }}>
             <div style={{ width: "40px", height: "1px", backgroundColor: "#C9A84C", flexShrink: 0 }} />
             <span style={{ fontSize: "0.7rem", letterSpacing: "0.35em", textTransform: "uppercase", color: "#C9A84C", fontWeight: 500 }}>
-              Lagos, Ibadan Nigeria · Est. 2020
+              Delta, Warri, Nigeria · Est. 2016
             </span>
           </div>
 

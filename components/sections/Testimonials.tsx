@@ -1,12 +1,12 @@
 import React from "react";
 
 const testimonials = [
-  { name: "Olwatimilehin Adegoju.", text: "Adorn Couture dressed me for my wedding and I felt like royalty. Every stitch was perfect.", role: "Bride" },
+  { name: "Olwatimilehin Adegoju.", text: "Norex Fashion dressed me for my wedding and I felt like royalty. Every stitch was perfect.", role: "Bride" },
   { name: "Chioma N.", text: "The academy changed my life. I went from zero knowledge to running my own label in 6 months.", role: "Graduate" },
-  { name: "Fatima A.", text: "The quality of their pieces is unmatched in Lagos. I get compliments every time I wear Adorn.", role: "Customer" },
+  { name: "Fatima A.", text: "The quality of their pieces is unmatched in Warri. I get compliments every time I wear Norex Fashion.", role: "Customer" },
   { name: "Blessing I.", text: "I applied to the fashion program and it was the best decision I ever made for my career.", role: "Student" },
   { name: "Kemi S.", text: "Their evening wear collection is breathtaking. The craftsmanship is at par with international brands.", role: "Customer" },
-  { name: "Ngozi E.", text: "The tutors at Adorn Academy are world class. They genuinely care about your growth.", role: "Graduate" },
+  { name: "Ngozi E.", text: "The tutors at Norex Fashion Academy are world class. They genuinely care about your growth.", role: "Graduate" },
   { name: "Tolu B.", text: "Ordered my bridal outfit and the attention to detail was incredible. Highly recommend.", role: "Bride" },
   { name: "Adaeze M.", text: "Best fashion investment I ever made. The course paid for itself within my first client.", role: "Graduate" },
 ];
