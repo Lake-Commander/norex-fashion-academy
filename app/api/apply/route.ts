@@ -3,10 +3,7 @@ import connectDB from "@/lib/mongodb";
 import Application from "@/lib/models/ApplicationModel";
 import { Resend } from "resend";
 
-// Tell Next.js NOT to evaluate this file during the build process
 export const dynamic = "force-dynamic";
-
-const resend = new Resend(process.env.RESEND_API_KEY);
 
 const courseNames: Record<string, string> = {
   "fashion-design-fundamentals": "Fashion Design Fundamentals",
@@ -17,6 +14,9 @@ const courseNames: Record<string, string> = {
 
 export async function POST(req: NextRequest) {
   try {
+    // Initialize Resend INSIDE the function so it doesn't break the build
+    const resend = new Resend(process.env.RESEND_API_KEY);
+    
     const body = await req.json();
     const { fullName, email, phone, course, experienceLevel, message } = body;
 
