@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X, ChevronDown, ChevronRight } from "lucide-react";
+import { Menu, X, ChevronDown } from "lucide-react";
 
 // You can adjust these image paths or import them properly from your @assets folder
 const home_1 = "/assets/img/menu/menu-home-1.jpg";
@@ -146,12 +146,15 @@ const mobile_menu = [
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [activeMobileMenu, setActiveMobileMenu] = useState(null);
+  
+  // FIX: Explicitly type this state to hold a number or null
+  const [activeMobileMenu, setActiveMobileMenu] = useState<number | null>(null);
+  
   const pathname = usePathname();
   const isHome = pathname === "/";
 
   // Gold theme color
-  const goldColor = "#D4AF37";
+  const goldColor = "#C9A84C";
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 50);
@@ -166,7 +169,8 @@ export default function Navbar() {
 
   const isTransparent = isHome && !scrolled;
 
-  const toggleMobileMenu = (id) => {
+  // FIX: Assign the 'number' type to the 'id' parameter
+  const toggleMobileMenu = (id: number) => {
     setActiveMobileMenu(activeMobileMenu === id ? null : id);
   };
 
@@ -448,7 +452,7 @@ export default function Navbar() {
                 borderRadius: "2px",
               }}
               onMouseEnter={(e) => {
-                if (!isTransparent) e.currentTarget.style.backgroundColor = "#111";
+                if (!isTransparent) e.currentTarget.style.backgroundColor = "#B49542";
               }}
               onMouseLeave={(e) => {
                 if (!isTransparent) e.currentTarget.style.backgroundColor = goldColor;
