@@ -118,7 +118,7 @@ export default function ApplyPage() {
               <div style={{ backgroundColor: "#FAF7F4", border: "1px solid #f0ebe3", padding: "1.5rem" }}>
                 <p style={{ fontSize: "0.7rem", letterSpacing: "0.2em", textTransform: "uppercase", color: "#722F37", fontWeight: 600, marginBottom: "0.75rem" }}>Need Help?</p>
                 <p style={{ fontSize: "0.85rem", color: "#6b7280", lineHeight: 1.7, marginBottom: "1rem" }}>Have questions before applying? Reach out to us directly.</p>
-                <a href="https://wa.me/2348000000000" target="_blank" rel="noopener noreferrer" style={{ fontSize: "0.78rem", letterSpacing: "0.15em", textTransform: "uppercase", color: "#722F37", fontWeight: 600, borderBottom: "1px solid #722F37", paddingBottom: "2px", textDecoration: "none" }}>
+                <a href="https://wa.me/2348081258048" target="_blank" rel="noopener noreferrer" style={{ fontSize: "0.78rem", letterSpacing: "0.15em", textTransform: "uppercase", color: "#722F37", fontWeight: 600, borderBottom: "1px solid #722F37", paddingBottom: "2px", textDecoration: "none" }}>
                   Chat on WhatsApp →
                 </a>
               </div>

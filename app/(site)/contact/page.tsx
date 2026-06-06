@@ -180,7 +180,7 @@ export default function ContactPage() {
               </div>
               <div style={{ borderTop: "1px solid #f0ebe3", paddingTop: "2rem" }}>
                 <p style={{ fontSize: "0.85rem", color: "#6b7280", marginBottom: "1.25rem", lineHeight: 1.7 }}>Prefer to chat directly? Reach us on WhatsApp for faster responses.</p>
-                <a href="https://wa.me/2348000000000" target="_blank" rel="noopener noreferrer" className="btn-whatsapp-solid">
+                <a href="https://wa.me/2348081258048" target="_blank" rel="noopener noreferrer" className="btn-whatsapp-solid">
                   <MessageCircle size={18} />
                   Chat on WhatsApp
                 </a>

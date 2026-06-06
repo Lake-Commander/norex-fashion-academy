@@ -12,7 +12,7 @@ export default function SiteLayout({
       <main className="flex-1">{children}</main>
       <Footer />
       <a
-        href="https://wa.me/2348000000000?text=Hi%20Adorn%20Couture!"
+        href="https://wa.me/2348081258048?text=Hi%20Norex%20Fashion!"
         target="_blank"
         rel="noopener noreferrer"
         className="wa-float"

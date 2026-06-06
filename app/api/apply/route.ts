@@ -115,7 +115,7 @@ export async function POST(req: NextRequest) {
             <p style="color: #C9A84C; font-weight: 600; margin-top: 1.5rem;">With elegance,<br/>The Norex Fashion Team</p>
           </div>
           <div style="text-align: center; padding: 1rem;">
-            <a href="https://wa.me/2348000000000" style="display: inline-block; background: #25D366; color: white; padding: 0.875rem 2rem; font-size: 0.8rem; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; text-decoration: none;">
+            <a href="https://wa.me/2348081258048" style="display: inline-block; background: #25D366; color: white; padding: 0.875rem 2rem; font-size: 0.8rem; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; text-decoration: none;">
               Chat on WhatsApp
             </a>
           </div>
