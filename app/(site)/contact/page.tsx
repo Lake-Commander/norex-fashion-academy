@@ -48,7 +48,7 @@ export default function ContactPage() {
 
   const contactInfo = [
     { icon: MapPin, label: "Our Location", value: "Warri, Nigeria" },
-    { icon: Phone, label: "Phone", value: "+234 800 000 0000" },
+    { icon: Phone, label: "Phone", value: "+234 808 125 8048" },
     { icon: Mail, label: "Email", value: "hello@norexfashion.com" },
     { icon: Clock, label: "Working Hours", value: "Mon - Sat: 9am - 6pm" },
   ];
@@ -203,7 +203,7 @@ export default function ContactPage() {
                 <div className="cinput-row">
                   <div>
                     <label style={labelStyle}>Phone (optional)</label>
-                    <input name="phone" value={form.phone} onChange={handleChange} placeholder="+234 800 000 0000" className="custom-input" />
+                    <input name="phone" value={form.phone} onChange={handleChange} placeholder="+234 808 125 8048" className="custom-input" />
                   </div>
                   <div>
                     <label style={labelStyle}>Subject</label>

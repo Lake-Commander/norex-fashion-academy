@@ -139,7 +139,7 @@ export default function ApplyPage() {
                 </div>
                 <div>
                   <label style={labelStyle}>Phone Number</label>
-                  <input name="phone" type="tel" value={form.phone} onChange={handleChange} placeholder="+234 800 000 0000" required style={inputStyle} />
+                  <input name="phone" type="tel" value={form.phone} onChange={handleChange} placeholder="+234 808 125 8048" required style={inputStyle} />
                 </div>
                 <div>
                   <label style={labelStyle}>Select Course</label>
