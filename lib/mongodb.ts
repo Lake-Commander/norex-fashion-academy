@@ -1,9 +1,10 @@
 import mongoose from "mongoose";
 
+// This tells Next.js to look inside your .env.local file (or Vercel settings) for the string
 const MONGODB_URI = process.env.MONGODB_URI!;
 
 if (!MONGODB_URI) {
-  throw new Error("Please define the MONGODB_URI environment variable");
+  throw new Error("Please define the MONGODB_URI environment variable inside .env.local");
 }
 
 interface MongooseCache {
