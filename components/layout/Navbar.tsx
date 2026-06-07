@@ -45,6 +45,7 @@ const menu_data = [
           { title: "Corporate Collections", link: "/shop?category=corporate" },
           { title: "Casual Designs", link: "/shop?category=casual" },
           { title: "Bespoke Tailoring", link: "/shop?category=bespoke" },
+          { title: "Evening Wear", link: "/shop?category=Evening Wear" },
         ],
       },
       {
