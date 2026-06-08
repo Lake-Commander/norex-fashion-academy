@@ -1,7 +1,7 @@
 // app/api/reviews/route.ts
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongodb';
-import Review from '@/models/Review';
+import Review from '@/lib/models/Reviews';
 
 export async function POST(req: Request) {
   try {
