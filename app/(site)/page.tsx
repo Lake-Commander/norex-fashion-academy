@@ -11,8 +11,8 @@ export default function HomePage() {
     <>
       <HeroSection />
       <StatsSection />
-      <FeaturedCollection />
       <AcademyHighlight />
+      <FeaturedCollection />
       <Testimonials />
       
       {/* Contact CTA Banner */}

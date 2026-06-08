@@ -6,11 +6,14 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { products } from "@/lib/data/products";
 import { formatPrice } from "@/lib/utils";
-import { MessageCircle, Filter } from "lucide-react";
+import { MessageCircle, Filter, Heart, ShoppingBag } from "lucide-react";
 import ShopSidebar from "./ShopSidebar";
+import { useShop } from "@/context/ShopContext";
 
 export default function ShopArea() {
   const searchParams = useSearchParams();
+  const { addToCart, toggleWishlist, isInWishlist } = useShop();
+
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
   const [sortOption, setSortOption] = useState("default");
 
@@ -92,22 +95,31 @@ export default function ShopArea() {
         /* --- Product Card Hover Effects --- */
         .breadcrumb-link { font-size: 0.72rem; color: #9ca3af; letter-spacing: 0.1em; text-transform: uppercase; text-decoration: none; transition: color 0.3s ease; }
         .breadcrumb-link:hover { color: #C9A84C; }
-        .sc { display: block; text-decoration: none; }
+        
+        .sc { display: block; position: relative; }
         .sci { transition: transform 0.7s ease; }
         .sc:hover .sci { transform: scale(1.05); }
+        
         .sco {
           position: absolute; inset: 0; background-color: rgba(0,0,0,0.15);
-          display: flex; align-items: flex-end; justify-content: center; padding-bottom: 2rem;
-          opacity: 0; transition: opacity 0.3s ease;
+          display: flex; align-items: flex-end; justify-content: center; padding-bottom: 2rem; gap: 0.5rem;
+          opacity: 0; transition: opacity 0.3s ease; pointer-events: none;
         }
-        .sc:hover .sco { opacity: 1; }
-        .view-btn {
-          color: white; font-size: 0.65rem; letter-spacing: 0.25em; text-transform: uppercase;
-          border: 1px solid rgba(255,255,255,0.8); padding: 0.6rem 1.75rem; transition: all 0.3s ease; font-weight: 600;
+        .sc:hover .sco { opacity: 1; pointer-events: auto; }
+
+        /* Action Buttons on Product Card */
+        .action-btn {
+          color: white; font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase;
+          border: 1px solid rgba(255,255,255,0.8); padding: 0.6rem 1.25rem; transition: all 0.3s ease; 
+          font-weight: 600; text-decoration: none; cursor: pointer; background: transparent; display: flex; align-items: center; gap: 0.5rem;
         }
-        .sc:hover .view-btn { background-color: #C9A84C; border-color: #C9A84C; }
-        .sct { transition: color 0.3s ease; }
-        .sc:hover .sct { color: #C9A84C; }
+        .action-btn:hover { background-color: #C9A84C; border-color: #C9A84C; }
+
+        .wishlist-btn { transition: transform 0.2s ease; }
+        .wishlist-btn:hover { transform: scale(1.1); }
+
+        .sct { transition: color 0.3s ease; text-decoration: none; }
+        .sct:hover { color: #C9A84C !important; }
 
         .shop-whatsapp-btn {
           display: inline-flex; align-items: center; justify-content: center; gap: 0.75rem;
@@ -173,24 +185,51 @@ export default function ShopArea() {
             ) : (
               <div className="product-grid">
                 {filteredProducts.map((product) => (
-                  <Link key={product.id} href={["/shop/", product.slug].join("")} className="sc">
+                  <div key={product.id} className="sc">
                     <div style={{ position: "relative", overflow: "hidden", backgroundColor: "#F0EBE3", aspectRatio: "3/4", marginBottom: "1.25rem", borderRadius: "2px" }}>
-                      <Image src={product.images[0]} alt={product.name} fill className="sci" style={{ objectFit: "cover" }} sizes="(max-width:640px) 100vw,(max-width:1024px) 50vw,33vw" />
-                      <div style={{ position: "absolute", top: "1rem", left: "1rem", backgroundColor: "white", padding: "0.3rem 0.875rem", fontSize: "0.6rem", letterSpacing: "0.2em", textTransform: "uppercase", fontWeight: 600, color: "#C9A84C", borderRadius: "2px" }}>
+                      
+                      {/* Image wrapped in Link */}
+                      <Link href={`/shop/${product.slug}`} style={{ display: "block", width: "100%", height: "100%" }}>
+                        <Image src={product.images[0]} alt={product.name} fill className="sci" style={{ objectFit: "cover" }} sizes="(max-width:640px) 100vw,(max-width:1024px) 50vw,33vw" />
+                      </Link>
+
+                      {/* Category Tag */}
+                      <div style={{ position: "absolute", top: "1rem", left: "1rem", backgroundColor: "white", padding: "0.3rem 0.875rem", fontSize: "0.6rem", letterSpacing: "0.2em", textTransform: "uppercase", fontWeight: 600, color: "#C9A84C", borderRadius: "2px", pointerEvents: "none" }}>
                         {product.category}
                       </div>
+
+                      {/* Wishlist Button Overlay */}
+                      <button 
+                        onClick={() => toggleWishlist(product)}
+                        className="wishlist-btn"
+                        style={{ position: "absolute", top: "1rem", right: "1rem", background: "white", border: "none", borderRadius: "50%", width: "36px", height: "36px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", boxShadow: "0 4px 15px rgba(0,0,0,0.1)", zIndex: 10 }}
+                      >
+                        <Heart size={16} color="#C9A84C" fill={isInWishlist(product.id) ? "#C9A84C" : "transparent"} />
+                      </button>
+
+                      {/* Hover Overlay with Add to Cart and View */}
                       <div className="sco">
-                        <span className="view-btn">View Details</span>
+                        <button className="action-btn" onClick={() => addToCart(product, 1)}>
+                          <ShoppingBag size={14} /> Add
+                        </button>
+                        <Link href={`/shop/${product.slug}`} className="action-btn">
+                          View
+                        </Link>
                       </div>
+
                     </div>
+                    
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
                       <div>
-                        <h3 className="sct" style={{ fontFamily: "var(--font-playfair), Georgia, serif", fontSize: "1.1rem", fontWeight: 700, color: "#1a1a1a", marginBottom: "0.35rem" }}>{product.name}</h3>
+                        {/* Title wrapped in Link */}
+                        <Link href={`/shop/${product.slug}`} style={{ textDecoration: "none" }}>
+                          <h3 className="sct" style={{ fontFamily: "var(--font-playfair), Georgia, serif", fontSize: "1.1rem", fontWeight: 700, color: "#1a1a1a", marginBottom: "0.35rem" }}>{product.name}</h3>
+                        </Link>
                         <p style={{ fontSize: "0.78rem", color: "#9ca3af", fontWeight: 500 }}>{product.colors.slice(0, 2).join(" · ")}</p>
                       </div>
                       <p style={{ fontSize: "1rem", fontWeight: 700, color: "#C9A84C", flexShrink: 0, marginLeft: "1rem" }}>{formatPrice(product.price)}</p>
                     </div>
-                  </Link>
+                  </div>
                 ))}
               </div>
             )}

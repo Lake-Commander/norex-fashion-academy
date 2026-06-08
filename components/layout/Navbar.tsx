@@ -3,7 +3,8 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X, ChevronDown } from "lucide-react";
+import { Menu, X, ChevronDown, ShoppingBag, Heart } from "lucide-react";
+import { useShop } from "@/context/ShopContext"; // Ensure this path matches your structure
 
 // You can adjust these image paths or import them properly from your @assets folder
 const home_1 = "/assets/img/menu/menu-home-1.jpg";
@@ -147,17 +148,21 @@ const mobile_menu = [
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  
-  // FIX: Explicitly type this state to hold a number or null
+  const [mounted, setMounted] = useState(false);
   const [activeMobileMenu, setActiveMobileMenu] = useState<number | null>(null);
   
   const pathname = usePathname();
   const isHome = pathname === "/";
+  
+  // Context Data
+  const { cart, wishlist } = useShop();
+  const cartCount = cart.reduce((acc, item) => acc + item.orderQuantity, 0);
+  const wishlistCount = wishlist.length;
 
-  // Gold theme color
   const goldColor = "#C9A84C";
 
   useEffect(() => {
+    setMounted(true);
     const handleScroll = () => setScrolled(window.scrollY > 50);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
@@ -170,7 +175,6 @@ export default function Navbar() {
 
   const isTransparent = isHome && !scrolled;
 
-  // FIX: Assign the 'number' type to the 'id' parameter
   const toggleMobileMenu = (id: number) => {
     setActiveMobileMenu(activeMobileMenu === id ? null : id);
   };
@@ -178,169 +182,60 @@ export default function Navbar() {
   return (
     <>
       <style>{`
-        :root {
-          --gold: ${goldColor};
-        }
+        :root { --gold: ${goldColor}; }
         
         .nav-links { display: none; }
         .nav-cta { display: none; }
-        .nav-hamburger { display: flex; }
+        .mobile-actions { display: flex; }
         
         @media(min-width: 992px) {
           .nav-links { display: flex; align-items: center; gap: 2rem; list-style: none; margin: 0; padding: 0; height: 100%; }
-          .nav-cta { display: flex; }
-          .nav-hamburger { display: none; }
+          .nav-cta { display: flex; align-items: center; gap: 1.5rem; }
+          .mobile-actions { display: none; }
         }
 
         /* --- Desktop Menu Styling --- */
-        .nav-item {
-          position: relative;
-          display: flex;
-          align-items: center;
-          height: 72px;
-        }
-
-        .nav-link {
-          display: flex;
-          align-items: center;
-          gap: 0.25rem;
-          font-size: 0.8rem;
-          letter-spacing: 0.08em;
-          text-transform: uppercase;
-          font-weight: 600;
-          transition: color 0.3s ease;
-          text-decoration: none;
-        }
-
-        .nav-link:hover {
-          color: var(--gold) !important;
-        }
+        .nav-item { position: relative; display: flex; align-items: center; height: 72px; }
+        .nav-link { display: flex; align-items: center; gap: 0.25rem; font-size: 0.8rem; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 600; transition: color 0.3s ease; text-decoration: none; }
+        .nav-link:hover { color: var(--gold) !important; }
 
         /* --- Desktop Mega Menu --- */
         .mega-menu {
-          position: absolute;
-          top: 100%;
-          left: 50%;
-          transform: translateX(-50%) translateY(10px);
-          background-color: white;
-          box-shadow: 0 10px 40px rgba(0,0,0,0.08);
-          border-top: 3px solid var(--gold);
-          padding: 2.5rem;
-          display: flex;
-          gap: 3rem;
-          opacity: 0;
-          visibility: hidden;
-          transition: all 0.3s ease;
-          pointer-events: none;
-          z-index: 100;
-          min-width: 800px;
+          position: absolute; top: 100%; left: 50%; transform: translateX(-50%) translateY(10px);
+          background-color: white; box-shadow: 0 10px 40px rgba(0,0,0,0.08); border-top: 3px solid var(--gold);
+          padding: 2.5rem; display: flex; gap: 3rem; opacity: 0; visibility: hidden; transition: all 0.3s ease;
+          pointer-events: none; z-index: 100; min-width: 800px;
         }
-
-        .nav-item:hover .mega-menu {
-          opacity: 1;
-          visibility: visible;
-          transform: translateX(-50%) translateY(0);
-          pointer-events: auto;
-        }
-
-        .mega-menu-column {
-          flex: 1;
-        }
-
-        .mega-menu-title {
-          font-size: 0.9rem;
-          font-weight: 700;
-          text-transform: uppercase;
-          color: #111;
-          margin-bottom: 1.25rem;
-          border-bottom: 1px solid #eee;
-          padding-bottom: 0.5rem;
-        }
-
-        .mega-menu-list {
-          list-style: none;
-          padding: 0;
-          margin: 0;
-          display: flex;
-          flex-direction: column;
-          gap: 0.75rem;
-        }
-
-        .mega-menu-item a {
-          font-size: 0.85rem;
-          color: #555;
-          text-decoration: none;
-          transition: color 0.2s ease, padding-left 0.2s ease;
-        }
-
-        .mega-menu-item a:hover {
-          color: var(--gold);
-          padding-left: 5px;
-        }
+        .nav-item:hover .mega-menu { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0); pointer-events: auto; }
+        .mega-menu-column { flex: 1; }
+        .mega-menu-title { font-size: 0.9rem; font-weight: 700; text-transform: uppercase; color: #111; margin-bottom: 1.25rem; border-bottom: 1px solid #eee; padding-bottom: 0.5rem; }
+        .mega-menu-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.75rem; }
+        .mega-menu-item a { font-size: 0.85rem; color: #555; text-decoration: none; transition: color 0.2s ease, padding-left 0.2s ease; }
+        .mega-menu-item a:hover { color: var(--gold); padding-left: 5px; }
 
         /* --- Mobile Menu --- */
         .mobile-menu {
-          display: none;
-          position: fixed;
-          top: 72px;
-          left: 0;
-          width: 100%;
-          height: calc(100vh - 72px);
-          overflow-y: auto;
-          background-color: white;
-          z-index: 40;
+          display: none; position: fixed; top: 72px; left: 0; width: 100%; height: calc(100vh - 72px);
+          overflow-y: auto; background-color: white; z-index: 40;
         }
-        .mobile-menu.open {
-          display: block;
-        }
-        
+        .mobile-menu.open { display: block; }
         .mobile-link-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          padding: 1.25rem 1.5rem;
-          border-bottom: 1px solid #f0ebe3;
-          font-size: 0.9rem;
-          font-weight: 600;
-          text-transform: uppercase;
-          letter-spacing: 0.05em;
-          color: #111;
-          background: none;
-          width: 100%;
-          border-left: none; border-right: none; border-top: none;
-          cursor: pointer;
+          display: flex; justify-content: space-between; align-items: center; padding: 1.25rem 1.5rem;
+          border-bottom: 1px solid #f0ebe3; font-size: 0.9rem; font-weight: 600; text-transform: uppercase;
+          letter-spacing: 0.05em; color: #111; background: none; width: 100%; border-left: none; border-right: none; border-top: none; cursor: pointer;
         }
+        .mobile-link-header:hover { color: var(--gold); }
+        .mobile-sub-menu { background-color: #faf9f7; overflow: hidden; transition: max-height 0.3s ease; }
+        .mobile-sub-menu-inner { padding: 0.5rem 1.5rem; display: flex; flex-direction: column; }
+        .mobile-sub-link { padding: 0.75rem 0; font-size: 0.85rem; color: #555; text-decoration: none; border-bottom: 1px solid #f0ebe3; }
+        .mobile-sub-link:last-child { border-bottom: none; }
+        .mobile-sub-link:hover { color: var(--gold); }
 
-        .mobile-link-header:hover {
-          color: var(--gold);
-        }
-
-        .mobile-sub-menu {
-          background-color: #faf9f7;
-          overflow: hidden;
-          transition: max-height 0.3s ease;
-        }
-
-        .mobile-sub-menu-inner {
-          padding: 0.5rem 1.5rem;
-          display: flex;
-          flex-direction: column;
-        }
-
-        .mobile-sub-link {
-          padding: 0.75rem 0;
-          font-size: 0.85rem;
-          color: #555;
-          text-decoration: none;
-          border-bottom: 1px solid #f0ebe3;
-        }
-
-        .mobile-sub-link:last-child {
-          border-bottom: none;
-        }
-
-        .mobile-sub-link:hover {
-          color: var(--gold);
+        /* --- Utility --- */
+        .icon-badge {
+          position: absolute; top: -6px; right: -8px; background-color: var(--gold); color: white;
+          font-size: 0.6rem; width: 16px; height: 16px; border-radius: 50%; display: flex;
+          align-items: center; justify-content: center; font-weight: bold;
         }
 
         @media(max-width: 767px) {
@@ -350,25 +245,14 @@ export default function Navbar() {
 
       <header
         style={{
-          position: "fixed",
-          top: 0,
-          left: 0,
-          right: 0,
-          zIndex: 50,
-          transition: "all 0.3s ease",
+          position: "fixed", top: 0, left: 0, right: 0, zIndex: 50, transition: "all 0.3s ease",
           backgroundColor: isTransparent ? "transparent" : "white",
           borderBottom: isTransparent ? "none" : "1px solid #f0ebe3",
         }}
       >
         <nav
           className="container-custom"
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            height: "72px",
-            padding: "0 5%",
-          }}
+          style={{ display: "flex", alignItems: "center", justifyContent: "space-between", height: "72px", padding: "0 5%" }}
         >
           {/* Logo */}
           <Link href="/" style={{ display: "flex", alignItems: "center" }}>
@@ -377,11 +261,8 @@ export default function Navbar() {
               alt="Norex Fashion"
               className="nav-logo"
               style={{
-                height: isTransparent ? "70px" : "55px",
-                width: "auto",
-                objectFit: "contain",
-                transition: "all 0.3s",
-                filter: isTransparent ? "brightness(0) invert(1)" : "none",
+                height: isTransparent ? "70px" : "55px", width: "auto", objectFit: "contain",
+                transition: "all 0.3s", filter: isTransparent ? "brightness(0) invert(1)" : "none",
               }}
             />
           </Link>
@@ -416,70 +297,55 @@ export default function Navbar() {
                       ))}
                     </div>
                   )}
-
-                  {/* Small dropdown for Homes (if desired) */}
-                  {item.homes && item.home_pages && (
-                    <div className="mega-menu" style={{ minWidth: "250px", padding: "1.5rem", left: "0", transform: "translateX(0) translateY(10px)" }}>
-                      <div className="mega-menu-column">
-                        <ul className="mega-menu-list">
-                          {item.home_pages.map((homeItem, i) => (
-                            <li key={i} className="mega-menu-item">
-                              <Link href={homeItem.link}>{homeItem.title}</Link>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    </div>
-                  )}
                 </li>
               );
             })}
           </ul>
 
-          {/* Desktop CTA */}
+          {/* Desktop Actions */}
           <div className="nav-cta">
+            <div style={{ display: "flex", alignItems: "center", gap: "1.25rem", color: isTransparent ? "white" : "#1a1a1a" }}>
+              <Link href="/wishlist" style={{ position: "relative", color: "inherit" }}>
+                <Heart size={20} />
+                {mounted && wishlistCount > 0 && <span className="icon-badge">{wishlistCount}</span>}
+              </Link>
+              <Link href="/cart" style={{ position: "relative", color: "inherit" }}>
+                <ShoppingBag size={20} />
+                {mounted && cartCount > 0 && <span className="icon-badge">{cartCount}</span>}
+              </Link>
+            </div>
+
             <Link
               href="/academy/apply"
               style={{
-                fontSize: "0.75rem",
-                letterSpacing: "0.1em",
-                textTransform: "uppercase",
-                fontWeight: 600,
-                padding: "0.75rem 1.75rem",
-                backgroundColor: isTransparent ? "white" : goldColor,
-                color: isTransparent ? goldColor : "white",
-                transition: "all 0.3s",
-                textDecoration: "none",
-                borderRadius: "2px",
+                fontSize: "0.75rem", letterSpacing: "0.1em", textTransform: "uppercase", fontWeight: 600,
+                padding: "0.75rem 1.75rem", backgroundColor: isTransparent ? "white" : goldColor,
+                color: isTransparent ? goldColor : "white", transition: "all 0.3s", textDecoration: "none", borderRadius: "2px",
               }}
-              onMouseEnter={(e) => {
-                if (!isTransparent) e.currentTarget.style.backgroundColor = "#B49542";
-              }}
-              onMouseLeave={(e) => {
-                if (!isTransparent) e.currentTarget.style.backgroundColor = goldColor;
-              }}
+              onMouseEnter={(e) => { if (!isTransparent) e.currentTarget.style.backgroundColor = "#B49542"; }}
+              onMouseLeave={(e) => { if (!isTransparent) e.currentTarget.style.backgroundColor = goldColor; }}
             >
               Apply Now
             </Link>
           </div>
 
-          {/* Mobile Hamburger */}
-          <button
-            onClick={() => setIsOpen(!isOpen)}
-            className="nav-hamburger"
-            style={{
-              color: isTransparent ? "white" : "#1a1a1a",
-              background: "none",
-              border: "none",
-              cursor: "pointer",
-              padding: "0.5rem",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-            aria-label="Toggle menu"
-          >
-            {isOpen ? <X size={28} /> : <Menu size={28} />}
-          </button>
+          {/* Mobile Actions & Hamburger */}
+          <div className="mobile-actions" style={{ alignItems: "center", gap: "1rem" }}>
+            <Link href="/wishlist" style={{ position: "relative", color: isTransparent ? "white" : "#1a1a1a" }}>
+              <Heart size={22} />
+              {mounted && wishlistCount > 0 && <span className="icon-badge" style={{ top: "-2px" }}>{wishlistCount}</span>}
+            </Link>
+            <Link href="/cart" style={{ position: "relative", color: isTransparent ? "white" : "#1a1a1a" }}>
+              <ShoppingBag size={22} />
+              {mounted && cartCount > 0 && <span className="icon-badge" style={{ top: "-2px" }}>{cartCount}</span>}
+            </Link>
+            <button
+              onClick={() => setIsOpen(!isOpen)}
+              style={{ color: isTransparent ? "white" : "#1a1a1a", background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center" }}
+            >
+              {isOpen ? <X size={28} /> : <Menu size={28} />}
+            </button>
+          </div>
         </nav>
 
         {/* Mobile Menu */}
@@ -497,10 +363,7 @@ export default function Navbar() {
                       style={{ color: isSubMenuOpen ? goldColor : "#111" }}
                     >
                       {item.title}
-                      <ChevronDown size={18} style={{ 
-                        transform: isSubMenuOpen ? "rotate(180deg)" : "rotate(0)", 
-                        transition: "transform 0.3s" 
-                      }} />
+                      <ChevronDown size={18} style={{ transform: isSubMenuOpen ? "rotate(180deg)" : "rotate(0)", transition: "transform 0.3s" }} />
                     </button>
                     
                     <div className="mobile-sub-menu" style={{ maxHeight: isSubMenuOpen ? "500px" : "0" }}>
@@ -534,17 +397,8 @@ export default function Navbar() {
                 href="/academy/apply"
                 onClick={() => setIsOpen(false)}
                 style={{
-                  display: "block",
-                  textAlign: "center",
-                  padding: "1rem",
-                  backgroundColor: goldColor,
-                  color: "white",
-                  fontSize: "0.85rem",
-                  letterSpacing: "0.15em",
-                  textTransform: "uppercase",
-                  fontWeight: 600,
-                  textDecoration: "none",
-                  borderRadius: "2px"
+                  display: "block", textAlign: "center", padding: "1rem", backgroundColor: goldColor, color: "white",
+                  fontSize: "0.85rem", letterSpacing: "0.15em", textTransform: "uppercase", fontWeight: 600, textDecoration: "none", borderRadius: "2px"
                 }}
               >
                 Apply Now
