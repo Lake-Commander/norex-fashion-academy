@@ -1,0 +1,13 @@
+// models/Review.ts
+import mongoose from 'mongoose';
+
+const ReviewSchema = new mongoose.Schema({
+  productId: { type: String, required: true },
+  user: { type: String, required: true },
+  email: { type: String, required: true },
+  rating: { type: Number, required: true },
+  comment: { type: String, required: true },
+  createdAt: { type: Date, default: Date.now }
+});
+
+export default mongoose.models.Review || mongoose.model('Review', ReviewSchema);
