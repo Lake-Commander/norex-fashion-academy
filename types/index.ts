@@ -1,3 +1,15 @@
+export interface AdditionalInfo {
+  label: string;
+  value: string;
+}
+
+export interface Review {
+  user: string;
+  rating: number;
+  date: string;
+  comment: string;
+}
+
 export interface Product {
   id: string;
   slug: string;
@@ -10,6 +22,8 @@ export interface Product {
   colors: string[];
   featured: boolean;
   inStock: boolean;
+  additionalInfo?: AdditionalInfo[];
+  reviews?: Review[];
 }
 
 export interface Course {

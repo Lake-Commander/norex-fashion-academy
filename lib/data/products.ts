@@ -13,6 +13,16 @@ export const products: Product[] = [
     colors: ["Crimson", "Midnight Black", "Ivory"],
     featured: true,
     inStock: true,
+    // NEW FIELDS
+    additionalInfo: [
+      { label: "Material", value: "100% Premium Silk Charmeuse" },
+      { label: "Care Instructions", value: "Dry clean only. Do not bleach." },
+      { label: "Fit", value: "True to size. Tailored bodice with a flowing skirt." },
+      { label: "Origin", value: "Handcrafted in Warri, Nigeria" }
+    ],
+    reviews: [
+      { user: "Kemi S.", rating: 5, date: "October 12, 2025", comment: "Absolutely stunning dress! The beadwork is impeccable." }
+    ]
   },
   {
     id: "2",
@@ -26,6 +36,16 @@ export const products: Product[] = [
     colors: ["Ivory", "Pearl White"],
     featured: true,
     inStock: true,
+    // NEW FIELDS
+    additionalInfo: [
+      { label: "Material", value: "100% Premium Silk Charmeuse" },
+      { label: "Care Instructions", value: "Dry clean only. Do not bleach." },
+      { label: "Fit", value: "True to size. Tailored bodice with a flowing skirt." },
+      { label: "Origin", value: "Handcrafted in Warri, Nigeria" }
+    ],
+    reviews: [
+      { user: "Kemi S.", rating: 5, date: "October 12, 2025", comment: "Absolutely stunning dress! The beadwork is impeccable." }
+    ]
   },
   {
     id: "3",
@@ -39,6 +59,16 @@ export const products: Product[] = [
     colors: ["Wine", "Forest Green", "Navy"],
     featured: true,
     inStock: true,
+    // NEW FIELDS
+    additionalInfo: [
+      { label: "Material", value: "100% Premium Silk Charmeuse" },
+      { label: "Care Instructions", value: "Dry clean only. Do not bleach." },
+      { label: "Fit", value: "True to size. Tailored bodice with a flowing skirt." },
+      { label: "Origin", value: "Handcrafted in Warri, Nigeria" }
+    ],
+    reviews: [
+      { user: "Kemi S.", rating: 5, date: "October 12, 2025", comment: "Absolutely stunning dress! The beadwork is impeccable." }
+    ]
   },
   {
     id: "4",
@@ -52,6 +82,16 @@ export const products: Product[] = [
     colors: ["Charcoal", "Ivory", "Burgundy"],
     featured: false,
     inStock: true,
+    // NEW FIELDS
+    additionalInfo: [
+      { label: "Material", value: "100% Premium Silk Charmeuse" },
+      { label: "Care Instructions", value: "Dry clean only. Do not bleach." },
+      { label: "Fit", value: "True to size. Tailored bodice with a flowing skirt." },
+      { label: "Origin", value: "Handcrafted in Warri, Nigeria" }
+    ],
+    reviews: [
+      { user: "Kemi S.", rating: 5, date: "October 12, 2025", comment: "Absolutely stunning dress! The beadwork is impeccable." }
+    ]
   },
   {
     id: "5",
@@ -65,6 +105,16 @@ export const products: Product[] = [
     colors: ["Multi-print"],
     featured: true,
     inStock: true,
+    // NEW FIELDS
+    additionalInfo: [
+      { label: "Material", value: "100% Premium Silk Charmeuse" },
+      { label: "Care Instructions", value: "Dry clean only. Do not bleach." },
+      { label: "Fit", value: "True to size. Tailored bodice with a flowing skirt." },
+      { label: "Origin", value: "Handcrafted in Warri, Nigeria" }
+    ],
+    reviews: [
+      { user: "Kemi S.", rating: 5, date: "October 12, 2025", comment: "Absolutely stunning dress! The beadwork is impeccable." }
+    ]
   },
   {
     id: "6",
@@ -78,6 +128,16 @@ export const products: Product[] = [
     colors: ["Noir Black"],
     featured: false,
     inStock: true,
+    // NEW FIELDS
+    additionalInfo: [
+      { label: "Material", value: "100% Premium Silk Charmeuse" },
+      { label: "Care Instructions", value: "Dry clean only. Do not bleach." },
+      { label: "Fit", value: "True to size. Tailored bodice with a flowing skirt." },
+      { label: "Origin", value: "Handcrafted in Warri, Nigeria" }
+    ],
+    reviews: [
+      { user: "Kemi S.", rating: 5, date: "October 12, 2025", comment: "Absolutely stunning dress! The beadwork is impeccable." }
+    ]
   },
 ];
 
