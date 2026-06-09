@@ -13,13 +13,16 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState("description");
   
+  // Local state for reviews so it updates instantly after submission
+  const [reviews, setReviews] = useState(product.reviews || []);
+  
   // Interactive Review State
   const [rating, setRating] = useState(0);
   const [hoveredStar, setHoveredStar] = useState(0);
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [review, setReview] = useState("");
+  const [reviewText, setReviewText] = useState(""); // Renamed from 'review' to 'reviewText' to avoid confusion
 
   const msg = `Hi I am interested in ordering the ${product.name} (${formatPrice(product.price)}). Please provide more details.`;
   const whatsappLink = generateWhatsAppLink("+2349043371380", msg);
@@ -29,40 +32,49 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  try {
-    const res = await fetch("/api/reviews", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        productId: product.id,
-        user: name,
-        email,
-        rating,
-        comment: review,
-      }),
-    });
-
-    const data = await res.json();
-
-    if (data.success) {
-      alert("Review submitted!");
-
-      setName("");
-      setEmail("");
-      setReview("");
-      setRating(0);
-    } else {
-      alert("Failed to submit review");
+    if (rating === 0) {
+      alert("Please select a star rating");
+      return;
     }
-  } catch (error) {
-    console.error(error);
-    alert("Something went wrong");
-  }
-};
+
+    try {
+      const res = await fetch("/api/reviews", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          productId: product.id,
+          user: name,
+          email,
+          rating,
+          comment: reviewText,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        alert("Review submitted!");
+
+        // Instantly append the new review from the database to the screen
+        setReviews((prev: any) => [...prev, data.data]);
+
+        // Reset the form
+        setName("");
+        setEmail("");
+        setReviewText("");
+        setRating(0);
+      } else {
+        alert("Failed to submit review");
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Something went wrong");
+    }
+  };
 
   return (
     <div style={{ minHeight: "100vh", backgroundColor: "white" }}>
@@ -182,7 +194,9 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
           <div style={{ display: "flex", justifyContent: "center", borderBottom: "1px solid #e5e7eb", gap: "1rem", flexWrap: "wrap" }}>
             <button className={`tab-btn ${activeTab === 'description' ? 'active' : ''}`} onClick={() => setActiveTab('description')}>Description</button>
             <button className={`tab-btn ${activeTab === 'info' ? 'active' : ''}`} onClick={() => setActiveTab('info')}>Additional Info</button>
-            <button className={`tab-btn ${activeTab === 'reviews' ? 'active' : ''}`} onClick={() => setActiveTab('reviews')}>Reviews ({product.reviews?.length || 0})</button>
+            
+            {/* UPDATED TO USE REVIEWS STATE LENGTH */}
+            <button className={`tab-btn ${activeTab === 'reviews' ? 'active' : ''}`} onClick={() => setActiveTab('reviews')}>Reviews ({reviews.length})</button>
           </div>
 
           <div style={{ padding: "4rem 0", maxWidth: "800px", margin: "0 auto" }}>
@@ -198,43 +212,42 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
             {activeTab === 'reviews' && (
               <div>
                 <h3 style={{ fontFamily: "var(--font-playfair)", marginBottom: "2rem" }}>Customer Reviews</h3>
-                {product.reviews?.map((rev: any, i: number) => (
+                
+                {/* UPDATED TO MAP OVER REVIEWS STATE */}
+                {reviews.map((rev: any, i: number) => (
                   <div key={i} style={{ display: "flex", gap: "1rem", marginBottom: "1rem" }}>
                     <div style={{ width: "40px", height: "40px", backgroundColor: "#C9A84C", color: "white", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center" }}>{rev.user[0]}</div>
-                    <div><p><strong>{rev.user}</strong>: {rev.comment}</p></div>
+                    <div>
+                      <div style={{ display: "flex", gap: "0.25rem", marginBottom: "0.25rem" }}>
+                        {[1, 2, 3, 4, 5].map((s) => (
+                          <Star key={s} size={14} fill={s <= rev.rating ? "#C9A84C" : "transparent"} color={s <= rev.rating ? "#C9A84C" : "#e5e7eb"} />
+                        ))}
+                      </div>
+                      <p><strong>{rev.user}</strong></p>
+                      <p style={{ color: "#4b5563" }}>{rev.comment}</p>
+                    </div>
                   </div>
                 ))}
                 
-                <div style={{ marginTop: "3rem", padding: "2rem", border: "1px solid #f0ebe3" }}>
-                  <h4>Add a Review</h4>
+                <div style={{ marginTop: "3rem", padding: "2.5rem", border: "1px solid #f0ebe3", backgroundColor: "white" }}>
+                  <h4 style={{ fontFamily: "var(--font-playfair)", fontSize: "1.25rem", marginBottom: "1.5rem" }}>Add a Review</h4>
                   <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-                    <div style={{ display: "flex", gap: "0.25rem" }}>
-                      {[1,2,3,4,5].map((s) => <Star key={s} size={20} cursor="pointer" onClick={() => setRating(s)} fill={(hoveredStar || rating) >= s ? "#C9A84C" : "transparent"} color={(hoveredStar || rating) >= s ? "#C9A84C" : "#d1d5db"} onMouseEnter={() => setHoveredStar(s)} onMouseLeave={() => setHoveredStar(0)} />)}
+                    <div style={{ display: "flex", gap: "0.25rem", marginBottom: "0.5rem" }}>
+                      {[1,2,3,4,5].map((s) => (
+                        <Star key={s} size={20} cursor="pointer" 
+                          onClick={() => setRating(s)} 
+                          fill={(hoveredStar || rating) >= s ? "#C9A84C" : "transparent"} 
+                          color={(hoveredStar || rating) >= s ? "#C9A84C" : "#d1d5db"} 
+                          onMouseEnter={() => setHoveredStar(s)} 
+                          onMouseLeave={() => setHoveredStar(0)} 
+                        />
+                      ))}
                     </div>
-                    <input
-                   value={name}
-                   onChange={(e) => setName(e.target.value)}
-                  name="name"
-                  placeholder="Name"
-                  className="form-input"
-                  required
-                          />
-                    <input
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  name="email"
-                  placeholder="Email"
-                  className="form-input"
-                  required
-                />
-                    <textarea
-                    value={review}
-                    onChange={(e) => setReview(e.target.value)}
-                    name="review"
-                    placeholder="Your review..."
-                    rows={3}
-                    className="form-input"
-                  />
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
+                      <input value={name} onChange={(e) => setName(e.target.value)} name="name" placeholder="Name" className="form-input" required />
+                      <input value={email} onChange={(e) => setEmail(e.target.value)} type="email" name="email" placeholder="Email" className="form-input" required />
+                    </div>
+                    <textarea value={reviewText} onChange={(e) => setReviewText(e.target.value)} name="review" placeholder="Your review..." rows={3} className="form-input" required />
                     <button type="submit" className="btn-submit">Submit Review</button>
                   </form>
                 </div>
@@ -243,6 +256,33 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
           </div>
         </div>
       </div>
+      
+      {/* RELATED PRODUCTS */}
+      {relatedProducts.length > 0 && (
+        <div style={{ paddingTop: "5rem", paddingBottom: "6rem", backgroundColor: "white" }}>
+          <div className="container-custom">
+            <div style={{ textAlign: "center", marginBottom: "3rem" }}>
+              <h2 style={{ fontFamily: "var(--font-playfair), Georgia, serif", fontSize: "clamp(1.75rem, 4vw, 2.5rem)", fontWeight: 700, color: "#1a1a1a" }}>Related Products</h2>
+            </div>
+            <div className="pg">
+              {relatedProducts.map((p) => (
+                <Link key={p.id} href={`/shop/${p.slug}`} className="pc">
+                  <div style={{ position: "relative", overflow: "hidden", backgroundColor: "#F0EBE3", aspectRatio: "3/4", marginBottom: "1.25rem", borderRadius: "2px" }}>
+                    <Image src={p.images[0]} alt={p.name} fill className="pc-img" style={{ objectFit: "cover" }} sizes="(max-width:640px) 100vw,(max-width:1024px) 50vw,33vw" />
+                  </div>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                    <div>
+                      <h3 style={{ fontFamily: "var(--font-playfair), Georgia, serif", fontSize: "1.1rem", fontWeight: 700, color: "#1a1a1a", marginBottom: "0.25rem", transition: "color 0.3s" }} className="prod-name">{p.name}</h3>
+                      <p style={{ fontSize: "0.8rem", color: "#9ca3af", fontWeight: 500 }}>{p.category}</p>
+                    </div>
+                    <p style={{ fontSize: "1rem", fontWeight: 700, color: "#C9A84C", marginLeft: "1rem" }}>{formatPrice(p.price)}</p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
