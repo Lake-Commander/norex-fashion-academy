@@ -17,12 +17,52 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
   const [rating, setRating] = useState(0);
   const [hoveredStar, setHoveredStar] = useState(0);
 
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [review, setReview] = useState("");
+
   const msg = `Hi I am interested in ordering the ${product.name} (${formatPrice(product.price)}). Please provide more details.`;
   const whatsappLink = generateWhatsAppLink("+2349043371380", msg);
 
   const handleAddToCart = () => {
     addToCart(product, quantity);
   };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+
+  try {
+    const res = await fetch("/api/reviews", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        productId: product.id,
+        user: name,
+        email,
+        rating,
+        comment: review,
+      }),
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+      alert("Review submitted!");
+
+      setName("");
+      setEmail("");
+      setReview("");
+      setRating(0);
+    } else {
+      alert("Failed to submit review");
+    }
+  } catch (error) {
+    console.error(error);
+    alert("Something went wrong");
+  }
+};
 
   return (
     <div style={{ minHeight: "100vh", backgroundColor: "white" }}>
@@ -167,13 +207,34 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
                 
                 <div style={{ marginTop: "3rem", padding: "2rem", border: "1px solid #f0ebe3" }}>
                   <h4>Add a Review</h4>
-                  <form onSubmit={(e) => e.preventDefault()} style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+                  <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
                     <div style={{ display: "flex", gap: "0.25rem" }}>
                       {[1,2,3,4,5].map((s) => <Star key={s} size={20} cursor="pointer" onClick={() => setRating(s)} fill={(hoveredStar || rating) >= s ? "#C9A84C" : "transparent"} color={(hoveredStar || rating) >= s ? "#C9A84C" : "#d1d5db"} onMouseEnter={() => setHoveredStar(s)} onMouseLeave={() => setHoveredStar(0)} />)}
                     </div>
-                    <input name="name" placeholder="Name" className="form-input" required />
-                    <input name="email" placeholder="Email" className="form-input" required />
-                    <textarea name="review" placeholder="Your review..." rows={3} className="form-input" />
+                    <input
+                   value={name}
+                   onChange={(e) => setName(e.target.value)}
+                  name="name"
+                  placeholder="Name"
+                  className="form-input"
+                  required
+                          />
+                    <input
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  name="email"
+                  placeholder="Email"
+                  className="form-input"
+                  required
+                />
+                    <textarea
+                    value={review}
+                    onChange={(e) => setReview(e.target.value)}
+                    name="review"
+                    placeholder="Your review..."
+                    rows={3}
+                    className="form-input"
+                  />
                     <button type="submit" className="btn-submit">Submit Review</button>
                   </form>
                 </div>
