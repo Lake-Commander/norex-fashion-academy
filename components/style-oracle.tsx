@@ -4,16 +4,17 @@ import { useState, useEffect } from 'react'
 import { Sparkles, X, ArrowRight, ArrowLeft, RefreshCw, Check, ShoppingBag, Eye } from 'lucide-react'
 import { useShop } from '@/context/ShopContext'
 import { sounds } from '@/lib/sound-utils'
+import { formatPrice } from '@/lib/utils'
 
 type Aesthetic = 'cyber' | 'parisian' | 'luxury' | 'gothic'
 type Palette = 'obsidian' | 'cyber' | 'ivory' | 'emerald'
 type Occasion = 'rave' | 'street' | 'gala' | 'executive'
 
 interface OracleProduct {
-  id: number
+  id: string
   name: string
-  price: string
-  image: string
+  price: number
+  images: string[]
 }
 
 export default function StyleOracle() {
@@ -85,16 +86,16 @@ export default function StyleOracle() {
     let styleDesc = ''
     let matchScore = 0
 
-    // Item definitions
+    // Item definitions matching store types
     const items = {
-      trench: { id: 5, name: 'Sartorial Trench Coat', price: '$290', image: 'https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=400&h=500&fit=crop' },
-      bomber: { id: 6, name: 'Cyber Bomber Jacket', price: '$180', image: 'https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?w=400&h=500&fit=crop' },
-      jacket: { id: 1, name: 'Leather Jacket', price: '$149', image: 'https://images.unsplash.com/photo-1551028719-00167b16ebc5?w=400&h=500&fit=crop' },
-      trouser: { id: 7, name: 'Pleated Linen Trouser', price: '$110', image: 'https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=400&h=500&fit=crop' },
-      denim: { id: 3, name: 'Black Denim', price: '$89', image: 'https://images.unsplash.com/photo-1542272604-787c62d465d1?w=400&h=500&fit=crop' },
-      glasses: { id: 8, name: 'Geometric Sunglasses', price: '$75', image: 'https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=400&h=500&fit=crop' },
-      sneakers: { id: 4, name: 'Sneakers Pro', price: '$129', image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&h=500&fit=crop' },
-      tshirt: { id: 2, name: 'White T-Shirt', price: '$49', image: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400&h=500&fit=crop' }
+      trench: { id: "oracle-5", name: 'Sartorial Trench Coat', price: 290000, images: ['https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=400&h=500&fit=crop'] },
+      bomber: { id: "oracle-6", name: 'Cyber Bomber Jacket', price: 180000, images: ['https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?w=400&h=500&fit=crop'] },
+      jacket: { id: "oracle-1", name: 'Leather Jacket', price: 149000, images: ['https://images.unsplash.com/photo-1551028719-00167b16ebc5?w=400&h=500&fit=crop'] },
+      trouser: { id: "oracle-7", name: 'Pleated Linen Trouser', price: 110000, images: ['https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=400&h=500&fit=crop'] },
+      denim: { id: "oracle-3", name: 'Black Denim', price: 89000, images: ['https://images.unsplash.com/photo-1542272604-787c62d465d1?w=400&h=500&fit=crop'] },
+      glasses: { id: "oracle-8", name: 'Geometric Sunglasses', price: 75000, images: ['https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=400&h=500&fit=crop'] },
+      sneakers: { id: "oracle-4", name: 'Sneakers Pro', price: 129000, images: ['https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&h=500&fit=crop'] },
+      tshirt: { id: "oracle-2", name: 'White T-Shirt', price: 49000, images: ['https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400&h=500&fit=crop'] }
     }
 
     if (aesthetic === 'cyber') {
@@ -133,11 +134,20 @@ export default function StyleOracle() {
   const addOutfitToCart = () => {
     if (!result) return
     result.products.forEach((prod: OracleProduct) => {
+      // Pass a complete mock Product object to satisfy TypeScript
       addToCart({
         id: prod.id,
+        slug: prod.id,
         name: prod.name,
         price: prod.price,
-        image: prod.image
+        category: "Oracle Recommendation",
+        gender: "Both",
+        description: "Curated exclusively by the AI Style Oracle.",
+        images: prod.images,
+        sizes: ["One Size"],
+        colors: ["Signature"],
+        featured: false,
+        inStock: true
       })
     })
     setOutfitAdded(true)
@@ -322,10 +332,10 @@ export default function StyleOracle() {
                         {result.products.map((prod: OracleProduct) => (
                           <div key={prod.id} className="group relative rounded-2xl overflow-hidden border border-border bg-secondary/50 p-1.5 sm:p-2.5 flex flex-col justify-between">
                             <div className="w-full aspect-square rounded-xl overflow-hidden bg-background mb-1.5 sm:mb-2">
-                              <img src={prod.image} alt={prod.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+                              <img src={prod.images[0]} alt={prod.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
                             </div>
                             <h5 className="text-[9px] sm:text-[10px] font-bold text-foreground truncate">{prod.name}</h5>
-                            <p className="text-[10px] sm:text-xs font-black text-primary mt-1">{prod.price}</p>
+                            <p className="text-[10px] sm:text-xs font-black text-primary mt-1">{formatPrice(prod.price)}</p>
                           </div>
                         ))}
                       </div>
