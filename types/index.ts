@@ -16,6 +16,7 @@ export interface Product {
   name: string;
   price: number;
   category: string;
+  gender: "Male" | "Female" | "Both"; // <-- Added Gender field
   description: string;
   images: string[];
   sizes: string[];
