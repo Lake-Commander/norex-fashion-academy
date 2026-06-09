@@ -27,26 +27,30 @@ export default function ApplicationActions({ id, currentStatus }: { id: string; 
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+      <style>{`
+        .status-btn {
+          padding: 0.6rem 1rem; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.1em;
+          text-transform: uppercase; border: 1px solid; font-family: inherit; transition: all 0.3s ease;
+          border-radius: 2px;
+        }
+        .status-btn.active {
+          background-color: #C9A84C; color: white; border-color: #C9A84C; cursor: default;
+        }
+        .status-btn:not(.active) {
+          background-color: white; color: #6b7280; border-color: #e5e7eb; cursor: pointer;
+        }
+        .status-btn:not(.active):hover:not(:disabled) {
+          border-color: #C9A84C; color: #C9A84C; transform: translateX(2px);
+        }
+      `}</style>
       <p style={{ fontSize: "0.65rem", letterSpacing: "0.2em", textTransform: "uppercase", color: "#9ca3af", fontWeight: 600, marginBottom: "0.5rem" }}>Update Status</p>
       {statuses.map((s) => (
         <button
           key={s}
           onClick={() => updateStatus(s)}
           disabled={loading || s === status}
-          style={{
-            padding: "0.6rem 1rem",
-            fontSize: "0.72rem",
-            fontWeight: 600,
-            letterSpacing: "0.1em",
-            textTransform: "uppercase",
-            border: "1px solid",
-            cursor: s === status ? "default" : "pointer",
-            fontFamily: "inherit",
-            backgroundColor: s === status ? "#722F37" : "white",
-            color: s === status ? "white" : "#6b7280",
-            borderColor: s === status ? "#722F37" : "#e5e7eb",
-            opacity: loading ? 0.7 : 1,
-          }}
+          className={`status-btn ${s === status ? "active" : ""}`}
+          style={{ opacity: loading ? 0.7 : 1 }}
         >
           {s === status ? `✓ ${s}` : s}
         </button>
