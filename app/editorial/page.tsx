@@ -455,7 +455,7 @@ export default function EditorialPage() {
                 {selectedArticle.title}
               </h2>
               
-              <div style={{ borderY: "1px solid #e5e7eb" }} className="flex flex-wrap items-center gap-4 text-[10px] font-mono text-[#6b7280] py-2 border-t border-b">
+              <div style={{ border: "1px solid #e5e7eb" }} className="flex flex-wrap items-center gap-4 text-[10px] font-mono text-[#6b7280] py-2 border-t border-b">
                 <div className="flex items-center gap-1">
                   <BookOpen className="h-3.5 w-3.5 text-gray-400" />
                   <span>By <strong className="text-black font-bold">{selectedArticle.author}</strong></span>
