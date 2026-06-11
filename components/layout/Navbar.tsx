@@ -6,22 +6,16 @@ import { usePathname } from "next/navigation";
 import { Menu, X, ChevronDown, ShoppingBag, Heart, User } from "lucide-react";
 import { useShop } from "@/context/ShopContext"; 
 
-const home_1 = "/assets/img/menu/menu-home-1.jpg";
-
 const menu_data = [
   {
     id: 1,
-    homes: true,
     title: "Home",
     link: "/",
-    home_pages: [
-      { img: home_1, title: "Norex Fashion School", link: "/" }
-    ],
   },
   {
     id: 2,
-    products: true,
-    title: "Collections",
+    products: true, // Triggers the e-commerce Mega Menu
+    title: "Shop",
     link: "/shop",
     product_pages: [
       {
@@ -48,9 +42,31 @@ const menu_data = [
       }
     ],
   },
- // { id: 3, single_link: true, title: "Portfolio", link: "/portfolio" },
+  {
+    id: 3,
+    sub_menu: true,
+    title: "Collections",
+    link: "/collections",
+    sub_menus: [
+      { title: "New Arrivals", link: "/collections/new-arrivals" },
+      { title: "The Pluvial Drop", link: "/collections/pluvial-drop" },
+      { title: "Harmattan Regal", link: "/collections/harmattan-regal" },
+      { title: "Heritage Capsules", link: "/collections/heritage-capsules" },
+    ]
+  },
   { 
     id: 4, 
+    sub_menu: true, 
+    title: "Runway", 
+    link: "/runway",
+    sub_menus: [
+      { title: "Latest Show", link: "/runway/latest-show" },
+      { title: "Campaigns", link: "/runway/campaigns" },
+      { title: "Fashion Films", link: "/runway/fashion-films" }
+    ]
+  },
+  { 
+    id: 5, 
     sub_menu: true, 
     title: "Editorial", 
     link: "/editorial",
@@ -61,79 +77,113 @@ const menu_data = [
     ]
   },
   { 
-    id: 5, 
+    id: 6, 
+    single_link: true, 
+    title: "Archive", 
+    link: "/archive" 
+  },
+  { 
+    id: 7, 
     sub_menu: true, 
-    title: "Runway", 
-    link: "/runway",
+    title: "Academy", 
+    link: "/academy",
     sub_menus: [
-      { title: "Latest Show", link: "/runway/latest-show" },
-      { title: "Campaigns", link: "/runway/campaigns" },
-      { title: "Fashion Films", link: "/runway/fashion-films" }
+      { title: "Academy Hub", link: "/academy" },
+      { title: "Explore Courses", link: "/academy/courses" },
+      { title: "Apply Online", link: "/academy/apply" }
     ]
   },
-  { id: 6, single_link: true, title: "Academy", link: "/academy" },
-  { id: 7, single_link: true, title: "House", link: "/about" },
-  { id: 8, single_link: true, title: "Contact", link: "/contact" },
+  { 
+    id: 8, 
+    sub_menu: true, 
+    title: "House", 
+    link: "/house",
+    sub_menus: [
+      { title: "Overview", link: "/house" },
+      { title: "About Us", link: "/about" },
+      { title: "Atelier Craftsmanship", link: "/house/craftsmanship" },
+      { title: "Sustainability", link: "/house/sustainability" },
+      { title: "Contact Us", link: "/contact" }
+    ]
+  },
 ];
 
 const mobile_menu = [
-  {
-    id: 1,
-    homes: true,
-    title: "Home",
-    link: "/",
-    sub_menus: [
-      { title: "Norex Fashion", link: "/" },
-    ],
-  },
+  { id: 1, title: "Home", link: "/" },
   {
     id: 2,
     sub_menu: true,
-    title: "Collections",
+    title: "Shop Catalog",
     link: "/shop",
     sub_menus: [
-      { title: "All Designs", link: "/shop" },
-      { title: "Women's Collection", link: "/shop?gender=Female" },
-      { title: "Men's Collection", link: "/shop?gender=Male" },
+      { title: "Full Catalog", link: "/shop" },
+      { title: "Women's Department", link: "/shop?gender=Female" },
+      { title: "Men's Department", link: "/shop?gender=Male" },
       { title: "Unisex Designs", link: "/shop?gender=Both" },
     ],
   },
- // { id: 3, single_link: true, title: "Portfolio", link: "/portfolio" },
   {
-    id: 4,
+    id: 3,
     sub_menu: true,
-    title: "Editorial",
-    link: "/editorial",
+    title: "Collections",
+    link: "/collections",
     sub_menus: [
-      { title: "Stories", link: "/editorial/stories" },
-      { title: "Insights", link: "/editorial/insights" },
-      { title: "Interviews", link: "/editorial/interviews" },
+      { title: "Overview", link: "/collections" },
+      { title: "New Arrivals", link: "/collections/new-arrivals" },
+      { title: "The Pluvial Drop", link: "/collections/pluvial-drop" },
+      { title: "Harmattan Regal", link: "/collections/harmattan-regal" },
+      { title: "Heritage Capsules", link: "/collections/heritage-capsules" },
     ],
   },
   {
-    id: 5,
+    id: 4,
     sub_menu: true,
     title: "Runway",
     link: "/runway",
     sub_menus: [
+      { title: "Overview", link: "/runway" },
       { title: "Latest Show", link: "/runway/latest-show" },
       { title: "Campaigns", link: "/runway/campaigns" },
       { title: "Fashion Films", link: "/runway/fashion-films" },
     ],
   },
   {
-    id: 6,
+    id: 5,
+    sub_menu: true,
+    title: "Editorial",
+    link: "/editorial",
+    sub_menus: [
+      { title: "Gazette Hub", link: "/editorial" },
+      { title: "Stories", link: "/editorial/stories" },
+      { title: "Insights", link: "/editorial/insights" },
+      { title: "Interviews", link: "/editorial/interviews" },
+    ],
+  },
+  { id: 6, title: "Archive", link: "/archive" },
+  {
+    id: 7,
     sub_menu: true,
     title: "Academy",
     link: "/academy",
     sub_menus: [
-      { title: "Design Training", link: "/academy/design-training" },
-      { title: "Sewing Classes", link: "/academy/sewing-classes" },
-      { title: "Entrepreneurship", link: "/academy/entrepreneurship" },
+      { title: "Academy Hub", link: "/academy" },
+      { title: "Courses", link: "/academy/courses" },
+      { title: "Apply Now", link: "/academy/apply" },
     ],
   },
-  { id: 7, single_link: true, title: "About Us", link: "/about" },
-  { id: 8, single_link: true, title: "Contact Us", link: "/contact" },
+  {
+    id: 8,
+    sub_menu: true,
+    title: "House",
+    link: "/house",
+    sub_menus: [
+      { title: "Overview", link: "/house" },
+      { title: "About Us", link: "/about" },
+      { title: "Craftsmanship", link: "/house/craftsmanship" },
+      { title: "Sustainability", link: "/house/sustainability" },
+      { title: "Contact Us", link: "/contact" },
+    ],
+  },
 ];
 
 export default function Navbar() {
@@ -145,7 +195,6 @@ export default function Navbar() {
   const pathname = usePathname();
   const isHome = pathname === "/";
   
-  // Context Data
   const { cart, wishlist } = useShop();
   const cartCount = cart.reduce((acc, item) => acc + item.orderQuantity, 0);
   const wishlistCount = wishlist.length;
@@ -181,43 +230,44 @@ export default function Navbar() {
         .mobile-bottom-bar { display: none; }
         
         @media(min-width: 992px) {
-          .nav-links { display: flex; align-items: center; gap: 1.25rem; list-style: none; margin: 0; padding: 0; height: 100%; }
-          .nav-cta { display: flex; align-items: center; gap: 1.5rem; }
+          .nav-links { display: flex; align-items: center; gap: 0.85rem; list-style: none; margin: 0; padding: 0; height: 100%; }
+          .nav-cta { display: flex; align-items: center; gap: 1rem; }
           .mobile-actions { display: none; }
         }
         @media(min-width: 1200px) {
-          .nav-links { gap: 2rem; }
+          .nav-links { gap: 1.35rem; }
+          .nav-cta { gap: 1.25rem; }
         }
 
         /* --- Desktop Menu Styling --- */
         .nav-item { position: relative; display: flex; align-items: center; height: 72px; }
-        .nav-link { display: flex; align-items: center; gap: 0.25rem; font-size: 0.8rem; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 600; transition: color 0.3s ease; text-decoration: none; }
+        .nav-link { display: flex; align-items: center; gap: 0.15rem; font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 600; transition: color 0.3s ease; text-decoration: none; }
         .nav-link:hover { color: var(--gold) !important; }
 
-        /* --- Desktop Mega Menu (Collections) --- */
+        /* --- Desktop Mega Menu (Shop) --- */
         .mega-menu {
           position: absolute; top: 100%; left: 50%; transform: translateX(-50%) translateY(10px);
           background-color: white; box-shadow: 0 10px 40px rgba(0,0,0,0.08); border-top: 3px solid var(--gold);
-          padding: 2.5rem; display: flex; gap: 4rem; opacity: 0; visibility: hidden; transition: all 0.3s ease;
-          pointer-events: none; z-index: 100; min-width: 400px; justify-content: center;
+          padding: 2rem; display: flex; gap: 3rem; opacity: 0; visibility: hidden; transition: all 0.3s ease;
+          pointer-events: none; z-index: 100; min-width: 440px; justify-content: center;
         }
         .nav-item:hover .mega-menu { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0); pointer-events: auto; }
-        .mega-menu-column { min-width: 180px; }
-        .mega-menu-title { font-size: 0.9rem; font-weight: 700; text-transform: uppercase; color: #111; margin-bottom: 1.25rem; border-bottom: 1px solid #eee; padding-bottom: 0.5rem; }
-        .mega-menu-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.75rem; }
-        .mega-menu-item a { font-size: 0.85rem; color: #555; text-decoration: none; transition: color 0.2s ease, padding-left 0.2s ease; display: inline-block; }
-        .mega-menu-item a:hover { color: var(--gold); padding-left: 5px; }
+        .mega-menu-column { min-width: 170px; }
+        .mega-menu-title { font-size: 0.85rem; font-weight: 700; text-transform: uppercase; color: #111; margin-bottom: 1rem; border-bottom: 1px solid #eee; padding-bottom: 0.4rem; }
+        .mega-menu-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.65rem; }
+        .mega-menu-item a { font-size: 0.8rem; color: #555; text-decoration: none; transition: color 0.2s ease, padding-left 0.2s ease; display: inline-block; }
+        .mega-menu-item a:hover { color: var(--gold); padding-left: 4px; }
 
-        /* --- Desktop Simple Sub Menu (Editorial/Runway) --- */
+        /* --- Desktop Simple Sub Menu (Collections/Editorial/Runway/House) --- */
         .simple-sub-menu {
-          position: absolute; top: 100%; left: 0;
+          position: absolute; top: 100%; left: 50%; transform: translateX(-50%) translateY(10px);
           background-color: white; box-shadow: 0 10px 40px rgba(0,0,0,0.08); border-top: 3px solid var(--gold);
-          padding: 1rem 0; display: flex; flex-direction: column; opacity: 0; visibility: hidden; transition: all 0.3s ease;
-          pointer-events: none; z-index: 100; min-width: 220px;
+          padding: 0.75rem 0; display: flex; flex-direction: column; opacity: 0; visibility: hidden; transition: all 0.3s ease;
+          pointer-events: none; z-index: 100; min-width: 200px;
         }
-        .nav-item:hover .simple-sub-menu { opacity: 1; visibility: visible; transform: translateY(0); pointer-events: auto; }
-        .simple-sub-menu-item a { font-size: 0.85rem; color: #555; text-decoration: none; padding: 0.6rem 1.5rem; display: block; transition: all 0.2s ease; }
-        .simple-sub-menu-item a:hover { color: var(--gold); background-color: #faf9f7; padding-left: 1.75rem; }
+        .nav-item:hover .simple-sub-menu { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0); pointer-events: auto; }
+        .simple-sub-menu-item a { font-size: 0.8rem; color: #555; text-decoration: none; padding: 0.5rem 1.25rem; display: block; transition: all 0.2s ease; }
+        .simple-sub-menu-item a:hover { color: var(--gold); background-color: #faf9f7; padding-left: 1.5rem; }
 
         /* --- Header Actions & Tooltips --- */
         .header-action-link {
@@ -242,7 +292,7 @@ export default function Navbar() {
         /* --- Mobile Menu --- */
         .mobile-menu {
           display: none; position: fixed; top: 72px; left: 0; width: 100%; height: calc(100vh - 72px);
-          overflow-y: auto; background-color: white; z-index: 40; padding-bottom: 80px; /* Space for bottom bar */
+          overflow-y: auto; background-color: white; z-index: 40; padding-bottom: 80px;
         }
         .mobile-menu.open { display: block; }
         
@@ -287,7 +337,7 @@ export default function Navbar() {
       >
         <nav
           className="container-custom"
-          style={{ display: "flex", alignItems: "center", justifyContent: "space-between", height: "72px", padding: "0 5%" }}
+          style={{ display: "flex", alignItems: "center", justifyContent: "space-between", height: "72px", padding: "0 4%" }}
         >
           {/* Logo */}
           <Link href="/" style={{ display: "flex", alignItems: "center" }}>
@@ -312,10 +362,10 @@ export default function Navbar() {
                 <li key={item.id} className="nav-item group">
                   <Link href={item.link} className="nav-link" style={{ color: linkColor }}>
                     {item.title}
-                    {(item.products || item.sub_menu || item.homes) && <ChevronDown size={14} style={{ marginLeft: "2px" }} />}
+                    {(item.products || item.sub_menu) && <ChevronDown size={11} style={{ marginLeft: "1px" }} />}
                   </Link>
 
-                  {/* Mega Menu Dropdown (For Collections) */}
+                  {/* Mega Menu Dropdown (For Shop) */}
                   {item.products && item.product_pages && (
                     <div className="mega-menu">
                       {item.product_pages.map((col, idx) => (
@@ -333,7 +383,7 @@ export default function Navbar() {
                     </div>
                   )}
 
-                  {/* Simple Sub Menu Dropdown (For Editorial & Runway) */}
+                  {/* Simple Sub Menu Dropdown (For Collections, Runway, Editorial, Academy, House) */}
                   {item.sub_menu && item.sub_menus && (
                     <div className="simple-sub-menu">
                       <ul style={{ listStyle: "none", margin: 0, padding: 0 }}>
@@ -352,23 +402,23 @@ export default function Navbar() {
 
           {/* Desktop Actions */}
           <div className="nav-cta">
-            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", color: isTransparent ? "white" : "#1a1a1a" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", color: isTransparent ? "white" : "#1a1a1a" }}>
               
               <Link href="/login" className="header-action-link">
-                <User size={18} />
+                <User size={16} />
                 <span className="action-tooltip">Sign In / Register</span>
               </Link>
 
-              <div style={{ width: "1px", height: "16px", backgroundColor: isTransparent ? "rgba(255,255,255,0.3)" : "#e5e7eb", margin: "0 0.25rem" }} />
+              <div style={{ width: "1px", height: "14px", backgroundColor: isTransparent ? "rgba(255,255,255,0.3)" : "#e5e7eb", margin: "0 0.15rem" }} />
 
               <Link href="/wishlist" className="header-action-link">
-                <Heart size={18} />
+                <Heart size={16} />
                 {mounted && wishlistCount > 0 && <span className="icon-badge">{wishlistCount}</span>}
                 <span className="action-tooltip">Wishlist</span>
               </Link>
               
               <Link href="/cart" className="header-action-link">
-                <ShoppingBag size={18} />
+                <ShoppingBag size={16} />
                 {mounted && cartCount > 0 && <span className="icon-badge">{cartCount}</span>}
                 <span className="action-tooltip">Cart</span>
               </Link>
@@ -377,8 +427,8 @@ export default function Navbar() {
             <Link
               href="/academy/apply"
               style={{
-                fontSize: "0.75rem", letterSpacing: "0.1em", textTransform: "uppercase", fontWeight: 600,
-                padding: "0.75rem 1.75rem", backgroundColor: isTransparent ? "white" : goldColor,
+                fontSize: "0.7rem", letterSpacing: "0.08em", textTransform: "uppercase", fontWeight: 600,
+                padding: "0.6rem 1.35rem", backgroundColor: isTransparent ? "white" : goldColor,
                 color: isTransparent ? goldColor : "white", transition: "all 0.3s", textDecoration: "none", borderRadius: "2px",
               }}
               onMouseEnter={(e) => { if (!isTransparent) e.currentTarget.style.backgroundColor = "#B49542"; }}
@@ -388,7 +438,7 @@ export default function Navbar() {
             </Link>
           </div>
 
-          {/* Mobile Hamburger (Icons moved to bottom bar) */}
+          {/* Mobile Hamburger overlay */}
           <div className="mobile-actions" style={{ alignItems: "center", gap: "1rem" }}>
             <button
               onClick={() => setIsOpen(!isOpen)}
@@ -399,16 +449,15 @@ export default function Navbar() {
           </div>
         </nav>
 
-        {/* Mobile Menu Overlay */}
+        {/* Mobile Sidebar Navigation */}
         <div className={`mobile-menu ${isOpen ? "open" : ""}`}>
           <div style={{ display: "flex", flexDirection: "column" }}>
             {mobile_menu.map((item) => {
               const isSubMenuOpen = activeMobileMenu === item.id;
               
-              if (item.sub_menu || item.homes) {
+              if (item.sub_menu) {
                 return (
                   <div key={item.id}>
-                    {/* Split Click Area: Text Link & Button Edge */}
                     <div style={{ display: "flex", borderBottom: "1px solid #f0ebe3" }}>
                       <Link 
                         href={item.link} 
@@ -433,7 +482,6 @@ export default function Navbar() {
                       </button>
                     </div>
                     
-                    {/* Dropdown Content */}
                     <div className="mobile-sub-menu" style={{ maxHeight: isSubMenuOpen ? "500px" : "0" }}>
                       <div className="mobile-sub-menu-inner">
                         {item.sub_menus?.map((sub, i) => (
@@ -463,7 +511,6 @@ export default function Navbar() {
               );
             })}
 
-            {/* Mobile Action Buttons inside Menu */}
             <div style={{ padding: "2rem 1.5rem", display: "flex", flexDirection: "column", gap: "1rem" }}>
               <Link
                 href="/academy/apply"
@@ -480,7 +527,7 @@ export default function Navbar() {
         </div>
       </header>
 
-      {/* Mobile Fixed Bottom Navigation Bar */}
+      {/* Mobile Bottom Action Bar */}
       <div className="mobile-bottom-bar">
         <Link href="/login" className="bottom-bar-link">
           <User size={20} />
