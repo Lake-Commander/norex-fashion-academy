@@ -55,7 +55,7 @@ export default function FeaturedCollection() {
               New Arrivals
             </h2>
           </div>
-          <Link href="/shop" style={{ fontSize: "0.75rem", letterSpacing: "0.15em", textTransform: "uppercase", color: goldColor, fontWeight: 600, borderBottom: `1px solid ${goldColor}`, paddingBottom: "2px", textDecoration: "none" }}>
+          <Link href="/collections/new-arrivals" style={{ fontSize: "0.75rem", letterSpacing: "0.15em", textTransform: "uppercase", color: goldColor, fontWeight: 600, borderBottom: `1px solid ${goldColor}`, paddingBottom: "2px", textDecoration: "none" }}>
             View All
           </Link>
         </div>
