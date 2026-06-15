@@ -1,146 +1,194 @@
-'use client'
+"use client";
 
-import Header from '@/components/layout/Navbar'
-import Footer from '@/components/layout/Footer'
-import StyleOracle from '@/components/style-oracle'
-import { useShop } from '@/context/ShopContext'
-import { sounds } from '@/lib/sound-utils'
-import { formatPrice } from '@/lib/utils'
-import { Sparkles, Play } from 'lucide-react'
-import Link from 'next/link'
+import { useState, useEffect } from "react";
+import Header from "@/components/layout/Navbar";
+import Footer from "@/components/layout/Footer";
+import StyleOracle from "@/components/style-oracle";
+import { useShop } from "@/context/ShopContext";
+import { sounds } from "@/lib/sound-utils";
+import { formatPrice } from "@/lib/utils";
+import { Sparkles, ArrowRight, Loader2, Compass, Palette } from "lucide-react";
+import Link from "next/link";
 
-export default function PluvialDropPage() {
-  const { soundEnabled } = useShop()
+interface CollectionItem {
+  _id: string;
+  title: string;
+  slug: string;
+  waSeason: "Pluvial Drop" | "Harmattan Regal" | "August Break" | "Sultry Heat";
+  campaignPlot: string;
+  coverImage: string;
+  btsImage: string;
+  palette: Array<{ name: string; hex: string; rgb: string; desc: string }>;
+  hasFilm: boolean;
+  photographer: string;
+  stylist: string;
+}
 
-  const sLooks = [
-    { id: '05', image: '/product-6-new.jpeg', garment: 'Ankara Fusion Co-ord Set', model: 'Davidson Obenne' },
-    { id: '03', image: '/product-3.png', garment: 'Wine Wrap Midi Dress', model: 'Mayowa Nicholas' },
-    { id: '07', image: '/runway/look-04.avif', garment: 'Fluid Crepe Slit Separates', model: 'Mona Tougaard' },
-    { id: '02', image: '/product-5.jpeg', garment: 'Lightweight Canvas Blazer', model: 'Anok Yai' }
-  ]
+export default function MainCollectionsHubPage() {
+  const { soundEnabled } = useShop();
+  const [collections, setCollections] = useState<CollectionItem[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadCollectionsCatalog() {
+      try {
+        const res = await fetch("/api/runway");
+        const data = await res.json();
+        if (data.success) {
+          setCollections(data.collections);
+        }
+      } catch (err) {
+        console.error("Failed compiling public lookbook index rows:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    // Fixed: Changed name from loadCatalog() to match the declaration above
+    loadCollectionsCatalog();
+  }, []);
 
   const handleInteract = () => {
-    if (soundEnabled) sounds.playPop()
-  }
+    if (soundEnabled) sounds.playPop();
+  };
 
-  const goldColor = "#C9A84C"
+  const handleLinkClick = () => {
+    if (soundEnabled) sounds.playClick();
+  };
+
+  const goldColor = "#C9A84C";
 
   return (
-    <main className="min-h-screen bg-background text-foreground transition-colors duration-500 flex flex-col justify-between overflow-x-hidden">
+    <main className="min-h-screen bg-[#FCFAF7] text-zinc-900 transition-colors duration-500 flex flex-col justify-between overflow-x-hidden text-left">
       <Header />
 
-      {/* Hero Section */}
-      <section style={{ borderColor: "#f0ebe3" }} className="relative w-full aspect-[21/9] min-h-[360px] overflow-hidden bg-[#FAF7F4] flex items-center justify-center border-b">
-        <div className="absolute inset-0 bg-cover bg-center opacity-40 grayscale" style={{ backgroundImage: "url('/product-6-new.jpeg')" }} />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-transparent to-black/50" />
-        <div className="absolute inset-x-6 bottom-8 z-10 max-w-7xl mx-auto text-left space-y-2.5">
-          <div style={{ borderColor: "rgba(201,168,76,0.3)", backgroundColor: "rgba(201,168,76,0.05)", color: goldColor }} className="inline-flex items-center gap-1 px-2 py-0.5 border rounded-full text-[8px] font-mono tracking-widest uppercase font-black">
-            <Sparkles className="h-3 w-3" />
-            <span>THE PLUVIAL DROP 2026</span>
+      <style>{`
+        .collections-grid { display: grid; grid-template-columns: 1fr; gap: 4rem; }
+        
+        .collection-master-card {
+          background: white; border: 1px solid #e4e4e7; border-radius: 1px;
+          overflow: hidden; display: grid; grid-template-columns: 1fr; gap: 2rem;
+          padding: 1.5rem; transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+        @media(min-width: 1024px) {
+          .collection-master-card { grid-template-columns: 1.2fr 1fr; gap: 3.5rem; padding: 2.5rem; }
+        }
+        .collection-master-card:hover {
+          border-color: #C9A84C; box-shadow: 0 20px 40px rgba(201, 168, 76, 0.05);
+          transform: translateY(-4px);
+        }
+        
+        .card-img-frame { position: relative; width: 100%; aspect-ratio: 16/10; overflow: hidden; background-color: #FCFAF7; border: 1px solid #f4f4f5; }
+        .master-cover-img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.8s ease; filter: grayscale(100%) contrast(1.02); }
+        .collection-master-card:hover .master-cover-img { transform: scale(1.01); filter: grayscale(0%) contrast(1.01); }
+
+        .swatch-dot { width: 18px; height: 18px; border-radius: 50%; border: 1px solid #e4e4e7; box-shadow: inset 0 2px 4px rgba(0,0,0,0.04); position: relative; }
+        
+        .btn-inspect { display: inline-flex; align-items: center; gap: 0.5rem; background-color: #1a1a1a; color: white; padding: 0.875rem 2rem; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; text-decoration: none; transition: all 0.3s; border-radius: 1px; width: fit-content; }
+        .collection-master-card:hover .btn-inspect { background-color: #C9A84C; }
+      `}</style>
+
+      {/* Editorial Hub Top Banner */}
+      <div style={{ paddingTop: "9rem", paddingBottom: "4.5rem", backgroundColor: "#0c0c0c", borderBottom: "1px solid #1a1a1a" }}>
+        <div className="container-custom">
+          <div style={{ borderColor: "rgba(201,168,76,0.3)", backgroundColor: "rgba(201,168,76,0.05)", color: goldColor }} className="inline-flex items-center gap-1.5 px-3 py-0.5 border rounded-full text-[9px] font-mono tracking-widest uppercase font-black mb-3">
+            <Compass className="h-3 w-3" />
+            <span>NOREX SHOWROOM REGISTRY HUB</span>
           </div>
-          <h1 style={{ fontFamily: "var(--font-playfair), Georgia, serif", fontSize: "clamp(2rem, 5vw, 4rem)", fontWeight: 700, color: "#1a1a1a", lineHeight: 1.1 }} className="tracking-tighter uppercase">
-            Pluvial Ease & Geometric Prints
+          <h1 style={{ fontFamily: "var(--font-playfair), Georgia, serif" }} className="text-3xl sm:text-5xl md:text-6xl font-black uppercase tracking-tighter text-white leading-none">
+            The Collections
           </h1>
-          <p className="text-xs text-gray-500 font-mono tracking-wider max-w-xl">
-            An exploration of airy silhouettes, adjustable wrap ties, and breathable wax fabrics configured to glide gracefully through humid coastal atmospheres.
+          <p className="text-xs font-mono text-zinc-400 uppercase tracking-widest mt-2 max-w-xl leading-relaxed">
+            Dynamic catalog entries tracing signature apparel drops, climatic color spectrum blocks, and runway lookbook archives.
           </p>
         </div>
-      </section>
+      </div>
 
-      <div className="mx-auto max-w-7xl w-full px-4 sm:px-6 md:px-8 py-12 text-left space-y-16">
-        
-        {/* Campaign Story */}
-        <div style={{ borderBottomColor: "#f0ebe3" }} className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center border-b pb-12">
-          <div className="lg:col-span-5 space-y-4">
-            <span style={{ color: goldColor }} className="text-[9px] font-mono tracking-widest font-black uppercase block">CAMPAIGN PLOT LINE</span>
-            <h2 style={{ fontFamily: "var(--font-playfair), Georgia, serif" }} className="text-3xl font-bold uppercase text-[#1a1a1a] leading-tight">
-              Ethereal Rain-Season Venting.
-            </h2>
-            <p className="text-xs text-muted-foreground leading-relaxed font-light">
-              Shot across the coastal landscapes and water channels near Warri, the Pluvial campaign documents clothing managing rain-season humidity indexes. Our textiles—premium wax cotton selections and flowing deep wine crepe weaves—are tailored with adjustable tie lengths and relaxed cuts to support optimal ventilation.
-            </p>
+      {/* Main Stream Workspace Container */}
+      <div className="container-custom" style={{ paddingTop: "4rem", paddingBottom: "7rem" }}>
+        {loading ? (
+          <div className="py-24 text-center flex flex-col items-center justify-center gap-2">
+            <Loader2 className="h-6 w-6 animate-spin text-[#C9A84C]" />
+            <p className="text-xs font-mono uppercase tracking-wider text-zinc-400">Compiling Available Showrooms...</p>
           </div>
-          <div style={{ borderColor: "#f0ebe3" }} className="lg:col-span-7 aspect-[16/10] bg-secondary rounded-sm overflow-hidden border">
-            <img src="/runway/bts-07.avif" alt="Norex lightweight design block layouts" className="w-full h-full object-cover filter grayscale contrast-[1.01]" />
+        ) : collections.length === 0 ? (
+          <div className="text-center py-16 bg-white border border-dashed border-zinc-200 rounded-sm font-mono text-xs uppercase tracking-wider text-zinc-400">
+            No active collection drop modules initialized inside the database master ledger.
           </div>
-        </div>
+        ) : (
+          <div className="collections-grid">
+            {collections.map((c) => (
+              <div 
+                key={c._id} 
+                onMouseEnter={handleInteract}
+                className="collection-master-card shadow-sm"
+              >
+                {/* Left Side: Editorial Aspect Image Frame */}
+                <Link href={`/collections/${c.slug}`} onClick={handleLinkClick} className="card-img-frame rounded-sm block">
+                  <img 
+                    src={c.coverImage || "/placeholder-garment.png"} 
+                    alt={c.title} 
+                    className="master-cover-img"
+                  />
+                  <div style={{ backgroundColor: "#1a1a1a" }} className="absolute top-4 left-4 text-white text-[8px] font-mono font-bold tracking-widest uppercase px-2.5 py-1 rounded-sm shadow-md">
+                    {c.waSeason} TRACK
+                  </div>
+                </Link>
 
-        {/* Seasonal Palette Block */}
-        <div className="space-y-6">
-          <div>
-            <span style={{ color: goldColor }} className="text-[9px] font-mono tracking-widest font-black uppercase block">CLIMATIC CHROMATICS</span>
-            <h3 style={{ fontFamily: "var(--font-playfair), Georgia, serif" }} className="text-xl font-bold uppercase tracking-wide mt-1 text-[#1a1a1a]">Pluvial Palette</h3>
-          </div>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            {[
-              { name: 'Warm Ivory', hex: '#FAF9F6', rgb: 'RGB 250 249 246', desc: 'Reflective base lining' },
-              { name: 'Clay Ochre', hex: '#C48B60', rgb: 'RGB 196 139 96', desc: 'Traditional earth layers' },
-              { name: 'Norex Gold', hex: '#C9A84C', rgb: 'RGB 201 168 76', desc: 'Signature visual accents' },
-              { name: 'Delta Sage', hex: '#7A8B7B', rgb: 'RGB 122 139 123', desc: 'Breathable canvas items' }
-            ].map((col) => (
-              <div key={col.name} style={{ borderColor: "#f0ebe3" }} className="p-4 border bg-white rounded-sm flex flex-col gap-4 text-left">
-                <div style={{ backgroundColor: col.hex, borderColor: "#f0ebe3" }} className="h-16 w-full rounded-sm border shadow-inner" />
-                <div>
-                  <h4 className="text-xs font-bold text-[#1a1a1a]">{col.name}</h4>
-                  <p className="text-[9px] font-mono text-muted-foreground mt-0.5">{col.rgb}</p>
-                  <p className="text-[10px] text-gray-400 font-light mt-1">{col.desc}</p>
+                {/* Right Side: Structural Metadata & Content Description Summary */}
+                <div className="flex flex-col justify-between items-start text-left space-y-4 py-1">
+                  <div className="space-y-3 w-full">
+                    <div className="flex items-center justify-between text-[10px] font-mono text-zinc-400 font-bold uppercase tracking-wider border-b pb-2">
+                      <span>Credits: {c.photographer?.split(" ")[0]} // {c.stylist?.split(" ")[0]}</span>
+                      <span>Syllabus Indexed</span>
+                    </div>
+                    
+                    <h2 style={{ fontFamily: "var(--font-playfair), Georgia, serif" }} className="text-xl sm:text-2xl font-bold uppercase tracking-tight text-zinc-900 leading-tight">
+                      {c.title}
+                    </h2>
+                    
+                    <p className="text-xs leading-relaxed text-zinc-500 font-light font-sans text-justify line-clamp-4">
+                      {c.campaignPlot}
+                    </p>
+                  </div>
+
+                  {/* Inline Color Palette Swatches Counter Track */}
+                  {c.palette?.length > 0 && (
+                    <div className="space-y-2 w-full pt-2">
+                      <span className="text-[9px] font-mono font-bold uppercase tracking-wider text-zinc-400 flex items-center gap-1">
+                        <Palette size={12} /> Color Profile Accent Keys
+                      </span>
+                      <div className="flex gap-1.5 items-center">
+                        {c.palette.slice(0, 5).map((sw, swIdx) => (
+                          <div 
+                            key={swIdx} 
+                            className="swatch-dot" 
+                            style={{ backgroundColor: sw.hex }} 
+                            title={`${sw.name} - ${sw.hex}`}
+                          />
+                        ))}
+                        {c.palette.length > 5 && (
+                          <span className="text-[9px] font-mono text-zinc-400 font-bold ml-1">+{c.palette.length - 5} More</span>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Operational Entry Action Trigger Link */}
+                  <Link 
+                    href={`/collections/${c.slug}`} 
+                    onClick={handleLinkClick}
+                    className="btn-inspect"
+                  >
+                    <span>Inspect Collection</span>
+                    <ArrowRight size={14} />
+                  </Link>
                 </div>
+
               </div>
             ))}
           </div>
-        </div>
-
-        {/* Lookbook Collection Grid */}
-        <div className="space-y-6">
-          <div>
-            <span style={{ color: goldColor }} className="text-[9px] font-mono tracking-widest font-black uppercase block">VISUAL RUNWAY INDEX</span>
-            <h3 style={{ fontFamily: "var(--font-playfair), Georgia, serif" }} className="text-xl font-bold uppercase tracking-wide mt-1 text-[#1a1a1a]">Pluvial Drop Looks</h3>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {sLooks.map((look) => (
-              <Link 
-                key={look.id}
-                href="/runway"
-                onClick={handleInteract}
-                className="group relative cursor-pointer flex flex-col justify-between text-decoration-none"
-              >
-                <div style={{ borderColor: "#e5e7eb" }} className="aspect-[3/4] w-full rounded-sm overflow-hidden bg-secondary border group-hover:border-[#C9A84C]/50 transition-all duration-300">
-                  <img src={look.image} alt={look.garment} className="w-full h-full object-cover filter grayscale group-hover:grayscale-0 transition-all duration-700" />
-                </div>
-                <div className="mt-3 text-left">
-                  <span style={{ color: goldColor }} className="text-[8px] font-mono font-bold uppercase tracking-wider block">LOOK {look.id}</span>
-                  <h4 className="text-xs font-bold text-[#1a1a1a] truncate mt-0.5">{look.garment}</h4>
-                  <p className="text-[10px] text-muted-foreground font-mono truncate mt-0.5">{look.model}</p>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-
-        {/* Behind the Collection */}
-        <div style={{ borderColor: "#f0ebe3" }} className="p-8 border bg-[#FAF7F4] rounded-sm flex flex-col md:flex-row items-center justify-between gap-6 text-left">
-          <div className="max-w-xl space-y-2">
-            <span style={{ color: goldColor }} className="text-[8px] font-mono text-primary font-bold uppercase tracking-wider block">EXPERIENCE ACCESS</span>
-            <h4 style={{ fontFamily: "var(--font-playfair), Georgia, serif" }} className="text-lg font-bold uppercase tracking-wide text-[#1a1a1a]">Behind the Blueprint Documentary</h4>
-            <p className="text-xs text-muted-foreground font-light leading-relaxed">
-              Explore the raw audio feeds, digital layout swatch boards, fitting captures, and loom configurations utilized by pattern specialists to assemble our rain-season drop.
-            </p>
-          </div>
-          <Link 
-            href="/runway/fashion-films"
-            onClick={handleInteract}
-            style={{ backgroundColor: goldColor }}
-            className="px-6 py-3 text-white font-bold text-xs uppercase tracking-widest rounded-sm transition-all shrink-0 flex items-center gap-2 cursor-pointer shadow-lg hover:bg-[#B49542]"
-          >
-            <Play className="h-3.5 w-3.5 fill-current" />
-            <span>Watch Film</span>
-          </Link>
-        </div>
-
+        )}
       </div>
-
-      <StyleOracle />
-      <Footer />
     </main>
-  )
+  );
 }
