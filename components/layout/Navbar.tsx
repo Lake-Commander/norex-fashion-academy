@@ -14,7 +14,7 @@ const menu_data = [
   },
   {
     id: 2,
-    products: true, // Triggers the e-commerce Mega Menu
+    products: true, // Triggers the premium e-commerce Mega Menu
     title: "Shop",
     link: "/shop",
     product_pages: [
@@ -42,48 +42,33 @@ const menu_data = [
       }
     ],
   },
-  {
-    id: 3,
-    sub_menu: true,
-    title: "Collections",
-    link: "/collections",
+  { 
+    id: 3, 
+    sub_menu: true, 
+    title: "Runway", 
+    link: "/runway",
     sub_menus: [
-      { title: "New Arrivals", link: "/collections/new-arrivals" },
-      { title: "The Pluvial Drop", link: "/collections/pluvial-drop" },
-      { title: "Harmattan Regal", link: "/collections/harmattan-regal" },
-      { title: "Heritage Capsules", link: "/collections/heritage-capsules" },
+      { title: "Latest Show", link: "/runway" },
+      { title: "Seasonal Collections", link: "/collections" },
+      { title: "Luxury Campaigns", link: "/runway/campaigns" },
+      { title: "Fashion Films", link: "/runway/fashion-films" },
+      { title: "Historical Archive", link: "/archive" }
     ]
   },
   { 
     id: 4, 
     sub_menu: true, 
-    title: "Runway", 
-    link: "/runway",
-    sub_menus: [
-      { title: "Latest Show", link: "/runway/latest-show" },
-      { title: "Campaigns", link: "/runway/campaigns" },
-      { title: "Fashion Films", link: "/runway/fashion-films" }
-    ]
-  },
-  { 
-    id: 5, 
-    sub_menu: true, 
     title: "Editorial", 
     link: "/editorial",
     sub_menus: [
+      { title: "Gazette Hub", link: "/editorial" },
       { title: "Stories", link: "/editorial/stories" },
       { title: "Insights", link: "/editorial/insights" },
       { title: "Interviews", link: "/editorial/interviews" }
     ]
   },
   { 
-    id: 6, 
-    single_link: true, 
-    title: "Archive", 
-    link: "/archive" 
-  },
-  { 
-    id: 7, 
+    id: 5, 
     sub_menu: true, 
     title: "Academy", 
     link: "/academy",
@@ -94,7 +79,7 @@ const menu_data = [
     ]
   },
   { 
-    id: 8, 
+    id: 6, 
     sub_menu: true, 
     title: "House", 
     link: "/house",
@@ -105,84 +90,6 @@ const menu_data = [
       { title: "Sustainability", link: "/house/sustainability" },
       { title: "Contact Us", link: "/contact" }
     ]
-  },
-];
-
-const mobile_menu = [
-  { id: 1, title: "Home", link: "/" },
-  {
-    id: 2,
-    sub_menu: true,
-    title: "Shop Catalog",
-    link: "/shop",
-    sub_menus: [
-      { title: "Full Catalog", link: "/shop" },
-      { title: "Women's Department", link: "/shop?gender=Female" },
-      { title: "Men's Department", link: "/shop?gender=Male" },
-      { title: "Unisex Designs", link: "/shop?gender=Both" },
-    ],
-  },
-  {
-    id: 3,
-    sub_menu: true,
-    title: "Collections",
-    link: "/collections",
-    sub_menus: [
-      { title: "Overview", link: "/collections" },
-      { title: "New Arrivals", link: "/collections/new-arrivals" },
-      { title: "The Pluvial Drop", link: "/collections/pluvial-drop" },
-      { title: "Harmattan Regal", link: "/collections/harmattan-regal" },
-      { title: "Heritage Capsules", link: "/collections/heritage-capsules" },
-    ],
-  },
-  {
-    id: 4,
-    sub_menu: true,
-    title: "Runway",
-    link: "/runway",
-    sub_menus: [
-      { title: "Overview", link: "/runway" },
-      { title: "Latest Show", link: "/runway/latest-show" },
-      { title: "Campaigns", link: "/runway/campaigns" },
-      { title: "Fashion Films", link: "/runway/fashion-films" },
-    ],
-  },
-  {
-    id: 5,
-    sub_menu: true,
-    title: "Editorial",
-    link: "/editorial",
-    sub_menus: [
-      { title: "Gazette Hub", link: "/editorial" },
-      { title: "Stories", link: "/editorial/stories" },
-      { title: "Insights", link: "/editorial/insights" },
-      { title: "Interviews", link: "/editorial/interviews" },
-    ],
-  },
-  { id: 6, title: "Archive", link: "/archive" },
-  {
-    id: 7,
-    sub_menu: true,
-    title: "Academy",
-    link: "/academy",
-    sub_menus: [
-      { title: "Academy Hub", link: "/academy" },
-      { title: "Courses", link: "/academy/courses" },
-      { title: "Apply Now", link: "/academy/apply" },
-    ],
-  },
-  {
-    id: 8,
-    sub_menu: true,
-    title: "House",
-    link: "/house",
-    sub_menus: [
-      { title: "Overview", link: "/house" },
-      { title: "About Us", link: "/about" },
-      { title: "Craftsmanship", link: "/house/craftsmanship" },
-      { title: "Sustainability", link: "/house/sustainability" },
-      { title: "Contact Us", link: "/contact" },
-    ],
   },
 ];
 
@@ -254,11 +161,12 @@ export default function Navbar() {
         .nav-item:hover .mega-menu { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0); pointer-events: auto; }
         .mega-menu-column { min-width: 170px; }
         .mega-menu-title { font-size: 0.85rem; font-weight: 700; text-transform: uppercase; color: #111; margin-bottom: 1rem; border-bottom: 1px solid #eee; padding-bottom: 0.4rem; }
+        .mega-menu-title a { text-decoration: none; color: inherit; }
         .mega-menu-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.65rem; }
         .mega-menu-item a { font-size: 0.8rem; color: #555; text-decoration: none; transition: color 0.2s ease, padding-left 0.2s ease; display: inline-block; }
         .mega-menu-item a:hover { color: var(--gold); padding-left: 4px; }
 
-        /* --- Desktop Simple Sub Menu (Collections/Editorial/Runway/House) --- */
+        /* --- Desktop Simple Sub Menu (Runway/Editorial/Academy/House) --- */
         .simple-sub-menu {
           position: absolute; top: 100%; left: 50%; transform: translateX(-50%) translateY(10px);
           background-color: white; box-shadow: 0 10px 40px rgba(0,0,0,0.08); border-top: 3px solid var(--gold);
@@ -266,7 +174,7 @@ export default function Navbar() {
           pointer-events: none; z-index: 100; min-width: 200px;
         }
         .nav-item:hover .simple-sub-menu { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0); pointer-events: auto; }
-        .simple-sub-menu-item a { font-size: 0.8rem; color: #555; text-decoration: none; padding: 0.5rem 1.25rem; display: block; transition: all 0.2s ease; }
+        .simple-sub-menu-item a { font-size: 0.8rem; color: #555; text-decoration: none; padding: 0.5rem 1.25rem; display: block; transition: all 0.2s ease; text-align: left; }
         .simple-sub-menu-item a:hover { color: var(--gold); background-color: #faf9f7; padding-left: 1.5rem; }
 
         /* --- Header Actions & Tooltips --- */
@@ -298,7 +206,7 @@ export default function Navbar() {
         
         .mobile-sub-menu { background-color: #faf9f7; overflow: hidden; transition: max-height 0.3s ease; }
         .mobile-sub-menu-inner { padding: 0.5rem 1.5rem; display: flex; flex-direction: column; }
-        .mobile-sub-link { padding: 0.75rem 0; font-size: 0.85rem; color: #555; text-decoration: none; border-bottom: 1px solid #f0ebe3; }
+        .mobile-sub-link { padding: 0.75rem 0; font-size: 0.85rem; color: #555; text-decoration: none; border-bottom: 1px solid #f0ebe3; text-align: left; }
         .mobile-sub-link:last-child { border-bottom: none; }
         .mobile-sub-link:hover { color: var(--gold); }
 
@@ -369,8 +277,8 @@ export default function Navbar() {
                   {item.products && item.product_pages && (
                     <div className="mega-menu">
                       {item.product_pages.map((col, idx) => (
-                        <div key={idx} className="mega-menu-column">
-                          <Link href={col.link} className="mega-menu-title" style={{ display: "block", textDecoration: "none" }}>{col.title}</Link>
+                        <div key={idx} className="mega-menu-column text-left">
+                          <Link href={col.link} className="mega-menu-title">{col.title}</Link>
                           <ul className="mega-menu-list">
                             {col.mega_menus.map((linkItem, i) => (
                               <li key={i} className="mega-menu-item">
@@ -383,7 +291,7 @@ export default function Navbar() {
                     </div>
                   )}
 
-                  {/* Simple Sub Menu Dropdown (For Collections, Runway, Editorial, Academy, House) */}
+                  {/* Simple Sub Menu Dropdown */}
                   {item.sub_menu && item.sub_menus && (
                     <div className="simple-sub-menu">
                       <ul style={{ listStyle: "none", margin: 0, padding: 0 }}>
@@ -438,7 +346,7 @@ export default function Navbar() {
             </Link>
           </div>
 
-          {/* Mobile Hamburger overlay */}
+          {/* Mobile Hamburger toggle */}
           <div className="mobile-actions" style={{ alignItems: "center", gap: "1rem" }}>
             <button
               onClick={() => setIsOpen(!isOpen)}
@@ -449,13 +357,20 @@ export default function Navbar() {
           </div>
         </nav>
 
-        {/* Mobile Sidebar Navigation */}
+        {/* Mobile Sidebar Navigation Menu */}
         <div className={`mobile-menu ${isOpen ? "open" : ""}`}>
           <div style={{ display: "flex", flexDirection: "column" }}>
-            {mobile_menu.map((item) => {
+            {menu_data.map((item) => {
               const isSubMenuOpen = activeMobileMenu === item.id;
+              const processingSubmenuList = item.products 
+                ? [
+                    { title: "Women's Department", link: "/shop?gender=Female" },
+                    { title: "Men's Department", link: "/shop?gender=Male" },
+                    { title: "Full Catalog", link: "/shop" }
+                  ]
+                : item.sub_menus;
               
-              if (item.sub_menu) {
+              if (item.products || item.sub_menu) {
                 return (
                   <div key={item.id}>
                     <div style={{ display: "flex", borderBottom: "1px solid #f0ebe3" }}>
@@ -465,12 +380,13 @@ export default function Navbar() {
                         style={{ 
                           flex: 1, padding: "1.25rem 1.5rem", color: isSubMenuOpen ? goldColor : "#111", 
                           textDecoration: "none", fontSize: "0.9rem", fontWeight: 600, 
-                          textTransform: "uppercase", letterSpacing: "0.05em" 
+                          textTransform: "uppercase", letterSpacing: "0.05em", textAlign: "left"
                         }}
                       >
                         {item.title}
                       </Link>
                       <button 
+                        type="button"
                         onClick={() => toggleMobileMenu(item.id)}
                         style={{ 
                           padding: "0 1.5rem", borderLeft: "1px solid #f0ebe3", background: "none", 
@@ -484,7 +400,7 @@ export default function Navbar() {
                     
                     <div className="mobile-sub-menu" style={{ maxHeight: isSubMenuOpen ? "500px" : "0" }}>
                       <div className="mobile-sub-menu-inner">
-                        {item.sub_menus?.map((sub, i) => (
+                        {processingSubmenuList?.map((sub, i) => (
                           <Link key={i} href={sub.link} className="mobile-sub-link" onClick={() => setIsOpen(false)}>
                             {sub.title}
                           </Link>
@@ -503,7 +419,7 @@ export default function Navbar() {
                   style={{ 
                     display: "block", padding: "1.25rem 1.5rem", borderBottom: "1px solid #f0ebe3", 
                     textDecoration: "none", color: pathname === item.link ? goldColor : "#111", 
-                    fontSize: "0.9rem", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em" 
+                    fontSize: "0.9rem", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", textAlign: "left"
                   }}
                 >
                   {item.title}
@@ -527,7 +443,7 @@ export default function Navbar() {
         </div>
       </header>
 
-      {/* Mobile Bottom Action Bar */}
+      {/* Mobile Bottom Navigation Bar */}
       <div className="mobile-bottom-bar">
         <Link href="/login" className="bottom-bar-link">
           <User size={20} />
