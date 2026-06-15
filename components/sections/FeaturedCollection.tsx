@@ -49,10 +49,10 @@ export default function FeaturedCollection() {
         <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", marginBottom: "3rem", flexWrap: "wrap", gap: "1rem" }}>
           <div style={{ textAlign: "left" }}>
             <p className="tag" style={{ marginBottom: "0.75rem", display: "block", color: goldColor, fontFamily: "monospace", fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.15em" }}>
-              New Arrivals
+              Norex Fashion
             </p>
             <h2 className="section-title" style={{ fontFamily: "var(--font-playfair), Georgia, serif", fontSize: "2rem", fontWeight: 700 }}>
-              Featured Collection
+              New Arrivals
             </h2>
           </div>
           <Link href="/shop" style={{ fontSize: "0.75rem", letterSpacing: "0.15em", textTransform: "uppercase", color: goldColor, fontWeight: 600, borderBottom: `1px solid ${goldColor}`, paddingBottom: "2px", textDecoration: "none" }}>

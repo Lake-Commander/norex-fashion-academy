@@ -1,105 +1,169 @@
-import Link from "next/link";
-import { getFeaturedCourses } from "@/lib/data/courses";
-import { formatPrice } from "@/lib/utils";
-import ScrollReveal from "@/components/ui/ScrollReveal";
+'use client'
 
-export default function AcademyHighlight() {
-  const courses = getFeaturedCourses().slice(0, 3);
+import { useState, useEffect } from 'react'
+import { ArrowRight, Sparkles, Loader2, BookOpen } from 'lucide-react'
+import { useShop } from '@/context/ShopContext'
+import { sounds } from '@/lib/sound-utils'
+import { formatPrice } from '@/lib/utils'
+import Link from 'next/link'
+
+interface CourseItem {
+  _id: string;
+  title: string;
+  slug: string;
+  description: string;
+  duration: string;
+  level: "Beginner" | "Intermediate" | "Advanced";
+  price: number;
+  image: string;
+  featured: boolean;
+}
+
+export default function FeaturedCourses() {
+  const { soundEnabled } = useShop()
+  const [courses, setCourses] = useState<CourseItem[]>([])
+  const [loading, setLoading] = useState(true)
+  
+  // Stagger offsets array to maintain your high-fashion asymmetrical layout grid
+  const styleOffsets = ['lg:mt-0', 'lg:mt-12', 'lg:mt-24']
+
+  useEffect(() => {
+    async function fetchFeaturedPrograms() {
+      try {
+        const res = await fetch('/api/courses')
+        const data = await res.json()
+        
+        if (data.success && data.courses) {
+          // Isolate courses toggled for the homepage spotlight, maximum of 3 for the grid layout
+          const featuredItems = data.courses.filter((c: CourseItem) => c.featured).slice(0, 3)
+          setCourses(featuredItems)
+        }
+      } catch (err) {
+        console.error('Failed fetching storefront academy spotlights:', err)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchFeaturedPrograms()
+  }, [])
+
+  const handleInteract = () => {
+    if (soundEnabled) sounds.playPop()
+  }
+
+  const goldColor = "#C9A84C";
 
   return (
-    <section style={{ backgroundColor: "#1a1a1a", paddingTop: "5rem", paddingBottom: "5rem" }}>
+    <div className="bg-background px-6 py-24 md:px-8 border-b border-border/25 relative">
       <style>{`
-        .courses-grid {
-          display: grid;
-          grid-template-columns: 1fr;
-          gap: 1.5rem;
-          margin-bottom: 3rem;
+        .course-feature-card {
+          cursor: pointer; background-color: white; border: 1px solid #f0ebe3;
+          padding: 1rem; border-radius: 2px; transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+          text-decoration: none; display: block;
         }
-        @media(min-width: 768px) {
-          .courses-grid { grid-template-columns: repeat(2, 1fr); }
+        .course-feature-card:hover {
+          border-color: #C9A84C; box-shadow: 0 15px 35px rgba(201,168,76,0.06);
+          transform: translateY(-4px);
         }
-        @media(min-width: 1024px) {
-          .courses-grid { grid-template-columns: repeat(3, 1fr); }
+        .course-feature-card:hover .course-img {
+          transform: scale(1.02);
         }
-        .course-card {
-          display: block;
-          text-decoration: none;
-          background-color: #2a2a2a;
-          padding: 2rem;
-          transition: background-color 0.3s;
+        .course-img {
+          transition: transform 0.8s ease;
         }
-        .course-card:hover { background-color: #333; }
       `}</style>
-
-      <div className="container-custom">
-
-        {/* Header */}
-        <ScrollReveal direction="up">
-          <div style={{ maxWidth: "600px", marginBottom: "4rem" }}>
-            <p style={{ fontSize: "0.7rem", letterSpacing: "0.35em", textTransform: "uppercase", color: "#C9A84C", fontWeight: 500, marginBottom: "1rem", display: "block" }}>
-              Noxex Fashion Academy
-            </p>
-            <h2 style={{ fontFamily: "var(--font-playfair), Georgia, serif", fontSize: "clamp(2rem, 4vw, 3.5rem)", fontWeight: 700, color: "white", lineHeight: 1.1, marginBottom: "1.5rem" }}>
-              Learn the Art of Fashion Design
-            </h2>
-            <p style={{ fontSize: "1rem", color: "rgba(255,255,255,0.6)", lineHeight: 1.8 }}>
-              From your first sketch to running your own label — we equip aspiring designers with real-world skills and industry knowledge.
-            </p>
+      
+      <div className="mx-auto max-w-7xl">
+        
+        {/* Section Title */}
+        <div className="mb-20 text-center">
+          <div style={{ borderColor: "rgba(201, 168, 76, 0.2)", backgroundColor: "rgba(201, 168, 76, 0.05)", color: goldColor }} className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border mb-4">
+            <Sparkles className="h-3 w-3" />
+            <span className="text-[9px] uppercase tracking-widest font-black font-mono">05 / ACADEMY EDUCATION SPOKE</span>
           </div>
-        </ScrollReveal>
+          <h2 style={{ fontFamily: "var(--font-playfair), Georgia, serif" }} className="text-4xl md:text-5xl font-bold text-foreground uppercase tracking-tight leading-none">
+            Featured Programs
+          </h2>
+          <p className="text-sm text-muted-foreground mt-3 max-w-xl mx-auto font-light">
+            Train under professional master couturiers. Explore elite structural fashion modules actively curated inside our technical workshops.
+          </p>
+        </div>
 
-        {/* Courses Grid */}
-        <ScrollReveal direction="up" delay={200}>
-          <div className="courses-grid">
-            {courses.map((course) => (
-              <Link
-                key={course.id}
-                href={["/academy/courses/", course.slug].join("")}
-                className="course-card"
-              >
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
-                  <span style={{ fontSize: "0.6rem", letterSpacing: "0.2em", textTransform: "uppercase", fontWeight: 600, color: "#C9A84C", border: "1px solid #C9A84C", padding: "0.25rem 0.75rem" }}>
-                    {course.level}
-                  </span>
-                  <span style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.4)" }}>
-                    {course.duration}
-                  </span>
-                </div>
-                <h3 style={{ fontFamily: "var(--font-playfair), Georgia, serif", fontSize: "1.2rem", fontWeight: 600, color: "white", marginBottom: "1rem", lineHeight: 1.3 }}>
-                  {course.title}
-                </h3>
-                <p style={{ fontSize: "0.85rem", color: "rgba(255,255,255,0.5)", lineHeight: 1.7, marginBottom: "1.5rem" }}>
-                  {course.description.substring(0, 100)}...
-                </p>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid rgba(255,255,255,0.1)", paddingTop: "1.25rem" }}>
-                  <span style={{ fontWeight: 600, color: "white", fontSize: "0.95rem" }}>
-                    {formatPrice(course.price)}
-                  </span>
-                  <span style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.4)", letterSpacing: "0.1em" }}>
-                    Learn more → 
-                  </span>
-                </div>
-              </Link>
-            ))}
+        {loading ? (
+          <div className="py-16 flex flex-col items-center justify-center gap-2">
+            <Loader2 className="h-6 w-6 animate-spin text-[#C9A84C]" />
+            <p className="text-xs font-mono uppercase tracking-wider text-zinc-400">Streaming Active Showrooms...</p>
           </div>
-        </ScrollReveal>
+        ) : courses.length === 0 ? (
+          <div className="text-center py-12 text-zinc-400 text-xs font-mono uppercase tracking-wider">
+            No active academy modules currently toggled for the landing spotlight.
+          </div>
+        ) : (
+          /* Asymmetric Offset grid layout matrix matching lookbook rules */
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+            {courses.map((course, idx) => {
+              const offsetClass = styleOffsets[idx % styleOffsets.length]
+              
+              return (
+                <Link 
+                  href={`/academy/courses/${course.slug}`}
+                  key={course._id} 
+                  onMouseEnter={handleInteract}
+                  onClick={() => { if (soundEnabled) sounds.playClick() }}
+                  className={`course-feature-card ${offsetClass}`}
+                >
+                  {/* Image Canvas Container */}
+                  <div className="relative aspect-[3/4] overflow-hidden rounded-sm mb-6 bg-[#FAF7F4] border border-gray-100">
+                    {course.image ? (
+                      <img 
+                        src={course.image} 
+                        alt={course.title}
+                        className="w-full h-full object-cover course-img filter contrast-[1.01]"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-zinc-300">
+                        <BookOpen size={32} />
+                      </div>
+                    )}
+                    
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/10 to-transparent" />
+                    
+                    {/* Floating Meta titles inside card overlay */}
+                    <div className="absolute bottom-6 left-6 right-6 text-white space-y-2 text-left">
+                      <span style={{ color: goldColor }} className="text-[8px] font-mono tracking-widest font-bold block uppercase border border-[#C9A84C]/30 bg-black/40 px-2 py-0.5 rounded-sm w-fit">
+                        {course.level} TRACK
+                      </span>
+                      <h3 style={{ fontFamily: "var(--font-playfair), Georgia, serif" }} className="text-2xl font-bold tracking-tight uppercase leading-none text-white">{course.title}</h3>
+                    </div>
+                  </div>
 
-        {/* CTAs */}
-        <ScrollReveal direction="up" delay={400}>
-          <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
-            <Link href="/academy/apply" className="btn-white">
-              Apply Now
-            </Link>
-            <Link
-              href="/academy/courses"
-              style={{ fontSize: "0.72rem", letterSpacing: "0.15em", textTransform: "uppercase", fontWeight: 500, color: "rgba(255,255,255,0.6)", display: "flex", alignItems: "center", gap: "0.5rem", borderBottom: "1px solid rgba(255,255,255,0.3)", paddingBottom: "2px", textDecoration: "none" }}
-            >
-              View All Courses →
-            </Link>
+                  {/* Outside Card Structural Metadata details text summary */}
+                  <div className="space-y-4 px-1 pb-1 text-left">
+                    <p className="text-xs text-muted-foreground leading-relaxed font-light line-clamp-2">
+                      {course.description}
+                    </p>
+
+                    <div className="flex justify-between items-center pt-3 border-t border-zinc-100">
+                      <div className="text-[10px] font-mono text-zinc-400 font-bold uppercase">
+                        Duration // {course.duration}
+                      </div>
+                      <span style={{ color: goldColor }} className="text-sm font-bold font-mono">
+                        {formatPrice(course.price)}
+                      </span>
+                    </div>
+
+                    <div style={{ color: goldColor }} className="flex items-center gap-1 text-[9px] font-mono font-bold uppercase tracking-wider pt-1">
+                      <span>Review Program Syllabus</span>
+                      <ArrowRight className="h-3 w-3" />
+                    </div>
+                  </div>
+                </Link>
+              )
+            })}
           </div>
-        </ScrollReveal>
+        )}
 
       </div>
-    </section>
-  );
+    </div>
+  )
 }

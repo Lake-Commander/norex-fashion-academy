@@ -1,7 +1,7 @@
 import connectDB from "@/lib/mongodb";
 import Application from "@/lib/models/ApplicationModel";
 import Contact from "@/lib/models/ContactModel";
-import Order from "@/lib/models/OrderModel"; // Added Order collection link reference
+import Order from "@/lib/models/OrderModel";
 import Link from "next/link";
 import { SignOutButton } from "../SignOutButton";
 
@@ -9,8 +9,6 @@ async function getNotifications() {
   await connectDB();
   const pendingApplications = await Application.countDocuments({ status: "pending" });
   const unreadMessages = await Contact.countDocuments({ status: "unread" });
-  
-  // Track unpaid WhatsApp orders waiting for validation
   const pendingPayments = await Order.countDocuments({ paymentStatus: "Pending", paymentGateway: "WhatsApp" });
   
   return { pendingApplications, unreadMessages, pendingPayments };
@@ -28,6 +26,7 @@ export default async function AdminSidebar() {
           font-size: 0.8rem; color: rgba(255,255,255,0.6); text-decoration: none; 
           font-weight: 500; border-radius: 4px; transition: all 0.2s ease;
         }
+        .sidebar-link { text-decoration: none; }
         .sidebar-link:hover {
           background-color: rgba(255,255,255,0.05); color: white; transform: translateX(4px);
         }
@@ -91,6 +90,7 @@ export default async function AdminSidebar() {
           )}
         </Link>
 
+        {/* Storefront Catalog */}
         <div className="sidebar-group-title" style={{ marginTop: "0.75rem" }}>Storefront Catalog</div>
         <Link href="/admin/products" className="sidebar-link">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
@@ -101,17 +101,34 @@ export default async function AdminSidebar() {
           Upload Product
         </Link>
 
+        {/* Academy Program CMS Section Links */}
+        <div className="sidebar-group-title" style={{ marginTop: "0.75rem" }}>Academy Management</div>
+        <Link href="/admin/courses" className="sidebar-link">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c0 2 2 3 6 3s6-1 6-3v-5"/></svg>
+          All Courses
+        </Link>
+        <Link href="/admin/courses/upload" className="sidebar-link">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 5v14M5 12h14"/></svg>
+          Create New Course
+        </Link>
+
+        {/* Narrative CMS */}
         <div className="sidebar-group-title" style={{ marginTop: "0.75rem" }}>Narrative CMS</div>
         <Link href="/admin/editorial" className="sidebar-link">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
-          Gazette CMS
+          All Publications
+        </Link>
+        <Link href="/admin/editorial/upload" className="sidebar-link">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Publish Entry
         </Link>
         <Link href="/admin/runway" className="sidebar-link">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"/><line x1="7" y1="2" x2="7" y2="22"/><line x1="17" y1="2" x2="17" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="2" y1="7" x2="7" y2="7"/><line x1="2" y1="17" x2="7" y2="17"/><line x1="17" y1="17" x2="22" y2="17"/><line x1="17" y1="7" x2="22" y2="7"/></svg>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"/><line x1="7" y1="2" x2="7" y2="22"/><line x1="17" y1="2" x2="17" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="2" y1="7" x2="7" y2="7"/><line x1="2" y1="17" x2="7" y2="7"/><line x1="17" y1="17" x2="22" y2="17"/><line x1="17" y1="7" x2="22" y2="7"/></svg>
           Runway & Films
         </Link>
       </nav>
 
+      {/* Footer System Session Trigger */}
       <div style={{ borderTop: "1px solid rgba(255,255,255,0.1)", paddingTop: "1rem" }}>
         <SignOutButton />
       </div>

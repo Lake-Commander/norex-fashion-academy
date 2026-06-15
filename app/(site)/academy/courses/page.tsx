@@ -1,154 +1,146 @@
+"use client";
+
+import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
-import { courses } from "@/lib/data/courses";
 import { formatPrice } from "@/lib/utils";
-import { Clock, ArrowRight } from "lucide-react";
+import { Clock, ArrowRight, Loader2, Filter, Layers, Sliders } from "lucide-react";
 
-export const metadata = {
-  title: "Courses | Norex Fashion Academy",
-  description: "Browse all fashion design courses at Norex Fashion Academy.",
-};
+export default function edXCoursesHub() {
+  const [courses, setCourses] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  
+  // Advanced Filter Configurations States
+  const [selectedLevel, setSelectedLevel] = useState<string>("All");
+  const [sortOrder, setSortOption] = useState<string>("default");
 
-export default function CoursesPage() {
+  useEffect(() => {
+    async function loadCatalog() {
+      try {
+        const res = await fetch("/api/courses");
+        const data = await res.json();
+        if (data.success) setCourses(data.courses);
+      } catch (err) {
+        console.error("Catalog track compilation failed:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadCatalog();
+  }, []);
+
+  // Compute live multi-dimensional lookup vectors completely in memory
+  const filteredCatalog = useMemo(() => {
+    let result = [...courses];
+
+    if (selectedLevel !== "All") {
+      result = result.filter((c) => c.level === selectedLevel);
+    }
+    if (sortOrder === "low-to-high") result.sort((a, b) => a.price - b.price);
+    else if (sortOrder === "high-to-low") result.sort((a, b) => b.price - a.price);
+
+    return result;
+  }, [courses, selectedLevel, sortOrder]);
+
+  const goldColor = "#C9A84C";
+
   return (
-    <div style={{ minHeight: "100vh", backgroundColor: "white" }}>
-      <style>{`
-        .cg { display: grid; grid-template-columns: 1fr; gap: 0; }
-        
-        .cc { 
-          display: block; 
-          text-decoration: none; 
-          border-bottom: 1px solid #f0ebe3; 
-          padding: 2.5rem 0; 
-          transition: all 0.3s ease; 
-        }
-        
-        /* Course row hover highlight */
-        .cc:hover { 
-          padding-left: 1.5rem; 
-          background-color: #faf9f7;
-          border-color: #C9A84C;
-        }
-
-        .cc-inner { 
-          display: grid; 
-          grid-template-columns: 1fr; 
-          gap: 1.5rem; 
-        }
-        @media(min-width: 768px) {
-          .cc-inner { grid-template-columns: 2fr 1fr 1fr auto; align-items: center; }
-        }
-
-        .course-arrow {
-          display: flex; align-items: center; justify-content: center; 
-          width: 44px; height: 44px; border: 1px solid #e5e7eb; 
-          border-radius: 50%; color: #9ca3af; flex-shrink: 0;
-          transition: all 0.3s ease;
-        }
-
-        .cc:hover .course-arrow {
-          background-color: #C9A84C;
-          border-color: #C9A84C;
-          color: white;
-          transform: translateX(5px);
-          box-shadow: 0 4px 15px rgba(201, 168, 76, 0.3);
-        }
-
-        /* Call to Action Buttons */
-        .btn-white-solid {
-          display: inline-flex; align-items: center; justify-content: center;
-          background-color: white; color: #C9A84C;
-          padding: 0.875rem 2rem; font-size: 0.8rem; font-weight: 600;
-          letter-spacing: 0.15em; text-transform: uppercase; text-decoration: none;
-          transition: all 0.3s ease; border-radius: 2px;
-        }
-        .btn-white-solid:hover {
-          background-color: #FAF7F4;
-          transform: translateY(-2px); box-shadow: 0 6px 20px rgba(255,255,255,0.2);
-        }
-
-        .btn-outline-white {
-          display: inline-flex; align-items: center; justify-content: center;
-          border: 1px solid rgba(255,255,255,0.3); color: white;
-          padding: 0.875rem 2rem; font-size: 0.8rem; font-weight: 600;
-          letter-spacing: 0.15em; text-transform: uppercase; text-decoration: none;
-          transition: all 0.3s ease; border-radius: 2px;
-        }
-        .btn-outline-white:hover {
-          background-color: white; color: #1a1a1a;
-          transform: translateY(-2px); box-shadow: 0 6px 20px rgba(255,255,255,0.2);
-        }
-
-        /* Link hover */
-        .breadcrumb-link {
-          font-size: 0.72rem; color: #9ca3af; letter-spacing: 0.1em; 
-          text-transform: uppercase; text-decoration: none; transition: color 0.2s ease;
-        }
-        .breadcrumb-link:hover {
-          color: #C9A84C;
-        }
-      `}</style>
-
-      <div style={{ paddingTop: "8rem", paddingBottom: "4rem", backgroundColor: "#FAF7F4", borderBottom: "1px solid #f0ebe3" }}>
-        <div className="container-custom">
-          <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "1.5rem" }}>
-            <Link href="/" className="breadcrumb-link">Home</Link>
-            <span style={{ color: "#d1d5db" }}>/</span>
-            <Link href="/academy" className="breadcrumb-link">Academy</Link>
-            <span style={{ color: "#d1d5db" }}>/</span>
-            <span style={{ fontSize: "0.72rem", color: "#C9A84C", letterSpacing: "0.1em", textTransform: "uppercase", fontWeight: 600 }}>Courses</span>
+    <div className="bg-white min-h-screen text-zinc-800">
+      {/* Banner Head Frame */}
+      <div style={{ paddingTop: "8.5rem", paddingBottom: "3.5rem", backgroundColor: "#FCFAF7", borderBottom: "1px solid #e4e4e7" }}>
+        <div className="container-custom text-left">
+          <div className="flex gap-2 items-center text-[10px] font-mono font-bold text-zinc-400 uppercase tracking-widest mb-2">
+            <Link href="/academy" className="hover:text-[#C9A84C] text-decoration-none text-current">Academy</Link><span>/</span><span className="text-[#C9A84C]">Programs Registry</span>
           </div>
-          <h1 style={{ fontFamily: "var(--font-playfair), Georgia, serif", fontSize: "clamp(2.5rem, 5vw, 4rem)", fontWeight: 700, color: "#1a1a1a", marginBottom: "1rem", lineHeight: 1.1 }}>Our Courses</h1>
-          <p style={{ fontSize: "1rem", color: "#6b7280", maxWidth: "500px", lineHeight: 1.8 }}>Choose from our range of professionally designed fashion programs — from beginner to advanced.</p>
+          <h1 style={{ fontFamily: "var(--font-playfair), serif" }} className="text-3xl md:text-4xl font-bold uppercase text-zinc-900 tracking-tight">Academic Syllabus Curriculums</h1>
+          <p className="text-sm text-zinc-500 font-light mt-1 max-w-xl">Browse our professionally cataloged technical tracks, each calibrated directly to meet international pattern grading expectations.</p>
         </div>
       </div>
 
-      <div className="container-custom" style={{ paddingTop: "4rem", paddingBottom: "6rem" }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingBottom: "1.5rem", borderBottom: "2px solid #1a1a1a", marginBottom: "0" }}>
-          <p style={{ fontSize: "0.65rem", letterSpacing: "0.25em", textTransform: "uppercase", color: "#9ca3af", fontWeight: 600 }}>Course</p>
-          <div style={{ display: "none" }} className="hidden md:flex" />
-          <p style={{ fontSize: "0.65rem", letterSpacing: "0.25em", textTransform: "uppercase", color: "#9ca3af", fontWeight: 600 }}>{courses.length} Programs</p>
-        </div>
-        <div className="cg">
-          {courses.map((course, index) => {
-            // Keep specific colors for levels, but use Gold for Advanced/Intermediate
-            const levelColor = course.level === "Beginner" ? "#16a34a" : "#C9A84C";
-            return (
-              <Link key={course.id} href={["/academy/courses/", course.slug].join("")} className="cc">
-                <div className="cc-inner">
-                  <div>
-                    <div style={{ display: "flex", alignItems: "center", gap: "1rem", marginBottom: "0.75rem" }}>
-                      <span style={{ fontFamily: "var(--font-playfair), Georgia, serif", fontSize: "0.85rem", color: "#d1d5db", fontWeight: 700 }}>0{index + 1}</span>
-                      <span style={{ fontSize: "0.6rem", letterSpacing: "0.2em", textTransform: "uppercase", fontWeight: 600, color: levelColor, border: ["1px solid ", levelColor].join(""), padding: "0.2rem 0.6rem", borderRadius: "2px" }}>{course.level}</span>
-                    </div>
-                    <h2 style={{ fontFamily: "var(--font-playfair), Georgia, serif", fontSize: "clamp(1.25rem, 2.5vw, 1.75rem)", fontWeight: 700, color: "#1a1a1a", marginBottom: "0.5rem", lineHeight: 1.2 }}>{course.title}</h2>
-                    <p style={{ fontSize: "0.85rem", color: "#6b7280", lineHeight: 1.7, maxWidth: "500px" }}>{course.description.substring(0, 120)}...</p>
-                  </div>
-                  <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", color: "#555", fontSize: "0.85rem", fontWeight: 500 }}>
-                    <Clock size={16} style={{ color: "#C9A84C" }} />
-                    <span>{course.duration}</span>
-                  </div>
-                  <p style={{ fontFamily: "var(--font-playfair), Georgia, serif", fontSize: "1.25rem", fontWeight: 700, color: "#C9A84C" }}>{formatPrice(course.price)}</p>
-                  <div className="course-arrow">
-                    <ArrowRight size={18} />
-                  </div>
-                </div>
-              </Link>
-            );
-          })}
-        </div>
-      </div>
+      <div className="container-custom" style={{ paddingTop: "3rem", paddingBottom: "6rem" }}>
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          
+          {/* LEFT INTERACTIVE EDX SIDEBAR LOOKUP (3 Columns) */}
+          <div className="lg:col-span-3 space-y-6 text-left bg-zinc-50/60 p-4 border border-zinc-200 rounded-sm">
+            <div className="flex items-center gap-2 border-b border-zinc-200 pb-2.5 mb-2">
+              <Sliders className="h-4 w-4 text-[#C9A84C]" />
+              <span className="text-xs font-mono font-bold tracking-wider uppercase text-zinc-900">Filter Workspace</span>
+            </div>
 
-      <div style={{ backgroundColor: "#1a1a1a", paddingTop: "5rem", paddingBottom: "5rem" }}>
-        <div className="container-custom" style={{ display: "grid", gridTemplateColumns: "1fr", gap: "3rem" }}>
-          <div>
-            <p style={{ fontSize: "0.7rem", letterSpacing: "0.35em", textTransform: "uppercase", color: "#C9A84C", marginBottom: "1rem", fontWeight: 600 }}>Not Sure Where to Start?</p>
-            <h2 style={{ fontFamily: "var(--font-playfair), Georgia, serif", fontSize: "clamp(1.75rem, 4vw, 2.5rem)", fontWeight: 700, color: "white", marginBottom: "1rem" }}>Talk to Our Team</h2>
-            <p style={{ fontSize: "0.95rem", color: "rgba(255,255,255,0.6)", lineHeight: 1.8, marginBottom: "2rem", maxWidth: "600px" }}>We will help you find the right course based on your experience level and career goals.</p>
-            <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
-              <Link href="/academy/apply" className="btn-white-solid">Apply Now</Link>
-              <Link href="/contact" className="btn-outline-white">Contact Us</Link>
+            {/* Level Sorting Block */}
+            <div className="space-y-2">
+              <h4 className="text-[10px] font-mono font-bold uppercase tracking-wider text-zinc-400">Experience Tier</h4>
+              <div className="flex flex-col gap-1">
+                {["All", "Beginner", "Intermediate", "Advanced"].map((level) => (
+                  <button
+                    key={level}
+                    type="button"
+                    onClick={() => setSelectedLevel(level)}
+                    className={`w-full text-left px-3 py-2 text-xs rounded transition-all font-semibold uppercase tracking-wide cursor-pointer ${
+                      selectedLevel === level ? "bg-[#1a1a1a] text-white font-bold" : "text-zinc-600 hover:bg-zinc-100"
+                    }`}
+                  >
+                    {level === "All" ? "All Skill Levels" : `${level} Program`}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Financial Sorting Block */}
+            <div className="space-y-2 pt-4 border-t border-zinc-200">
+              <h4 className="text-[10px] font-mono font-bold uppercase tracking-wider text-zinc-400">Tuition Sort</h4>
+              <select value={sortOrder} onChange={(e) => setSortOption(e.target.value)} className="w-full text-xs font-semibold bg-white border border-zinc-300 p-2 focus:outline-none focus:border-[#C9A84C]">
+                <option value="default">Default Matrix</option>
+                <option value="low-to-high">Tuition: Low to High</option>
+                <option value="high-to-low">Tuition: High to Low</option>
+              </select>
             </div>
           </div>
+
+          {/* RIGHT DATA YIELD LIST ROW (9 Columns) */}
+          <div className="lg:col-span-9 space-y-4">
+            <div className="flex justify-between items-center border-b border-zinc-900 pb-2 mb-4">
+              <span className="text-[10px] font-mono tracking-wider font-bold text-zinc-400 uppercase">Syllabus Program Tracks</span>
+              <span className="text-[10px] font-mono tracking-wider font-bold text-zinc-900 uppercase font-bold">{filteredCatalog.length} Matches Found</span>
+            </div>
+
+            {loading ? (
+              <div className="py-24 text-center flex flex-col items-center justify-center gap-2"><Loader2 className="h-6 w-6 animate-spin text-[#C9A84C]" /><span className="text-xs font-mono uppercase tracking-wider text-zinc-400">Streaming Catalog Matrix...</span></div>
+            ) : filteredCatalog.length === 0 ? (
+              <p className="text-zinc-400 font-mono text-xs uppercase text-center py-16 bg-zinc-50 border border-dashed border-zinc-200">No program parameters align with your active sidebar workspace filter tags.</p>
+            ) : (
+              <div className="divide-y divide-zinc-200 border-b border-zinc-200">
+                {filteredCatalog.map((course, idx) => (
+                  <Link key={course._id} href={`/academy/courses/${course.slug}`} className="block py-6 transition-all hover:bg-zinc-50/50 hover:px-4 text-decoration-none group">
+                    <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+                      
+                      <div className="md:col-span-7 space-y-2 text-left">
+                        <div className="flex items-center gap-2.5">
+                          <span className="font-mono text-xs font-bold text-zinc-300">0{idx + 1}</span>
+                          <span className="text-[9px] font-mono font-bold px-2 py-0.5 rounded-sm uppercase tracking-wide border bg-white border-zinc-200 text-zinc-700">{course.level}</span>
+                        </div>
+                        <h3 style={{ fontFamily: "var(--font-playfair), serif" }} className="text-xl font-bold text-zinc-900 uppercase group-hover:text-[#C9A84C] transition-colors">{course.title}</h3>
+                        <p className="text-xs text-zinc-500 font-light leading-relaxed max-w-xl">{course.description.substring(0, 140)}...</p>
+                      </div>
+
+                      <div className="md:col-span-2 text-left md:text-center font-mono text-xs font-bold text-zinc-600 uppercase tracking-wider flex items-center gap-1.5 justify-start md:justify-center">
+                        <Clock size={14} className="text-[#C9A84C]" /> <span>{course.duration}</span>
+                      </div>
+
+                      <div className="md:col-span-2 text-left md:text-center font-mono font-bold text-[#C9A84C] text-sm">
+                        {formatPrice(course.price)}
+                      </div>
+
+                      <div className="md:col-span-1 flex justify-end">
+                        <div className="w-9 h-34 rounded-full border border-zinc-200 flex items-center justify-center text-zinc-400 group-hover:bg-[#C9A84C] group-hover:border-[#C9A84C] group-hover:text-white transition-all transform group-hover:translateX(3px)"><ArrowRight size={14} /></div>
+                      </div>
+
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
+
         </div>
       </div>
     </div>

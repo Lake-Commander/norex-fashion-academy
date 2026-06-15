@@ -1,130 +1,83 @@
-'use client'
+"use client";
 
-import { Sparkles, ArrowRight } from 'lucide-react'
-import { useShop } from '@/context/ShopContext'
-import { sounds } from '@/lib/sound-utils'
-import Link from 'next/link'
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { formatPrice } from "@/lib/utils";
+import { ArrowRight, Sparkles, Loader2, FileText } from "lucide-react";
 
-export default function EditorialJournal() {
-  const { soundEnabled } = useShop()
+export default function LatestEditorialsSection() {
+  const [posts, setPosts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // Updated articles with African themes mapping directly to your catalog images
-  const articles = [
-    {
-      id: 'insight',
-      category: 'Style Insights',
-      title: 'The Grammar of Posture and Silk Charmeuse Drapery',
-      desc: 'An exploration into how our flagship Crimson Gown balances hand-sewn bodice beadwork with fluid architectural alignment paths.',
-      image: '/product-1.png',
-      date: 'June 09, 2026',
-      readTime: '4 Min Read'
-    },
-    {
-      id: 'story',
-      category: 'Fashion Stories',
-      title: 'The Co-ord Shift: Traditional Ankara Fluidity',
-      desc: 'Following our pattern design team as they reconstruct heritage multi-prints into contemporary, unisex structural streetwear layouts.',
-      image: '/product-6-new.jpeg',
-      date: 'June 02, 2026',
-      readTime: '6 Min Read'
-    },
-    {
-      id: 'perspective',
-      category: 'Academy Perspectives',
-      title: 'The 2.8% Layout Challenge: Eradicating Studio Waste',
-      desc: 'A review of our custom pattern puzzle nesting configurations utilized inside our Warri design training rooms to protect premium textiles.',
-      image: '/product-4.jpg',
-      date: 'May 18, 2026',
-      readTime: '5 Min Read'
+  useEffect(() => {
+    async function loadLatest() {
+      try {
+        const res = await fetch("/api/editorial");
+        const data = await res.json();
+        if (data.success) {
+          // Isolate general written stories or cover logs and slice top 3
+          const latestItems = data.publications
+            .filter((p: any) => p.contentType === "article" || p.contentType === "story")
+            .slice(0, 3);
+          setPosts(latestItems);
+        }
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
     }
-  ]
-
-  const handleInteract = () => {
-    if (soundEnabled) sounds.playPop()
-  }
+    loadLatest();
+  }, []);
 
   const goldColor = "#C9A84C";
 
   return (
-    <section className="bg-[#050505] px-6 py-24 md:px-8 border-b border-white/10 relative overflow-hidden">
-      
-      {/* Visual background nodes */}
-      <div 
-        className="absolute top-0 left-0 w-96 h-96 blur-[100px] pointer-events-none rounded-full" 
-        style={{ backgroundColor: "rgba(201, 168, 76, 0.02)" }}
-      />
-
-      <div className="mx-auto max-w-7xl relative z-10">
-        
-        {/* Header Block */}
-        <div className="mb-20 text-left">
-          <div style={{ borderColor: "rgba(201, 168, 76, 0.2)", backgroundColor: "rgba(201, 168, 76, 0.05)", color: goldColor }} className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border mb-4">
-            <Sparkles className="h-3 w-3 animate-pulse" />
-            <span className="text-[9px] uppercase tracking-widest font-black font-mono">09 // THE JOURNAL</span>
+    <section className="bg-[#white] px-6 py-24 md:px-8 border-b border-zinc-100 text-left">
+      <div className="mx-auto max-w-7xl">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-16 gap-4">
+          <div>
+            <div style={{ borderColor: "rgba(201, 168, 76, 0.2)", backgroundColor: "rgba(201, 168, 76, 0.05)", color: goldColor }} className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border mb-3">
+              <Sparkles className="h-3 w-3" />
+              <span className="text-[8px] uppercase tracking-widest font-black font-mono">07 // THE PRESS RELEASE</span>
+            </div>
+            <h2 style={{ fontFamily: "var(--font-playfair), Georgia, serif" }} className="text-3xl md:text-4xl font-bold text-zinc-900 uppercase tracking-tight leading-none">
+              From The Gazette
+            </h2>
           </div>
-          <h2 style={{ fontFamily: "var(--font-playfair), Georgia, serif" }} className="text-4xl md:text-5xl font-bold text-white uppercase tracking-tight leading-none">
-            Editorial Journal
-          </h2>
-          <p className="text-sm text-gray-400 mt-3 max-w-xl font-light">
-            Step into the editorial world of Norex. Read curated essays, studio design journals, and developments in Nigerian contemporary drapes.
-          </p>
+          <Link href="/editorial" className="text-xs font-bold uppercase tracking-wider text-[#C9A84C] hover:text-zinc-900 transition-colors text-decoration-none inline-flex items-center gap-1">
+            <span>Read All Chronicles</span> <ArrowRight size={14} />
+          </Link>
         </div>
 
-        {/* 3-Column Magazine Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {articles.map((art) => (
-            <Link
-              href="/editorial"
-              key={art.id}
-              onMouseEnter={handleInteract}
-              onClick={() => { if (soundEnabled) sounds.playClick() }}
-              style={{ borderColor: "rgba(255,255,255,0.05)", backgroundColor: "rgba(26,26,26,0.2)" }}
-              className="group cursor-pointer flex flex-col justify-between border rounded-sm p-4 hover:border-[#C9A84C]/50 transition-all duration-300 backdrop-blur-md"
-            >
-              {/* Image box */}
-              <div style={{ borderColor: "rgba(255,255,255,0.05)" }} className="aspect-[4/3] rounded-sm overflow-hidden relative bg-[#FAF7F4] mb-6">
-                <img 
-                  src={art.image} 
-                  alt={art.title} 
-                  className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-700 filter grayscale group-hover:grayscale-0" 
-                />
-                <div className="absolute inset-0 bg-black/5" />
-                
-                {/* Floating category tag */}
-                <div style={{ backgroundColor: "rgba(0,0,0,0.7)", borderColor: "rgba(255,255,255,0.05)" }} className="absolute top-4 left-4 px-3 py-1 rounded-sm border text-[8px] font-mono tracking-widest uppercase text-white/90">
-                  {art.category}
+        {loading ? (
+          <div className="py-12 flex justify-center w-full"><Loader2 className="h-6 w-6 animate-spin text-[#C9A84C]" /></div>
+        ) : posts.length === 0 ? (
+          <p className="text-zinc-400 font-mono text-xs uppercase text-center py-6">No journal updates published currently.</p>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {posts.map((post) => (
+              <Link href="/editorial" key={post._id} className="group text-decoration-none space-y-4 block">
+                <div className="relative aspect-[16/11] overflow-hidden bg-zinc-50 border border-zinc-200 rounded-sm">
+                  {post.image ? (
+                    <img src={post.image} alt={post.title} className="w-full h-full object-cover filter grayscale group-hover:grayscale-0 transition-all duration-700" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-zinc-300"><FileText size={28} /></div>
+                  )}
                 </div>
-              </div>
-
-              {/* Text metadata */}
-              <div className="text-left space-y-4 px-1 pb-1">
-                <div style={{ letterSpacing: "0.1em" }} className="flex justify-between items-center text-[9px] font-mono text-gray-500 uppercase font-semibold">
-                  <span>{art.date}</span>
-                  <span>{art.readTime}</span>
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center text-[9px] font-mono text-zinc-400 font-bold uppercase tracking-wider">
+                    <span style={{ color: goldColor }}>{post.category}</span>
+                    <span>{post.readTime}</span>
+                  </div>
+                  <h3 style={{ fontFamily: "var(--font-playfair), serif" }} className="text-lg font-bold text-zinc-900 uppercase leading-snug group-hover:text-[#C9A84C] transition-colors line-clamp-2">{post.title}</h3>
+                  <p className="text-xs text-zinc-500 font-light leading-relaxed line-clamp-2">{post.summary}</p>
                 </div>
-
-                <h3 style={{ fontFamily: "var(--font-playfair), Georgia, serif" }} className="text-xl font-bold uppercase text-white tracking-wide leading-tight group-hover:text-primary transition-colors line-clamp-2">
-                  {art.title}
-                </h3>
-                
-                <p className="text-xs text-gray-400 font-light leading-relaxed line-clamp-3">
-                  {art.desc}
-                </p>
-
-                <div 
-                  style={{ borderTopColor: "rgba(255,255,255,0.05)", color: goldColor }} 
-                  className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider group-hover:text-white transition-colors pt-4 border-t"
-                >
-                  <span>Open Article</span>
-                  <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-1 transition-transform" />
-                </div>
-              </div>
-
-            </Link>
-          ))}
-        </div>
-
+              </Link>
+            ))}
+          </div>
+        )}
       </div>
     </section>
-  )
+  );
 }
