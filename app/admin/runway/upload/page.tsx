@@ -67,6 +67,14 @@ export default function RunwayUploadWorkspace() {
     loadDropdowns();
   }, [activeTab]);
 
+  // Fixed: Declared file change listener loop to track cover previews safely
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files?.[0]) {
+      setCoverFile(e.target.files[0]);
+      setCoverPreview(URL.createObjectURL(e.target.files[0]));
+    }
+  };
+
   const handleAddSwatch = () => setSwatches([...swatches, { name: "", hex: "#ffffff", rgb: "RGB 255 255 255", desc: "" }]);
   
   const handleUpdateSwatch = (idx: number, key: keyof ColorSwatch, value: string) => {
