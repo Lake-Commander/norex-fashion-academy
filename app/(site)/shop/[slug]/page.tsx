@@ -1,14 +1,13 @@
 import { notFound } from "next/navigation";
-import { products, getProductBySlug, getProductsByCategory } from "@/lib/data/products";
+import connectDB from "@/lib/mongodb";
+import Product from "@/lib/models/ProductModel";
 import ProductDetailClient from "./ProductDetailClient";
-
-export function generateStaticParams() {
-  return products.map((p) => ({ slug: p.slug }));
-}
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const product = getProductBySlug(slug);
+  await connectDB();
+  const product = await Product.findOne({ slug }).lean();
+  
   if (!product) return { title: "Product Not Found" };
   
   return {
@@ -19,14 +18,22 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function ProductDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const product = getProductBySlug(slug);
-  
-  if (!product) notFound();
+  await connectDB();
 
-  // Get related products (same category, excluding current product), limited to 3
-  const relatedProducts = getProductsByCategory(product.category)
-    .filter(p => p.id !== product.id)
-    .slice(0, 3);
+  // Fetch the primary product document
+  const productDoc = await Product.findOne({ slug }).lean();
+  if (!productDoc) notFound();
+
+  // Stringify MongoDB ObjectIds to prevent Next.js Hydration boundary exceptions
+  const product = JSON.parse(JSON.stringify(productDoc));
+
+  // Query up to 3 related garments in the same category, excluding the active item
+  const relatedDocs = await Product.find({
+    category: product.category,
+    _id: { $ne: product._id }
+  }).limit(3).lean();
+  
+  const relatedProducts = JSON.parse(JSON.stringify(relatedDocs));
 
   return <ProductDetailClient product={product} relatedProducts={relatedProducts} />;
 }

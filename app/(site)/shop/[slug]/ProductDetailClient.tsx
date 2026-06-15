@@ -2,10 +2,10 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
-import Link from "next/link";
+import Link from "next/link"; // Fixed safe next/link import
 import { formatPrice, generateWhatsAppLink } from "@/lib/utils";
 import { useShop } from "@/context/ShopContext";
-import { ShoppingBag, Heart, MessageCircle, Minus, Plus, Star } from "lucide-react";
+import { ShoppingBag, Heart, MessageCircle, Minus, Plus, Star, Check } from "lucide-react";
 
 export default function ProductDetailClient({ product, relatedProducts }: { product: any, relatedProducts: any[] }) {
   const { addToCart, toggleWishlist, isInWishlist } = useShop();
@@ -22,13 +22,50 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [reviewText, setReviewText] = useState(""); // Renamed from 'review' to 'reviewText' to avoid confusion
+  const [reviewText, setReviewText] = useState("");
 
-  const msg = `Hi I am interested in ordering the ${product.name} (${formatPrice(product.price)}). Please provide more details.`;
+  // Product Selection States for Variations
+  const [selectedSize, setSelectedSize] = useState(product.sizes?.[0] || "M");
+  const [selectedColor, setSelectedColor] = useState(product.colors?.[0] || "Default Matrix");
+  const [selectedGender, setSelectedGender] = useState(product.gender === "Both" ? "Female" : product.gender);
+
+  // WhatsApp Intent Trigger String Configuration
+  const msg = `Hi Norex Atelier, I am interested in ordering the ${product.name} (${formatPrice(product.price)}).\n\nMy Configurations:\n- Size: ${selectedSize}\n- Color Swatch: ${selectedColor}\n- Fit Cut: ${selectedGender === "Both" ? "Unisex" : selectedGender}\n\nPlease verify availability.`;
   const whatsappLink = generateWhatsAppLink("+2349043371380", msg);
 
+  // Normalization Adapter to guarantee absolute runtime alignment with global type constraints
+  const getContextPayload = (targetProduct = product) => {
+    return {
+      ...targetProduct,
+      id: targetProduct._id || targetProduct.id,
+      featured: targetProduct.isFeatured || targetProduct.featured,
+      selectedSize: targetProduct === product ? selectedSize : targetProduct.sizes?.[0] || "M",
+      selectedColor: targetProduct === product ? selectedColor : targetProduct.colors?.[0] || "Default Matrix",
+      selectedGender: targetProduct === product ? selectedGender : targetProduct.gender === "Both" ? "Female" : targetProduct.gender
+    };
+  };
+
   const handleAddToCart = () => {
-    addToCart(product, quantity);
+    addToCart(getContextPayload(), quantity);
+  };
+
+  const handleWhatsAppOrderRedirect = async () => {
+    try {
+      // Dispatches a manual pending tracer directly to your admin orders dashboard
+      await fetch("/api/admin/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          items: [{ product: product._id, name: product.name, quantity, size: selectedSize, color: selectedColor, gender: selectedGender }],
+          totalAmount: product.price * quantity,
+          paymentGateway: "WhatsApp",
+          paymentStatus: "Pending"
+        })
+      });
+    } catch (err) {
+      console.error("Manual order tracing failed:", err);
+    }
+    window.open(whatsappLink, "_blank");
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -46,7 +83,7 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          productId: product.id,
+          productId: product._id, // Updated to track product by database ID string
           user: name,
           email,
           rating,
@@ -58,11 +95,7 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
 
       if (data.success) {
         alert("Review submitted!");
-
-        // Instantly append the new review from the database to the screen
         setReviews((prev: any) => [...prev, data.data]);
-
-        // Reset the form
         setName("");
         setEmail("");
         setReviewText("");
@@ -87,17 +120,18 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
 
         .sz { border: 1px solid #e5e7eb; padding: 0.6rem 1.25rem; font-size: 0.8rem; cursor: pointer; transition: all 0.3s ease; background: white; font-family: inherit; border-radius: 2px; font-weight: 500; color: #4b5563; }
         .sz:hover { border-color: #C9A84C; color: #C9A84C; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(201, 168, 76, 0.15); }
+        .sz.active { border-color: #1a1a1a; color: #1a1a1a; background-color: #FAF7F4; font-weight: 700; }
 
-        .image-wrapper { position: relative; aspect-ratio: 3/4; overflow: hidden; background-color: #F0EBE3; border-radius: 2px; }
+        .image-wrapper { position: relative; aspect-ratio: 3/4; overflow: hidden; background-color: #FAF7F4; border-radius: 2px; border: 1px solid #f0ebe3; }
         
         .btn-whatsapp { display: flex; align-items: center; justify-content: center; gap: 0.75rem; background-color: #25D366; color: white; padding: 1rem 2rem; font-size: 0.8rem; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; text-decoration: none; width: 100%; transition: all 0.3s ease; border-radius: 2px; border: none; cursor: pointer; }
         .btn-whatsapp:hover { background-color: #20b558; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(37, 211, 102, 0.4); }
 
-        .btn-gold-solid { display: flex; align-items: center; justify-content: center; gap: 0.75rem; background-color: #C9A84C; color: white; padding: 1rem 2rem; font-size: 0.8rem; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; text-decoration: none; transition: all 0.3s ease; border-radius: 2px; border: 1px solid #C9A84C; cursor: pointer; width: 100%; }
-        .btn-gold-solid:hover { background-color: #B49542; border-color: #B49542; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(201, 168, 76, 0.4); }
+        .btn-gold-solid { display: flex; align-items: center; justify-content: center; gap: 0.75rem; background-color: #1a1a1a; color: white; padding: 1rem 2rem; font-size: 0.8rem; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; text-decoration: none; transition: all 0.3s ease; border-radius: 2px; border: 1px solid #1a1a1a; cursor: pointer; width: 100%; }
+        .btn-gold-solid:hover { background-color: #C9A84C; border-color: #C9A84C; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(201, 168, 76, 0.25); }
 
-        .btn-wishlist { display: flex; align-items: center; justify-content: center; gap: 0.75rem; background-color: white; color: #C9A84C; padding: 1rem 2rem; font-size: 0.8rem; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; transition: all 0.3s ease; border-radius: 2px; border: 1px solid #C9A84C; cursor: pointer; width: 100%; }
-        .btn-wishlist:hover { background-color: #FAF7F4; transform: translateY(-2px); }
+        .btn-wishlist { display: flex; align-items: center; justify-content: center; gap: 0.75rem; background-color: white; color: #4b5563; padding: 1rem 2rem; font-size: 0.8rem; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; transition: all 0.3s ease; border-radius: 2px; border: 1px solid #e5e7eb; cursor: pointer; width: 100%; }
+        .btn-wishlist:hover { border-color: #1a1a1a; color: #1a1a1a; transform: translateY(-2px); }
 
         .qty-wrapper { display: inline-flex; align-items: center; border: 1px solid #e5e7eb; border-radius: 2px; }
         .qty-btn { background: white; border: none; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #1a1a1a; transition: all 0.2s; }
@@ -108,23 +142,34 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
         .tab-btn.active { color: #C9A84C; border-bottom-color: #C9A84C; }
         .tab-btn:hover:not(.active) { color: #1a1a1a; }
 
+        /* Related Products Layout Classes */
         .pg { display: grid; grid-template-columns: 1fr; gap: 2rem; }
         @media(min-width:640px){ .pg { grid-template-columns: repeat(2,1fr); } }
         @media(min-width:1024px){ .pg { grid-template-columns: repeat(3,1fr); } }
-        .pc { display: block; text-decoration: none; }
+        
+        .pc { display: block; text-decoration: none; position: relative; background: white; border: 1px solid #f4f4f5; padding: 0.75rem; border-radius: 1px; }
+        .pc-img-frame { position: relative; overflow: hidden; aspect-ratio: 3/4; background-color: #FAF7F4; }
         .pc-img { transition: transform 0.7s ease; }
-        .pc:hover .pc-img { transform: scale(1.05); }
+        .pc:hover .pc-img { transform: scale(1.03); }
+
+        .pc-overlay { position: absolute; inset: 0; background-color: rgba(0,0,0,0.12); display: flex; align-items: flex-end; justify-content: center; padding-bottom: 1.5rem; gap: 0.5rem; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 10; }
+        .pc:hover .pc-overlay { opacity: 1; pointer-events: auto; }
+        
+        .pc-action-btn { color: white; font-size: 0.65rem; letter-spacing: 0.12em; text-transform: uppercase; border: 1px solid rgba(255,255,255,0.8); padding: 0.5rem 1rem; transition: all 0.2s; font-weight: 700; background: rgba(26,26,26,0.8); border-radius: 1px; display: inline-flex; align-items: center; gap: 0.35rem; cursor: pointer; }
+        .pc-action-btn:hover { background-color: #C9A84C; border-color: #C9A84C; }
+        .pc-wishlist-trigger { position: absolute; top: 0.75rem; right: 0.75rem; background: white; border: 1px solid #f4f4f5; border-radius: 50%; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 20; box-shadow: 0 4px 10px rgba(0,0,0,0.02); transition: transform 0.2s; }
+        .pc-wishlist-trigger:hover { transform: scale(1.08); }
 
         .form-input { width: 100%; padding: 0.875rem 1rem; border: 1px solid #e5e7eb; border-radius: 2px; font-size: 0.9rem; color: #1a1a1a; outline: none; transition: border-color 0.2s; font-family: inherit; }
         .form-input:focus { border-color: #C9A84C; box-shadow: 0 0 0 1px #C9A84C; }
-        
         .btn-submit { align-self: flex-start; background-color: #1a1a1a; color: white; padding: 0.875rem 2rem; font-size: 0.8rem; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; border: 1px solid #1a1a1a; cursor: pointer; transition: all 0.3s ease; border-radius: 2px; }
         .btn-submit:hover { background-color: #C9A84C; border-color: #C9A84C; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(201, 168, 76, 0.3); }
       `}</style>
       
+      {/* Breadcrumbs Row */}
       <div style={{ paddingTop: "8rem", paddingBottom: "1.5rem", borderBottom: "1px solid #f0ebe3", backgroundColor: "#FAF7F4" }}>
         <div className="container-custom">
-          <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", justifyContent: "flex-start" }}>
             <Link href="/" className="breadcrumb-link">Home</Link>
             <span style={{ color: "#d1d5db" }}>/</span>
             <Link href="/shop" className="breadcrumb-link">Shop</Link>
@@ -137,28 +182,47 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
       <div className="container-custom" style={{ paddingTop: "4rem", paddingBottom: "4rem" }}>
         <div className="pdg">
           <div className="image-wrapper">
-            <Image src={product.images[0]} alt={product.name} fill style={{ objectFit: "cover" }} sizes="(max-width:1024px) 100vw,50vw" priority />
+            <Image src={product.images?.[0] || "/placeholder-garment.png"} alt={product.name} fill style={{ objectFit: "cover" }} sizes="(max-width:1024px) 100vw,50vw" priority />
           </div>
 
-          <div style={{ position: "sticky", top: "6rem", alignSelf: "flex-start" }}>
+          <div style={{ position: "sticky", top: "6rem", alignSelf: "flex-start", textAlign: "left" }}>
             <p style={{ fontSize: "0.65rem", letterSpacing: "0.25em", textTransform: "uppercase", color: "#C9A84C", fontWeight: 600, marginBottom: "1rem" }}>{product.category}</p>
             <h1 style={{ fontFamily: "var(--font-playfair), Georgia, serif", fontSize: "clamp(2rem, 4vw, 3rem)", fontWeight: 700, color: "#1a1a1a", lineHeight: 1.1, marginBottom: "1rem" }}>{product.name}</h1>
-            <p style={{ fontSize: "1.75rem", fontWeight: 700, color: "#C9A84C", marginBottom: "1.5rem" }}>{formatPrice(product.price)}</p>
+            <p style={{ fontSize: "1.75rem", fontWeight: 700, color: "#C9A84C", marginBottom: "1.5rem", fontFamily: "monospace" }}>{formatPrice(product.price)}</p>
             
             <div style={{ height: "1px", backgroundColor: "#f0ebe3", marginBottom: "1.5rem" }} />
             <p style={{ fontSize: "0.95rem", color: "#6b7280", lineHeight: 1.9, marginBottom: "2rem" }}>{product.description}</p>
             
+            {/* Conditional Gender Selector Option for Unisex Catalog Pieces */}
+            {product.gender === "Both" && (
+              <div style={{ marginBottom: "1.5rem" }}>
+                <p style={{ fontSize: "0.7rem", letterSpacing: "0.2em", textTransform: "uppercase", fontWeight: 600, color: "#1a1a1a", marginBottom: "0.875rem" }}>Specify Fit Profile</p>
+                <div style={{ display: "flex", gap: "0.5rem" }}>
+                  {["Female", "Male"].map((genderOption) => (
+                    <button key={genderOption} type="button" onClick={() => setSelectedGender(genderOption)} className={`sz ${selectedGender === genderOption ? "active" : ""}`}>
+                      {genderOption === "Female" ? "Women's Fit Profile" : "Men's Fit Profile"}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Sizes & Color Variation Option Blocks */}
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2rem", marginBottom: "2.5rem" }}>
               <div>
                 <p style={{ fontSize: "0.7rem", letterSpacing: "0.2em", textTransform: "uppercase", fontWeight: 600, color: "#1a1a1a", marginBottom: "0.875rem" }}>Sizes</p>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
-                  {product.sizes.map((size: string) => (<button key={size} className="sz">{size}</button>))}
+                  {product.sizes?.map((size: string) => (
+                    <button key={size} type="button" onClick={() => setSelectedSize(size)} className={`sz ${selectedSize === size ? "active" : ""}`}>{size}</button>
+                  ))}
                 </div>
               </div>
               <div>
                 <p style={{ fontSize: "0.7rem", letterSpacing: "0.2em", textTransform: "uppercase", fontWeight: 600, color: "#1a1a1a", marginBottom: "0.875rem" }}>Colors</p>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
-                  {product.colors.map((color: string) => (<button key={color} className="sz">{color}</button>))}
+                  {product.colors?.map((color: string) => (
+                    <button key={color} type="button" onClick={() => setSelectedColor(color)} className={`sz ${selectedColor === color ? "active" : ""}`}>{color}</button>
+                  ))}
                 </div>
               </div>
             </div>
@@ -166,75 +230,86 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
             <div style={{ display: "flex", flexDirection: "column", gap: "1rem", marginBottom: "2rem" }}>
               <div style={{ display: "flex", gap: "1rem" }}>
                 <div className="qty-wrapper">
-                  <button className="qty-btn" onClick={() => setQuantity(Math.max(1, quantity - 1))}><Minus size={16}/></button>
+                  <button type="button" className="qty-btn" onClick={() => setQuantity(Math.max(1, quantity - 1))}><Minus size={16}/></button>
                   <input type="text" value={quantity} readOnly className="qty-input" />
-                  <button className="qty-btn" onClick={() => setQuantity(quantity + 1)}><Plus size={16}/></button>
+                  <button type="button" className="qty-btn" onClick={() => setQuantity(quantity + 1)}><Plus size={16}/></button>
                 </div>
-                <button onClick={handleAddToCart} className="btn-gold-solid">
+                <button type="button" onClick={handleAddToCart} className="btn-gold-solid">
                   <ShoppingBag size={18} /> Add to Cart
                 </button>
               </div>
 
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
-                <button onClick={() => toggleWishlist(product)} className="btn-wishlist">
-                  <Heart size={18} fill={isInWishlist(product.id) ? "#C9A84C" : "transparent"} /> 
-                  {isInWishlist(product.id) ? "Saved" : "Wishlist"}
+                <button type="button" onClick={() => toggleWishlist(getContextPayload())} className="btn-wishlist">
+                  <Heart size={18} fill={isInWishlist(product._id) ? "#C9A84C" : "transparent"} color={isInWishlist(product._id) ? "#C9A84C" : "#4b5563"} /> 
+                  {isInWishlist(product._id) ? "Saved in Registry" : "Wishlist"}
                 </button>
-                <a href={whatsappLink} target="_blank" rel="noopener noreferrer" className="btn-whatsapp">
+                <button type="button" onClick={handleWhatsAppOrderRedirect} className="btn-whatsapp">
                   <MessageCircle size={18} /> WhatsApp
-                </a>
+                </button>
               </div>
             </div>
           </div>
         </div>
       </div>
 
+      {/* Product Detail Specifications Tabs */}
       <div style={{ backgroundColor: "#FAF7F4", borderTop: "1px solid #f0ebe3", borderBottom: "1px solid #f0ebe3" }}>
         <div className="container-custom">
           <div style={{ display: "flex", justifyContent: "center", borderBottom: "1px solid #e5e7eb", gap: "1rem", flexWrap: "wrap" }}>
-            <button className={`tab-btn ${activeTab === 'description' ? 'active' : ''}`} onClick={() => setActiveTab('description')}>Description</button>
-            <button className={`tab-btn ${activeTab === 'info' ? 'active' : ''}`} onClick={() => setActiveTab('info')}>Additional Info</button>
-            
-            {/* UPDATED TO USE REVIEWS STATE LENGTH */}
-            <button className={`tab-btn ${activeTab === 'reviews' ? 'active' : ''}`} onClick={() => setActiveTab('reviews')}>Reviews ({reviews.length})</button>
+            <button type="button" className={`tab-btn ${activeTab === 'description' ? 'active' : ''}`} onClick={() => setActiveTab('description')}>Description</button>
+            <button type="button" className={`tab-btn ${activeTab === 'info' ? 'active' : ''}`} onClick={() => setActiveTab('info')}>Additional Info</button>
+            <button type="button" className={`tab-btn ${activeTab === 'reviews' ? 'active' : ''}`} onClick={() => setActiveTab('reviews')}>Reviews ({reviews.length})</button>
           </div>
 
-          <div style={{ padding: "4rem 0", maxWidth: "800px", margin: "0 auto" }}>
-            {activeTab === 'description' && <div><h3 style={{ fontFamily: "var(--font-playfair)", marginBottom: "1rem" }}>Description</h3><p style={{ color: "#4b5563" }}>{product.description}</p></div>}
+          <div style={{ padding: "4rem 0", maxWidth: "800px", margin: "0 auto", textAlign: "left" }}>
+            {activeTab === 'description' && <div><h3 style={{ fontFamily: "var(--font-playfair), serif", fontSize: "1.25rem", marginBottom: "1rem" }} className="font-bold uppercase">Description</h3><p style={{ color: "#4b5563" }} className="text-sm font-light leading-relaxed">{product.description}</p></div>}
             
             {activeTab === 'info' && (
               <div>
-                <h3 style={{ fontFamily: "var(--font-playfair)", marginBottom: "1.5rem" }}>Additional Info</h3>
-                <table style={{ width: "100%" }}><tbody>{product.additionalInfo?.map((i: any, idx: number) => <tr key={idx}><td style={{ padding: "0.5rem", fontWeight: 600 }}>{i.label}</td><td>{i.value}</td></tr>)}</tbody></table>
+                <h3 style={{ fontFamily: "var(--font-playfair), serif", fontSize: "1.25rem", marginBottom: "1.5rem" }} className="font-bold uppercase">Additional Info</h3>
+                <table style={{ width: "100%", fontSize: "0.85rem" }} className="divide-y divide-zinc-200">
+                  <tbody>
+                    {product.additionalInfo?.map((i: any, idx: number) => (
+                      <tr key={idx}>
+                        <td style={{ padding: "0.6rem 0.5rem", fontWeight: 700 }} className="font-mono text-[10px] tracking-wide text-zinc-400 uppercase">{i.label}</td>
+                        <td style={{ padding: "0.6rem 0.5rem" }} className="text-zinc-600 font-light">{i.value}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             )}
 
             {activeTab === 'reviews' && (
               <div>
-                <h3 style={{ fontFamily: "var(--font-playfair)", marginBottom: "2rem" }}>Customer Reviews</h3>
+                <h3 style={{ fontFamily: "var(--font-playfair), serif", fontSize: "1.25rem", marginBottom: "2rem" }} className="font-bold uppercase">Customer Reviews</h3>
                 
-                {/* UPDATED TO MAP OVER REVIEWS STATE */}
-                {reviews.map((rev: any, i: number) => (
-                  <div key={i} style={{ display: "flex", gap: "1rem", marginBottom: "1rem" }}>
-                    <div style={{ width: "40px", height: "40px", backgroundColor: "#C9A84C", color: "white", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center" }}>{rev.user[0]}</div>
-                    <div>
-                      <div style={{ display: "flex", gap: "0.25rem", marginBottom: "0.25rem" }}>
-                        {[1, 2, 3, 4, 5].map((s) => (
-                          <Star key={s} size={14} fill={s <= rev.rating ? "#C9A84C" : "transparent"} color={s <= rev.rating ? "#C9A84C" : "#e5e7eb"} />
-                        ))}
+                {reviews.length === 0 ? (
+                  <p className="text-zinc-400 font-mono text-xs uppercase py-4">No validation critiques left for this piece yet.</p>
+                ) : (
+                  reviews.map((rev: any, i: number) => (
+                    <div key={i} style={{ display: "flex", gap: "1rem", marginBottom: "1.5rem" }} className="border-b border-zinc-100 pb-3">
+                      <div style={{ width: "40px", height: "40px", backgroundColor: "#1a1a1a", color: "white", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: "bold" }}>{rev.user?.[0] || "U"}</div>
+                      <div>
+                        <div style={{ display: "flex", gap: "0.25rem", marginBottom: "0.25rem" }}>
+                          {[1, 2, 3, 4, 5].map((s) => (
+                            <Star key={s} size={13} fill={s <= rev.rating ? "#C9A84C" : "transparent"} color={s <= rev.rating ? "#C9A84C" : "#e5e7eb"} />
+                          ))}
+                        </div>
+                        <p className="text-xs font-bold text-zinc-900 uppercase tracking-wide">{rev.user}</p>
+                        <p style={{ color: "#4b5563" }} className="text-xs mt-1 font-light">{rev.comment}</p>
                       </div>
-                      <p><strong>{rev.user}</strong></p>
-                      <p style={{ color: "#4b5563" }}>{rev.comment}</p>
                     </div>
-                  </div>
-                ))}
+                  ))
+                )}
                 
                 <div style={{ marginTop: "3rem", padding: "2.5rem", border: "1px solid #f0ebe3", backgroundColor: "white" }}>
-                  <h4 style={{ fontFamily: "var(--font-playfair)", fontSize: "1.25rem", marginBottom: "1.5rem" }}>Add a Review</h4>
-                  <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-                    <div style={{ display: "flex", gap: "0.25rem", marginBottom: "0.5rem" }}>
+                  <h4 style={{ fontFamily: "var(--font-playfair), serif", fontSize: "1.15rem", marginBottom: "1.5rem" }} className="font-bold uppercase">Add a Review</h4>
+                  <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
+                    <div style={{ display: "flex", gap: "0.25rem" }}>
                       {[1,2,3,4,5].map((s) => (
-                        <Star key={s} size={20} cursor="pointer" 
+                        <Star key={s} size={18} cursor="pointer" 
                           onClick={() => setRating(s)} 
                           fill={(hoveredStar || rating) >= s ? "#C9A84C" : "transparent"} 
                           color={(hoveredStar || rating) >= s ? "#C9A84C" : "#d1d5db"} 
@@ -257,28 +332,54 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
         </div>
       </div>
       
-      {/* RELATED PRODUCTS */}
+      {/* RELATED STATEMENT PRODUCTS OVERLAY GRID */}
       {relatedProducts.length > 0 && (
         <div style={{ paddingTop: "5rem", paddingBottom: "6rem", backgroundColor: "white" }}>
           <div className="container-custom">
             <div style={{ textAlign: "center", marginBottom: "3rem" }}>
-              <h2 style={{ fontFamily: "var(--font-playfair), Georgia, serif", fontSize: "clamp(1.75rem, 4vw, 2.5rem)", fontWeight: 700, color: "#1a1a1a" }}>Related Products</h2>
+              <h2 style={{ fontFamily: "var(--font-playfair), Georgia, serif", fontSize: "clamp(1.75rem, 4vw, 2.5rem)", fontWeight: 700, color: "#1a1a1a", textTransform: "uppercase" }}>Related Products</h2>
             </div>
             <div className="pg">
-              {relatedProducts.map((p) => (
-                <Link key={p.id} href={`/shop/${p.slug}`} className="pc">
-                  <div style={{ position: "relative", overflow: "hidden", backgroundColor: "#F0EBE3", aspectRatio: "3/4", marginBottom: "1.25rem", borderRadius: "2px" }}>
-                    <Image src={p.images[0]} alt={p.name} fill className="pc-img" style={{ objectFit: "cover" }} sizes="(max-width:640px) 100vw,(max-width:1024px) 50vw,33vw" />
-                  </div>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-                    <div>
-                      <h3 style={{ fontFamily: "var(--font-playfair), Georgia, serif", fontSize: "1.1rem", fontWeight: 700, color: "#1a1a1a", marginBottom: "0.25rem", transition: "color 0.3s" }} className="prod-name">{p.name}</h3>
-                      <p style={{ fontSize: "0.8rem", color: "#9ca3af", fontWeight: 500 }}>{p.category}</p>
+              {relatedProducts.map((p) => {
+                const isWished = isInWishlist(p._id || p.id);
+                return (
+                  <div key={p._id || p.id} className="pc">
+                    <div className="pc-img-frame">
+                      <Image src={p.images?.[0] || "/placeholder-garment.png"} alt={p.name} fill className="pc-img" style={{ objectFit: "cover" }} sizes="(max-width:640px) 100vw,(max-width:1024px) 50vw,33vw" />
+                      
+                      {/* Integrated Hover Overlay Providing Tri-Action Controls */}
+                      <div className="pc-overlay">
+                        <button type="button" className="pc-action-btn" onClick={() => addToCart(getContextPayload(p), 1)}>
+                          <ShoppingBag size={12} /> Add
+                        </button>
+                        <Link href={`/shop/${p.slug}`} className="pc-action-btn" style={{ textDecoration: "none" }}>
+                          View Details
+                        </Link>
+                      </div>
+
+                      {/* Decoupled Wishlist Save Trigger Overlay Button */}
+                      <button 
+                        type="button" 
+                        onClick={() => toggleWishlist(getContextPayload(p))}
+                        className="pc-wishlist-trigger"
+                        title={isWished ? "Remove from registry" : "Save to registry"}
+                      >
+                        <Heart size={14} color="#C9A84C" fill={isWished ? "#C9A84C" : "transparent"} />
+                      </button>
                     </div>
-                    <p style={{ fontSize: "1rem", fontWeight: 700, color: "#C9A84C", marginLeft: "1rem" }}>{formatPrice(p.price)}</p>
+
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", paddingTop: "1rem" }}>
+                      <div style={{ textAlign: "left" }}>
+                        <Link href={`/shop/${p.slug}`} style={{ textDecoration: "none" }}>
+                          <h3 style={{ fontFamily: "var(--font-playfair), Georgia, serif", fontSize: "1.05rem", fontWeight: 700, color: "#1a1a1a", marginBottom: "0.25rem" }} className="sct">{p.name}</h3>
+                        </Link>
+                        <p style={{ fontSize: "0.8rem", color: "#9ca3af", fontWeight: 500 }}>{p.category}</p>
+                      </div>
+                      <p style={{ fontSize: "1rem", fontWeight: 700, color: "#C9A84C", marginLeft: "1rem", fontFamily: "monospace" }}>{formatPrice(p.price)}</p>
+                    </div>
                   </div>
-                </Link>
-              ))}
+                );
+              })}
             </div>
           </div>
         </div>

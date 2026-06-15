@@ -2,25 +2,29 @@
 
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { Product } from "@/types";
-import { sounds } from "@/lib/sound-utils"; // Make sure this path is correct
+import { sounds } from "@/lib/sound-utils";
 
 export type Theme = 'obsidian' | 'cyber' | 'ivory' | 'emerald';
 
-type CartItem = Product & { orderQuantity: number };
+// Expanded CartItem type to explicitly track unique garment attribute configurations
+export type CartItem = Product & { 
+  orderQuantity: number;
+  selectedSize: string;
+  selectedColor: string;
+  selectedGender: string;
+};
 
 interface ShopContextType {
-  // E-commerce State
   cart: CartItem[];
   wishlist: Product[];
   cartTotal: number;
-  addToCart: (product: Product, quantity?: number) => void;
-  removeFromCart: (productId: string) => void;
-  updateQuantity: (productId: string, quantity: number) => void;
+  addToCart: (product: any, quantity?: number) => void;
+  removeFromCart: (productId: string, size: string, color: string, gender: string) => void;
+  updateQuantity: (productId: string, size: string, color: string, gender: string, quantity: number) => void;
   clearCart: () => void;
   toggleWishlist: (product: Product) => void;
   isInWishlist: (productId: string) => boolean;
   
-  // UI & Theme State
   theme: Theme;
   setTheme: (theme: Theme) => void;
   soundEnabled: boolean;
@@ -36,7 +40,6 @@ interface ShopContextType {
 const ShopContext = createContext<ShopContextType | undefined>(undefined);
 
 export function ShopProvider({ children }: { children: React.ReactNode }) {
-  // --- STATE ---
   const [cart, setCart] = useState<CartItem[]>([]);
   const [wishlist, setWishlist] = useState<Product[]>([]);
   
@@ -46,8 +49,7 @@ export function ShopProvider({ children }: { children: React.ReactNode }) {
   const [isWishlistOpen, setWishlistOpen] = useState<boolean>(false);
   const [isOracleOpen, setOracleOpen] = useState<boolean>(false);
 
-  // --- EFFECTS ---
-  // Load from local storage on mount
+  // Load from local storage securely on mount
   useEffect(() => {
     const savedCart = localStorage.getItem("norex_cart");
     const savedWishlist = localStorage.getItem("norex_wishlist");
@@ -55,13 +57,12 @@ export function ShopProvider({ children }: { children: React.ReactNode }) {
     if (savedWishlist) setWishlist(JSON.parse(savedWishlist));
   }, []);
 
-  // Save to local storage on change
+  // Sync to local storage on mutation loop changes
   useEffect(() => {
     localStorage.setItem("norex_cart", JSON.stringify(cart));
     localStorage.setItem("norex_wishlist", JSON.stringify(wishlist));
   }, [cart, wishlist]);
 
-  // Sync theme class to html/body
   useEffect(() => {
     if (typeof document !== 'undefined') {
       const root = document.documentElement;
@@ -69,9 +70,6 @@ export function ShopProvider({ children }: { children: React.ReactNode }) {
       root.classList.add(`theme-${theme}`);
     }
   }, [theme]);
-
-
-  // --- FUNCTIONS ---
 
   const setTheme = (newTheme: Theme) => {
     setThemeState(newTheme);
@@ -82,34 +80,63 @@ export function ShopProvider({ children }: { children: React.ReactNode }) {
     setSoundEnabledState(enabled);
     sounds.enable(enabled);
     if (enabled) {
-      setTimeout(() => {
-        sounds.playChord();
-      }, 50);
+      setTimeout(() => { sounds.playChord(); }, 50);
     }
   };
 
-  const addToCart = (product: Product, quantity = 1) => {
+  // Evaluates combination parameters uniquely before incrementing quantities
+  const addToCart = (product: any, quantity = 1) => {
+    const targetSize = product.selectedSize || "M";
+    const targetColor = product.selectedColor || "Default Matrix";
+    const targetGender = product.selectedGender || product.gender || "Female";
+
     setCart((prev) => {
-      const existing = prev.find((item) => item.id === product.id);
+      const isMatch = (item: CartItem) => 
+        item.id === product.id && 
+        item.selectedSize === targetSize && 
+        item.selectedColor === targetColor && 
+        item.selectedGender === targetGender;
+
+      const existing = prev.find(isMatch);
       if (existing) {
         return prev.map((item) =>
-          item.id === product.id ? { ...item, orderQuantity: item.orderQuantity + quantity } : item
+          isMatch(item) ? { ...item, orderQuantity: item.orderQuantity + quantity } : item
         );
       }
-      return [...prev, { ...product, orderQuantity: quantity }];
+      
+      return [...prev, { 
+        ...product, 
+        id: product.id || product._id,
+        selectedSize: targetSize, 
+        selectedColor: targetColor, 
+        selectedGender: targetGender, 
+        orderQuantity: quantity 
+      }];
     });
     if (soundEnabled) sounds.playSuccess();
   };
 
-  const removeFromCart = (productId: string) => {
-    setCart((prev) => prev.filter((item) => item.id !== productId));
+  const removeFromCart = (productId: string, size: string, color: string, gender: string) => {
+    setCart((prev) => prev.filter((item) => !(
+      item.id === productId && 
+      item.selectedSize === size && 
+      item.selectedColor === color && 
+      item.selectedGender === gender
+    )));
     if (soundEnabled) sounds.playPop();
   };
 
-  const updateQuantity = (productId: string, quantity: number) => {
+  const updateQuantity = (productId: string, size: string, color: string, gender: string, quantity: number) => {
     if (quantity < 1) return;
     setCart((prev) =>
-      prev.map((item) => (item.id === productId ? { ...item, orderQuantity: quantity } : item))
+      prev.map((item) => (
+        item.id === productId && 
+        item.selectedSize === size && 
+        item.selectedColor === color && 
+        item.selectedGender === gender
+          ? { ...item, orderQuantity: quantity } 
+          : item
+      ))
     );
     if (soundEnabled) sounds.playClick();
   };
@@ -120,18 +147,19 @@ export function ShopProvider({ children }: { children: React.ReactNode }) {
   };
 
   const toggleWishlist = (product: Product) => {
+    const targetId = product.id || (product as any)._id;
     setWishlist((prev) => {
-      const exists = prev.find((item) => item.id === product.id);
+      const exists = prev.find((item) => (item.id || (item as any)._id) === targetId);
       if (exists) {
         if (soundEnabled) sounds.playPop();
-        return prev.filter((item) => item.id !== product.id);
+        return prev.filter((item) => (item.id || (item as any)._id) !== targetId);
       }
       if (soundEnabled) sounds.playSuccess();
-      return [...prev, product];
+      return [...prev, { ...product, id: targetId }];
     });
   };
 
-  const isInWishlist = (productId: string) => !!wishlist.find((item) => item.id === productId);
+  const isInWishlist = (productId: string) => !!wishlist.find((item) => (item.id || (item as any)._id) === productId);
 
   const cartTotal = cart.reduce((total, item) => total + item.price * item.orderQuantity, 0);
 
