@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react"; 
-import { Menu, X, ChevronDown, ShoppingBag, Heart, User, LayoutDashboard } from "lucide-react";
+import { Menu, X, ChevronDown, ShoppingBag, Heart, User, LayoutDashboard, ArrowUpRight } from "lucide-react";
 import { useShop } from "@/context/ShopContext"; 
 
 const menu_data = [
@@ -102,6 +102,10 @@ export default function Navbar() {
 
   const [pulseCart, setPulseCart] = useState(false);
   const [pulseWishlist, setPulseWishlist] = useState(false);
+
+  // ⚡ Comic Narration Display Management States
+  const [showCartPopup, setShowCartPopup] = useState(false);
+  const [showWishlistPopup, setShowWishlistPopup] = useState(false);
   
   const pathname = usePathname();
   const isHome = pathname === "/";
@@ -113,6 +117,10 @@ export default function Navbar() {
   const cartCount = cart.reduce((acc, item) => acc + item.orderQuantity, 0);
   const wishlistCount = wishlist.length;
 
+  // Track previous counts to ensure popups only trigger when items increase
+  const [prevCartCount, setPrevCartCount] = useState(cartCount);
+  const [prevWishlistCount, setPrevWishlistCount] = useState(wishlistCount);
+
   const goldColor = "#C9A84C";
 
   useEffect(() => {
@@ -122,19 +130,35 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // ⚡ Cart Observer: Fires the popup only when an item is added
   useEffect(() => {
-    if (!mounted || cartCount === 0) return;
-    setPulseCart(true);
-    const timer = setTimeout(() => setPulseCart(false), 400);
-    return () => clearTimeout(timer);
-  }, [cartCount, mounted]);
+    if (!mounted) return;
+    if (cartCount > prevCartCount) {
+      setPulseCart(true);
+      setShowCartPopup(true);
+      const timer = setTimeout(() => {
+        setPulseCart(false);
+        setShowCartPopup(false);
+      }, 3500);
+      return () => clearTimeout(timer);
+    }
+    setPrevCartCount(cartCount);
+  }, [cartCount, prevCartCount, mounted]);
 
+  // ⚡ Wishlist Observer: Fires the popup only when an item is added
   useEffect(() => {
-    if (!mounted || wishlistCount === 0) return;
-    setPulseWishlist(true);
-    const timer = setTimeout(() => setPulseWishlist(false), 400);
-    return () => clearTimeout(timer);
-  }, [wishlistCount, mounted]);
+    if (!mounted) return;
+    if (wishlistCount > prevWishlistCount) {
+      setPulseWishlist(true);
+      setShowWishlistPopup(true);
+      const timer = setTimeout(() => {
+        setPulseWishlist(false);
+        setShowWishlistPopup(false);
+      }, 3500);
+      return () => clearTimeout(timer);
+    }
+    setPrevWishlistCount(wishlistCount);
+  }, [wishlistCount, prevWishlistCount, mounted]);
 
   useEffect(() => {
     setIsOpen(false);
@@ -200,7 +224,7 @@ export default function Navbar() {
 
         /* --- Header Actions & Tooltips --- */
         .header-action-link {
-          display: flex; align-items: center; justify-content: center; position: relative;
+          position: relative; display: flex; align-items: center; justify-content: center;
           color: inherit; transition: color 0.3s; height: 100%; padding: 0.5rem;
         }
         .header-action-link:hover { color: var(--gold) !important; }
@@ -218,6 +242,29 @@ export default function Navbar() {
         }
         .header-action-link:hover .action-tooltip { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0); }
 
+        /* --- Premium High-Contrast Comic Narration Popup Structure --- */
+        .comic-narration-box {
+          position: absolute; bottom: 125%; left: 50%; transform: translateX(-50%);
+          background: white; color: #1a1a1a; border: 2.5px solid #1a1a1a;
+          padding: 0.45rem 0.75rem; font-family: monospace; font-size: 10px; font-weight: 900;
+          text-transform: uppercase; letter-spacing: 0.05em; white-space: nowrap;
+          box-shadow: 4px 4px 0px #1a1a1a; z-index: 150; pointer-events: none;
+          display: flex; align-items: center; gap: 0.35rem;
+          animation: comicZoomIn 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+        .comic-narration-box::after {
+          content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
+          border-width: 7px 7px 0 7px; border-style: solid; border-color: #1a1a1a transparent transparent transparent;
+        }
+        .comic-narration-box::before {
+          content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%) translateY(-2.5px);
+          border-width: 6px 6px 0 6px; border-style: solid; border-color: white transparent transparent transparent; z-index: 160;
+        }
+        @keyframes comicZoomIn {
+          0% { transform: translateX(-50%) scale(0.4); opacity: 0; }
+          100% { transform: translateX(-50%) scale(1); opacity: 1; }
+        }
+
         /* --- Mobile Menu --- */
         .mobile-menu {
           display: none; position: fixed; top: 72px; left: 0; width: 100%; height: calc(100vh - 72px);
@@ -231,7 +278,7 @@ export default function Navbar() {
         .mobile-sub-link:last-child { border-bottom: none; }
         .mobile-sub-link:hover { color: var(--gold); }
 
-        /* --- Dynamic Pulse Alerts System Animations --- */
+        /* --- Dynamic Badge Animations --- */
         @keyframes subtleBadgeGrow {
           0% { transform: scale(1); }
           50% { transform: scale(1.35); background-color: #1a1a1a; }
@@ -250,7 +297,7 @@ export default function Navbar() {
           .bottom-bar-link {
             flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
             gap: 0.25rem; color: #1a1a1a; text-decoration: none; font-size: 0.65rem;
-            font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; transition: color 0.3s;
+            font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; transition: color 0.3s; position: relative;
           }
           .bottom-bar-link:hover { color: var(--gold); }
           .nav-logo { height: 45px !important; }
@@ -302,7 +349,7 @@ export default function Navbar() {
                     {(item.products || item.sub_menu) && <ChevronDown size={11} style={{ marginLeft: "1px" }} />}
                   </Link>
 
-                  {/* Mega Menu Dropdown (For Shop) */}
+                  {/* Mega Menu Dropdown */}
                   {item.products && item.product_pages && (
                     <div className="mega-menu">
                       {item.product_pages.map((col, idx) => (
@@ -337,7 +384,7 @@ export default function Navbar() {
             })}
           </ul>
 
-          {/* Desktop Actions */}
+          {/* Desktop Actions Layout */}
           <div className="nav-cta">
             <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", color: isTransparent ? "white" : "#1a1a1a" }}>
               
@@ -353,6 +400,12 @@ export default function Navbar() {
                 {mounted && wishlistCount > 0 && (
                   <span className={`icon-badge ${pulseWishlist ? "badge-pulse-active" : ""}`}>{wishlistCount}</span>
                 )}
+                {/* ⚡ Desktop Wishlist Comic Notification Bubble */}
+                {showWishlistPopup && (
+                  <div className="comic-narration-box">
+                    <span>Pinned to Registry!</span> <ArrowUpRight size={11} className="text-[#C9A84C]" />
+                  </div>
+                )}
                 <span className="action-tooltip">Wishlist</span>
               </Link>
               
@@ -360,6 +413,12 @@ export default function Navbar() {
                 <ShoppingBag size={16} />
                 {mounted && cartCount > 0 && (
                   <span className={`icon-badge ${pulseCart ? "badge-pulse-active" : ""}`}>{cartCount}</span>
+                )}
+                {/* ⚡ Desktop Cart Comic Notification Bubble */}
+                {showCartPopup && (
+                  <div className="comic-narration-box">
+                    <span>Added to Bag!</span> <ArrowUpRight size={11} className="text-[#C9A84C]" />
+                  </div>
                 )}
                 <span className="action-tooltip">Cart</span>
               </Link>
@@ -474,7 +533,7 @@ export default function Navbar() {
             </div>
           </div>
         </div>
-      </header> {/* ✅ Fixed: Changed layout node close parameter wrapper safely from </nav> back to </header> */}
+      </header>
 
       {/* Mobile Bottom Navigation Bar */}
       <div className="mobile-bottom-bar">
@@ -490,6 +549,12 @@ export default function Navbar() {
               <span className={`icon-badge bottom-badge ${pulseWishlist ? "badge-pulse-active" : ""}`}>{wishlistCount}</span>
             )}
           </div>
+          {/* ⚡ Mobile Bottom Wishlist Comic Notification Bubble */}
+          {showWishlistPopup && (
+            <div className="comic-narration-box" style={{ bottom: "145%" }}>
+              <span>Pinned to Registry!</span> <ArrowUpRight size={11} className="text-[#C9A84C]" />
+            </div>
+          )}
           <span>Wishlist</span>
         </Link>
         
@@ -500,6 +565,12 @@ export default function Navbar() {
               <span className={`icon-badge bottom-badge ${pulseCart ? "badge-pulse-active" : ""}`}>{cartCount}</span>
             )}
           </div>
+          {/* ⚡ Mobile Bottom Cart Comic Notification Bubble */}
+          {showCartPopup && (
+            <div className="comic-narration-box" style={{ bottom: "145%" }}>
+              <span>Added to Bag!</span> <ArrowUpRight size={11} className="text-[#C9A84C]" />
+            </div>
+          )}
           <span>Cart</span>
         </Link>
       </div>
