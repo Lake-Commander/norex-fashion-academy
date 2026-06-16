@@ -7,12 +7,15 @@ import StyleOracle from '@/components/style-oracle'
 import { useShop } from '@/context/ShopContext'
 import { sounds } from '@/lib/sound-utils'
 import { Play, Loader2, Film, Video, X } from 'lucide-react'
+import { useTelemetry } from "@/hooks/useTelemetry" // ⚡ Telemetry Import
 
 export default function FashionFilmsPage() {
   const { soundEnabled } = useShop()
   const [films, setFilms] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [activeVideo, setActiveVideo] = useState<string | null>(null)
+  
+  const { trackVideo } = useTelemetry() // ⚡ Destructure Hook
 
   useEffect(() => {
     async function loadCinemaStreams() {
@@ -20,7 +23,6 @@ export default function FashionFilmsPage() {
         const res = await fetch("/api/runway");
         const data = await res.json();
         if (data.success) {
-          // Isolate drops configured explicitly with active video token markers
           setFilms(data.collections.filter((c: any) => c.hasFilm));
         }
       } catch (err) {
@@ -34,9 +36,11 @@ export default function FashionFilmsPage() {
 
   const handleInteract = () => { if (soundEnabled) sounds.playPop(); }
   
+  // ⚡ Telemetry: Append video tracking token signatures to the user profile
   const handlePlayFilm = (ytId: string) => {
-    if (soundEnabled) sounds.playSuccess()
-    setActiveVideo(ytId)
+    if (soundEnabled) sounds.playSuccess();
+    setActiveVideo(ytId);
+    trackVideo(ytId); 
   }
 
   const featuredFilm = films[0];
@@ -48,7 +52,6 @@ export default function FashionFilmsPage() {
       <section className="relative w-full py-16 md:py-24 border-b border-white/10">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8 space-y-12">
           
-          {/* Header Description */}
           <div className="space-y-4 max-w-2xl">
             <span className="text-[10px] font-mono tracking-[0.3em] text-[#C9A84C] uppercase font-black flex items-center gap-1.5">
               <Film className="h-3.5 w-3.5" />
@@ -66,7 +69,6 @@ export default function FashionFilmsPage() {
             <div className="py-12 flex justify-center w-full"><Loader2 className="h-6 w-6 animate-spin text-[#C9A84C]" /></div>
           ) : (
             <>
-              {/* Top Big Cinema Feature Card Showcase */}
               {featuredFilm && (
                 <div className="relative w-full aspect-[21/9] bg-zinc-950 border border-white/10 rounded-sm overflow-hidden flex items-center justify-center shadow-2xl">
                   <div className="absolute inset-0 bg-cover bg-center opacity-40 grayscale" style={{ backgroundImage: `url(${featuredFilm.coverImage || "/placeholder.png"})` }} />
@@ -90,7 +92,6 @@ export default function FashionFilmsPage() {
                 </div>
               )}
 
-              {/* Grid Array Film Racks */}
               <div className="space-y-6 pt-6">
                 <div>
                   <span className="text-[9px] font-mono tracking-widest text-[#C9A84C] font-black block">THE ATELIER SCREENING RACKS</span>
@@ -139,7 +140,6 @@ export default function FashionFilmsPage() {
         </div>
       </section>
 
-      {/* Screen Video Layer Lightbox Modal */}
       {activeVideo && (
         <div className="fixed inset-0 z-50 bg-black flex items-center justify-center p-4 sm:p-8">
           <button type="button" onClick={() => setActiveVideo(null)} className="absolute top-6 right-6 p-2.5 rounded-full bg-zinc-900 hover:bg-zinc-800 text-white z-50 cursor-pointer">

@@ -1,10 +1,12 @@
-// app/academy/courses/[slug]/page.tsx
 import { notFound } from "next/navigation";
 import connectDB from "@/lib/mongodb";
 import Course from "@/lib/models/CourseModel";
 import Link from "next/link";
-import { Clock, CheckCircle, Users, Award, ChevronRight } from "lucide-react";
+import { Clock, CheckCircle, ChevronRight } from "lucide-react";
 import { formatPrice } from "@/lib/utils";
+
+// ⚡ Dynamic Client Hydration Node: Safely bridges server-side layouts to user profile tracking arrays
+import CourseTelemetryTracker from "@/components/academy/CourseTelemetryTracker"; 
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -26,6 +28,9 @@ export default async function DynamicCourseDetailPage({ params }: { params: Prom
 
   return (
     <div className="bg-white min-h-screen text-zinc-800 font-sans">
+      {/* ⚡ Fire background context telemetry payload safely from inside Server Component rendering streams */}
+      <CourseTelemetryTracker id={course._id} />
+
       <style>{`
         .course-detail-grid { display: grid; grid-template-columns: 1fr; gap: 4rem; }
         @media(min-width: 1024px) { .course-detail-grid { grid-template-columns: 2fr 1fr; gap: 4.5rem; } }
@@ -35,7 +40,6 @@ export default async function DynamicCourseDetailPage({ params }: { params: Prom
         .btn-apply-gold:hover { background-color: #C9A84C; transform: translateY(-2px); }
       `}</style>
 
-      {/* Luxury Editorial Header */}
       <div style={{ paddingTop: "9rem", paddingBottom: "4.5rem", background: "linear-gradient(135deg, #121212 0%, #211A1D 100%)" }}>
         <div className="container-custom text-left">
           <div className="flex flex-wrap items-center gap-2 text-[10px] font-mono font-bold text-zinc-500 uppercase tracking-widest mb-3">
@@ -55,8 +59,6 @@ export default async function DynamicCourseDetailPage({ params }: { params: Prom
 
       <div className="container-custom" style={{ paddingTop: "4rem", paddingBottom: "6rem" }}>
         <div className="course-detail-grid">
-          
-          {/* Main Syllabus Matrix */}
           <div style={{ textAlign: "left" }} className="space-y-12">
             <div className="space-y-4">
               <h2 style={{ fontFamily: "var(--font-playfair), serif" }} className="text-2xl font-bold uppercase tracking-tight text-zinc-900">Syllabus Overview</h2>
@@ -76,9 +78,7 @@ export default async function DynamicCourseDetailPage({ params }: { params: Prom
             </div>
           </div>
 
-          {/* Sticky Financial Action Sidebar */}
           <div>
-            {/* Fixed: Replaced p: "2rem" with padding: "2rem" */}
             <div style={{ position: "sticky", top: "7rem", backgroundColor: "#FCFAF7", border: "1px solid #e4e4e7", padding: "2rem" }} className="text-left rounded-sm shadow-sm space-y-5">
               <div className="space-y-1">
                 <span className="text-[10px] font-mono tracking-widest uppercase font-bold text-zinc-400 block">Tuition Allocation</span>

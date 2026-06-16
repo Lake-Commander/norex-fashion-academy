@@ -5,10 +5,12 @@ import Header from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 import StyleOracle from '@/components/style-oracle'
 import { Quote, MessageSquare, Loader2 } from 'lucide-react'
+import { useTelemetry } from "@/hooks/useTelemetry" // ⚡ Telemetry Import
 
 export default function EditorialInterviewsPage() {
   const [interviews, setInterviews] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const { trackRead } = useTelemetry() // ⚡ Destructure Hook
 
   useEffect(() => {
     async function loadInterviews() {
@@ -26,6 +28,13 @@ export default function EditorialInterviewsPage() {
     }
     loadInterviews();
   }, []);
+
+  // ⚡ Telemetry: Track primary transcript access logs on screen loading loops
+  useEffect(() => {
+    if (interviews.length > 0) {
+      trackRead(interviews[0]._id);
+    }
+  }, [interviews, trackRead]);
 
   return (
     <main className="min-h-screen bg-[#faf9f6] text-[#1a1a1a] flex flex-col justify-between overflow-x-hidden font-sans">

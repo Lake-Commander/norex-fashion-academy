@@ -5,10 +5,12 @@ import Header from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 import StyleOracle from '@/components/style-oracle'
 import { BarChart2, Loader2 } from 'lucide-react'
+import { useTelemetry } from "@/hooks/useTelemetry" // ⚡ Telemetry Import
 
 export default function EditorialInsightsPage() {
   const [reports, setReports] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const { trackRead } = useTelemetry() // ⚡ Destructure Hook
 
   useEffect(() => {
     async function getInsights() {
@@ -16,7 +18,8 @@ export default function EditorialInsightsPage() {
         const res = await fetch("/api/editorial");
         const data = await res.json();
         if (data.success) {
-          setReports(data.publications.filter((p: any) => p.contentType === "insight"));
+          const insights = data.publications.filter((p: any) => p.contentType === "insight");
+          setReports(insights);
         }
       } catch (err) {
         console.error(err);
@@ -27,7 +30,13 @@ export default function EditorialInsightsPage() {
     getInsights();
   }, []);
 
-  // Standard historical fallback metrics density charts data array mappings
+  // ⚡ Telemetry: Track index reading view once metrics hydrate
+  useEffect(() => {
+    if (reports.length > 0) {
+      trackRead(reports[0]._id);
+    }
+  }, [reports, trackRead]);
+
   const fallbackChart = [60, 80, 45, 90, 75, 95];
   const activeChartData = reports[0]?.chartData?.length > 0 ? reports[0].chartData.slice(0, 6) : fallbackChart;
 
@@ -58,7 +67,6 @@ export default function EditorialInsightsPage() {
             </div>
           )}
 
-          {/* Dynamic Render Graph Bar Chart Component Layer */}
           <div className="border border-gray-300 bg-white p-6 rounded-sm text-left space-y-6">
             <div className="flex items-center gap-2">
               <BarChart2 className="h-5 w-5 text-[#C9A84C]" />

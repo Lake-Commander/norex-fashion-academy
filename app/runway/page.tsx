@@ -7,6 +7,7 @@ import StyleOracle from "@/components/style-oracle";
 import { useShop } from "@/context/ShopContext";
 import { sounds } from "@/lib/sound-utils";
 import { X, Maximize2, Volume2, VolumeX, Layers, Camera, Sparkles, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
+import { useTelemetry } from "@/hooks/useTelemetry"; // ⚡ Telemetry Import
 
 export default function DynamicRunwayShowcase() {
   const { soundEnabled } = useShop();
@@ -15,14 +16,12 @@ export default function DynamicRunwayShowcase() {
   const [videoLoaded, setVideoLoaded] = useState(false);
   const [ambientPlaying, setAmbientPlaying] = useState(false);
   
-  // Dynamic Data Stream States
   const [looks, setLooks] = useState<any[]>([]);
   const [backstage, setBackstage] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   
+  const { trackVideo } = useTelemetry(); // ⚡ Destructure Hook
   const youtubePlayerRef = useRef<any>(null);
-  const touchStartX = useRef<number>(0);
-  const touchEndX = useRef<number>(0);
 
   useEffect(() => {
     async function loadActiveShowroomTracks() {
@@ -42,7 +41,13 @@ export default function DynamicRunwayShowcase() {
     loadActiveShowroomTracks();
   }, []);
 
-  // Sync YouTube background ambient loop controllers
+  // ⚡ Telemetry: Track background fashion stream video code index context when lightbox triggers
+  useEffect(() => {
+    if (lightboxIndex !== null && looks[lightboxIndex]) {
+      trackVideo(`look-${looks[lightboxIndex].lookNumber}`);
+    }
+  }, [lightboxIndex, looks, trackVideo]);
+
   useEffect(() => {
     let fadeTimer: any = null;
     if (typeof window !== "undefined") {
@@ -110,7 +115,6 @@ export default function DynamicRunwayShowcase() {
     <main className="min-h-screen bg-[#FCFAF7] text-zinc-900 flex flex-col justify-between overflow-x-hidden text-left">
       <Header />
 
-      {/* Embedded Video Cinema Stage */}
       <section className="relative w-full aspect-[21/9] min-h-[380px] overflow-hidden bg-black flex items-center justify-center border-b border-zinc-800">
         <div className={`absolute inset-0 w-full h-full pointer-events-none transition-opacity duration-1000 ${videoLoaded ? "opacity-60" : "opacity-0"}`}>
           <div id="youtube-bg-player-runway" className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[115vw] h-[65vw] min-h-100% min-w-[177vh] scale-125 pointer-events-none" />
@@ -132,7 +136,6 @@ export default function DynamicRunwayShowcase() {
         </div>
       </section>
 
-      {/* Main Grid Interactive Segment Showcase Workspace */}
       <div className="mx-auto max-w-7xl w-full px-6 md:px-8 py-12">
         <div className="flex flex-col md:flex-row items-center justify-between border-b border-zinc-200 pb-6 mb-8 gap-4">
           <div className="flex p-1 bg-zinc-100 rounded-full border border-zinc-200">
@@ -178,7 +181,6 @@ export default function DynamicRunwayShowcase() {
         )}
       </div>
 
-      {/* Lightbox Slider Component Overlay Stage */}
       {lightboxIndex !== null && looks[lightboxIndex] && (
         <div className="fixed inset-0 z-50 bg-black/98 backdrop-blur-md flex flex-col justify-between p-6 overflow-y-auto text-white">
           <div className="w-full max-w-7xl mx-auto flex justify-between items-center border-b border-white/10 pb-4">

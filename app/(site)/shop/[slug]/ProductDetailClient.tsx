@@ -1,14 +1,16 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
-import Link from "next/link"; // Fixed safe next/link import
+import Link from "next/link";
 import { formatPrice, generateWhatsAppLink } from "@/lib/utils";
 import { useShop } from "@/context/ShopContext";
+import { useTelemetry } from "@/hooks/useTelemetry"; // ⚡ Telemetry Import
 import { ShoppingBag, Heart, MessageCircle, Minus, Plus, Star, Check } from "lucide-react";
 
 export default function ProductDetailClient({ product, relatedProducts }: { product: any, relatedProducts: any[] }) {
   const { addToCart, toggleWishlist, isInWishlist } = useShop();
+  const { trackProduct } = useTelemetry(); // ⚡ Destructure Telemetry Engine
   
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState("description");
@@ -28,6 +30,13 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
   const [selectedSize, setSelectedSize] = useState(product.sizes?.[0] || "M");
   const [selectedColor, setSelectedColor] = useState(product.colors?.[0] || "Default Matrix");
   const [selectedGender, setSelectedGender] = useState(product.gender === "Both" ? "Female" : product.gender);
+
+  // ⚡ Telemetry Effect: Synchronizes product views directly down to customer history arrays
+  useEffect(() => {
+    if (product?._id) {
+      trackProduct(product._id);
+    }
+  }, [product?._id, trackProduct]);
 
   // WhatsApp Intent Trigger String Configuration
   const msg = `Hi Norex Atelier, I am interested in ordering the ${product.name} (${formatPrice(product.price)}).\n\nMy Configurations:\n- Size: ${selectedSize}\n- Color Swatch: ${selectedColor}\n- Fit Cut: ${selectedGender === "Both" ? "Unisex" : selectedGender}\n\nPlease verify availability.`;
@@ -142,7 +151,6 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
         .tab-btn.active { color: #C9A84C; border-bottom-color: #C9A84C; }
         .tab-btn:hover:not(.active) { color: #1a1a1a; }
 
-        /* Related Products Layout Classes */
         .pg { display: grid; grid-template-columns: 1fr; gap: 2rem; }
         @media(min-width:640px){ .pg { grid-template-columns: repeat(2,1fr); } }
         @media(min-width:1024px){ .pg { grid-template-columns: repeat(3,1fr); } }
@@ -347,7 +355,6 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
                     <div className="pc-img-frame">
                       <Image src={p.images?.[0] || "/placeholder-garment.png"} alt={p.name} fill className="pc-img" style={{ objectFit: "cover" }} sizes="(max-width:640px) 100vw,(max-width:1024px) 50vw,33vw" />
                       
-                      {/* Integrated Hover Overlay Providing Tri-Action Controls */}
                       <div className="pc-overlay">
                         <button type="button" className="pc-action-btn" onClick={() => addToCart(getContextPayload(p), 1)}>
                           <ShoppingBag size={12} /> Add
@@ -357,7 +364,6 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
                         </Link>
                       </div>
 
-                      {/* Decoupled Wishlist Save Trigger Overlay Button */}
                       <button 
                         type="button" 
                         onClick={() => toggleWishlist(getContextPayload(p))}

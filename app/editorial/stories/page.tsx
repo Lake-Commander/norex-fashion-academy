@@ -7,12 +7,14 @@ import StyleOracle from '@/components/style-oracle'
 import { useShop } from '@/context/ShopContext'
 import { sounds } from '@/lib/sound-utils'
 import { Clock, ArrowRight, Loader2 } from 'lucide-react'
+import { useTelemetry } from "@/hooks/useTelemetry" // ⚡ Telemetry Import
 import Link from 'next/link'
 
 export default function EditorialStoriesPage() {
   const { soundEnabled } = useShop()
   const [stories, setStories] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const { trackRead } = useTelemetry() // ⚡ Destructure Hook
 
   useEffect(() => {
     async function loadStories() {
@@ -30,6 +32,13 @@ export default function EditorialStoriesPage() {
     }
     loadStories();
   }, []);
+
+  // ⚡ Telemetry: Monitor index stream history tracks
+  useEffect(() => {
+    if (stories.length > 0) {
+      trackRead(stories[0]._id);
+    }
+  }, [stories, trackRead]);
 
   const handleInteract = () => { if (soundEnabled) sounds.playPop(); }
 

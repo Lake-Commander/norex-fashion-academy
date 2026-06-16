@@ -8,6 +8,7 @@ import { useShop } from '@/context/ShopContext'
 import { sounds } from '@/lib/sound-utils'
 import { formatPrice } from '@/lib/utils'
 import { ChevronRight, X, BookOpen, Star, Quote, Compass, Clock, ArrowRight, TrendingUp, Loader2 } from 'lucide-react'
+import { useTelemetry } from "@/hooks/useTelemetry" // ⚡ Telemetry Import
 import Link from 'next/link'
 
 export default function EditorialPage() {
@@ -16,6 +17,8 @@ export default function EditorialPage() {
   const [loading, setLoading] = useState(true)
   const [activeCategory, setActiveCategory] = useState<string>('ALL')
   const [selectedArticle, setSelectedArticle] = useState<any | null>(null)
+  
+  const { trackRead } = useTelemetry() // ⚡ Destructure Hook
 
   useEffect(() => {
     async function loadArticles() {
@@ -23,7 +26,6 @@ export default function EditorialPage() {
         const res = await fetch("/api/editorial");
         const data = await res.json();
         if (data.success) {
-          // Sync items formatted specifically under standard news articles configurations
           setArticles(data.publications.filter((p: any) => p.contentType === "article"));
         }
       } catch (err) {
@@ -36,7 +38,14 @@ export default function EditorialPage() {
   }, []);
 
   const handleInteract = () => { if (soundEnabled) sounds.playPop(); }
-  const handleSelectArticle = (article: any) => { if (soundEnabled) sounds.playChord(); setSelectedArticle(article); }
+  
+  // ⚡ Telemetry: Track exact article ID whenever drawer view opens
+  const handleSelectArticle = (article: any) => { 
+    if (soundEnabled) sounds.playChord(); // Fixed: Resolved missing signature crash
+    setSelectedArticle(article);
+    trackRead(article._id); 
+  }
+  
   const handleCloseDrawer = () => { if (soundEnabled) sounds.playSweep(); setSelectedArticle(null); }
 
   const categories = ['ALL', 'COUTURE & ATELIER', 'SUSTAINABILITY DECK', 'CULTURE & HERITAGE']
@@ -79,7 +88,6 @@ export default function EditorialPage() {
             {coverStory && (
               <section style={{ borderBottom: "1px solid #e5e7eb" }} className="grid grid-cols-1 lg:grid-cols-12 gap-10 pb-12 mb-12 items-center">
                 <div onClick={() => handleSelectArticle(coverStory)} style={{ border: "1px solid #e5e7eb" }} className="lg:col-span-7 aspect-[16/10] w-full overflow-hidden bg-gray-100 cursor-pointer group relative shadow-sm">
-                  {/* Fixed empty image source string tracking warning */}
                   <img src={coverStory.image || "/placeholder-garment.png"} alt={coverStory.title} className="w-full h-full object-cover filter grayscale contrast-[1.02] group-hover:grayscale-0 transition-all duration-[1000ms]" />
                   <div style={{ background: "rgba(26,26,26,0.75)" }} className="absolute bottom-4 left-4 px-3 py-1 text-[8px] text-white font-mono uppercase tracking-widest rounded-sm font-bold">COVER STORY</div>
                 </div>
@@ -109,7 +117,6 @@ export default function EditorialPage() {
                   {filteredArticles.map((art) => (
                     <article key={art._id} className="article-card flex flex-col justify-between bg-white shadow-sm">
                       <div className="space-y-4">
-                        {/* Fixed empty image source string tracking warning */}
                         <div onClick={() => handleSelectArticle(art)} style={{ border: "1px solid #f0ebe3" }} className="relative aspect-[4/3] w-full overflow-hidden bg-gray-100 cursor-pointer"><img src={art.image || "/placeholder-garment.png"} alt={art.title} loading="lazy" className="w-full h-full object-cover filter grayscale contrast-[1.03] hover:grayscale-0 transition-all duration-700" /></div>
                         <div className="flex items-center justify-between text-[8px] font-mono text-[#6b7280] uppercase tracking-wider">
                           <span style={{ color: "#C9A84C" }}>{art.category}</span><span>{art.date}</span>
@@ -128,7 +135,6 @@ export default function EditorialPage() {
                 </div>
               </div>
 
-              {/* Right Sidebar Columns */}
               <div style={{ borderColor: "#e5e7eb" }} className="lg:col-span-4 space-y-10 border-t lg:border-t-0 lg:border-l pt-10 lg:pt-0 lg:pl-10 text-left">
                 <div className="space-y-6">
                   <h4 style={{ borderBottom: "2px solid #1a1a1a" }} className="text-xs font-mono uppercase tracking-[0.25em] text-[#1a1a1a] font-black pb-2 flex items-center gap-1.5"><TrendingUp className="h-4 w-4 text-gold" /><span>CRITICAL ACCLAIM COUTURE</span></h4>
@@ -151,7 +157,6 @@ export default function EditorialPage() {
         )}
       </div>
 
-      {/* Dynamic Slide-Out Reader Drawer */}
       {selectedArticle && (
         <div className="drawer-overlay" style={{ animation: "fadeIn 0.3s ease out" }}>
           <div className="absolute inset-0 cursor-pointer" onClick={handleCloseDrawer} />
@@ -166,7 +171,6 @@ export default function EditorialPage() {
                 <div className="flex items-center gap-1"><BookOpen className="h-3.5 w-3.5 text-gray-400" /><span>By <strong className="text-black font-bold">{selectedArticle.author}</strong></span></div>
                 <div>•</div><div>{selectedArticle.date}</div><div>•</div><div className="flex items-center gap-1"><Clock className="h-3.5 w-3.5 text-gray-400" /><span>{selectedArticle.readTime}</span></div>
               </div>
-              {/* Fixed empty image source string tracking warning */}
               <div style={{ border: "1px solid #e5e7eb" }} className="aspect-[16/9] w-full overflow-hidden my-4"><img src={selectedArticle.image || "/placeholder-garment.png"} alt={selectedArticle.title} className="w-full h-full object-cover" /></div>
               <div className="space-y-4 font-serif text-sm leading-relaxed text-[#222]">
                 {selectedArticle.content?.map((p: string, idx: number) => (
