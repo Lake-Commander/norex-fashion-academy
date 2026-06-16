@@ -413,7 +413,7 @@ export default function Navbar() {
               
               <Link href={isAuthenticated ? "/dashboard" : "/login"} className="header-action-link">
                 {isAuthenticated ? <LayoutDashboard size={16} className="text-[#C9A84C]" /> : <User size={16} />}
-                <span className="action-tooltip">{isAuthenticated ? "Console Dashboard" : "Sign In / Register"}</span>
+                <span className="action-tooltip">{isAuthenticated ? "Dashboard" : "Sign In / Register"}</span>
               </Link>
 
               <div style={{ width: "1px", height: "14px", backgroundColor: isTransparent ? "rgba(255,255,255,0.3)" : "#e5e7eb", margin: "0 0.15rem" }} />

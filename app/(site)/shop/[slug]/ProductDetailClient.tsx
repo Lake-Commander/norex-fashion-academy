@@ -121,7 +121,7 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
   return (
     <div style={{ minHeight: "100vh", backgroundColor: "white" }}>
       <style>{`
-        .pdg { display: grid; grid-template-columns: 1fr; gap: 4rem; }
+        .pdg { display: grid; grid-template-columns: 1fr; gap: 4rem; position: relative; }
         @media(min-width: 1024px) { .pdg { grid-template-columns: 1fr 1.2fr; } }
 
         .breadcrumb-link { font-size: 0.72rem; color: #9ca3af; letter-spacing: 0.1em; text-transform: uppercase; text-decoration: none; transition: color 0.3s ease; }
@@ -133,6 +133,15 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
 
         .image-wrapper { position: relative; aspect-ratio: 3/4; overflow: hidden; background-color: #FAF7F4; border-radius: 2px; border: 1px solid #f0ebe3; }
         
+        /* ⚡ Premium Spinning Look Badge Component Style Matrix */
+        .look-spinning-badge {
+          position: absolute; top: 1rem; left: 1rem; bg-color: rgba(26,26,26,0.75);
+          background: rgba(26,26,26,0.75); border: 1px solid rgba(255,255,255,0.1);
+          padding: 0.25rem 0.6rem; font-family: monospace; font-size: 8px; color: rgba(255,255,255,0.9);
+          letter-spacing: 0.15em; text-transform: uppercase; font-weight: 700; border-radius: 2px;
+          z-index: 20; pointer-events: none; backdrop-blur: 4px; backdrop-filter: blur(4px);
+        }
+
         .btn-whatsapp { display: flex; align-items: center; justify-content: center; gap: 0.75rem; background-color: #25D366; color: white; padding: 1rem 2rem; font-size: 0.8rem; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; text-decoration: none; width: 100%; transition: all 0.3s ease; border-radius: 2px; border: none; cursor: pointer; }
         .btn-whatsapp:hover { background-color: #20b558; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(37, 211, 102, 0.4); }
 
@@ -190,6 +199,10 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
       <div className="container-custom" style={{ paddingTop: "4rem", paddingBottom: "4rem" }}>
         <div className="pdg">
           <div className="image-wrapper">
+            {/* ⚡ Spinning Badge Node added directly onto the main cover layout block */}
+            <div className="look-spinning-badge">
+              Look-{String(product.lookNumber || product.id || 1).padStart(2, "0")}
+            </div>
             <Image src={product.images?.[0] || "/placeholder-garment.png"} alt={product.name} fill style={{ objectFit: "cover" }} sizes="(max-width:1024px) 100vw,50vw" priority />
           </div>
 
@@ -353,6 +366,10 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
                 return (
                   <div key={p._id || p.id} className="pc">
                     <div className="pc-img-frame">
+                      {/* ⚡ Spinning Badge Layer injected onto each related catalog list child node */}
+                      <div className="look-spinning-badge">
+                        Look-{String(p.lookNumber || p.id || 1).padStart(2, "0")}
+                      </div>
                       <Image src={p.images?.[0] || "/placeholder-garment.png"} alt={p.name} fill className="pc-img" style={{ objectFit: "cover" }} sizes="(max-width:640px) 100vw,(max-width:1024px) 50vw,33vw" />
                       
                       <div className="pc-overlay">
