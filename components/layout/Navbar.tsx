@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useSession } from "next-auth/react"; // ⚡ Session Layer Integration
+import { useSession } from "next-auth/react"; 
 import { Menu, X, ChevronDown, ShoppingBag, Heart, User, LayoutDashboard } from "lucide-react";
 import { useShop } from "@/context/ShopContext"; 
 
@@ -100,14 +100,12 @@ export default function Navbar() {
   const [mounted, setMounted] = useState(false);
   const [activeMobileMenu, setActiveMobileMenu] = useState<number | null>(null);
 
-  // ⚡ Mutation Notification Alert Animators
   const [pulseCart, setPulseCart] = useState(false);
   const [pulseWishlist, setPulseWishlist] = useState(false);
   
   const pathname = usePathname();
   const isHome = pathname === "/";
   
-  // ⚡ Authentication Status Hydrator
   const { status } = useSession();
   const isAuthenticated = status === "authenticated";
   
@@ -124,7 +122,6 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // ⚡ Side-Effect Observer: Fires scale alerts when Cart entries increment/decrement
   useEffect(() => {
     if (!mounted || cartCount === 0) return;
     setPulseCart(true);
@@ -132,7 +129,6 @@ export default function Navbar() {
     return () => clearTimeout(timer);
   }, [cartCount, mounted]);
 
-  // ⚡ Side-Effect Observer: Fires scale alerts when Wishlist entries increment/decrement
   useEffect(() => {
     if (!mounted || wishlistCount === 0) return;
     setPulseWishlist(true);
@@ -345,7 +341,6 @@ export default function Navbar() {
           <div className="nav-cta">
             <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", color: isTransparent ? "white" : "#1a1a1a" }}>
               
-              {/* ⚡ Polymorphic Session Redirect Node Link */}
               <Link href={isAuthenticated ? "/dashboard" : "/login"} className="header-action-link">
                 {isAuthenticated ? <LayoutDashboard size={16} className="text-[#C9A84C]" /> : <User size={16} />}
                 <span className="action-tooltip">{isAuthenticated ? "Console Dashboard" : "Sign In / Register"}</span>
@@ -396,7 +391,7 @@ export default function Navbar() {
         </nav>
 
         {/* Mobile Sidebar Navigation Menu */}
-        <div className="mobile-menu open">
+        <div className={`mobile-menu ${isOpen ? "open" : ""}`}>
           <div style={{ display: "flex", flexDirection: "column" }}>
             {menu_data.map((item) => {
               const isSubMenuOpen = activeMobileMenu === item.id;
@@ -479,11 +474,10 @@ export default function Navbar() {
             </div>
           </div>
         </div>
-      </header>
+      </header> {/* ✅ Fixed: Changed layout node close parameter wrapper safely from </nav> back to </header> */}
 
       {/* Mobile Bottom Navigation Bar */}
       <div className="mobile-bottom-bar">
-        {/* ⚡ Polymorphic Session Bottom Tab */}
         <Link href={isAuthenticated ? "/dashboard" : "/login"} className="bottom-bar-link">
           {isAuthenticated ? <LayoutDashboard size={20} className="text-[#C9A84C]" /> : <User size={20} />}
           <span>{isAuthenticated ? "Console" : "Account"}</span>
