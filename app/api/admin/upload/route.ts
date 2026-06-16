@@ -1,7 +1,7 @@
+// app/api/admin/upload/route.ts
 import { NextResponse } from "next/server";
 import { v2 as cloudinary } from "cloudinary";
 
-// Configure Cloudinary from your .env.local variables
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
@@ -14,19 +14,17 @@ export async function POST(request: Request) {
     const file = formData.get("file") as File;
 
     if (!file) {
-      return NextResponse.json({ success: false, error: "No file provided" }, { status: 400 });
+      return NextResponse.json({ success: false, error: "No media asset parsed inside request package." }, { status: 400 });
     }
 
-    // Convert file array buffer to node buffer stream
+    // Convert file browser binary buffers to node arrays
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    const uploadResult = await new Promise((resolve, reject) => {
+    // Stream the binary straight to Cloudinary API base64 data pipes
+    const uploadResult = await new Promise<any>((resolve, reject) => {
       cloudinary.uploader.upload_stream(
-        {
-          folder: "norex_store_catalog",
-          resource_type: "auto",
-        },
+        { folder: "norex-store-catalog" },
         (error, result) => {
           if (error) reject(error);
           else resolve(result);
@@ -34,11 +32,8 @@ export async function POST(request: Request) {
       ).end(buffer);
     });
 
-    return NextResponse.json({
-      success: true,
-      url: (uploadResult as any).secure_url,
-    });
+    return NextResponse.json({ success: true, url: uploadResult.secure_url });
   } catch (error: any) {
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    return NextResponse.json({ success: false, error: error.message || "Cloudinary upload pipeline blocked." }, { status: 500 });
   }
 }

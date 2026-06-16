@@ -67,7 +67,6 @@ export default function RunwayUploadWorkspace() {
     loadDropdowns();
   }, [activeTab]);
 
-  // Fixed: Declared file change listener loop to track cover previews safely
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files?.[0]) {
       setCoverFile(e.target.files[0]);
@@ -83,12 +82,17 @@ export default function RunwayUploadWorkspace() {
     setSwatches(updated);
   };
 
+  // Fixed: Enhanced to read and output the exact server exception message string
   const executeImageUploadPipeline = async (targetFile: File) => {
     const formData = new FormData();
     formData.append("file", targetFile);
+    
     const res = await fetch("/api/admin/upload", { method: "POST", body: formData });
     const json = await res.json();
-    if (!json.success) throw new Error("Cloudinary file upload transaction failed.");
+    
+    if (!json.success) {
+      throw new Error(json.error || json.message || "Cloudinary remote cluster upload failed.");
+    }
     return json.url;
   };
 
@@ -169,7 +173,6 @@ export default function RunwayUploadWorkspace() {
           <h1 style={{ fontFamily: "var(--font-playfair), serif" }} className="text-3xl font-bold mt-1 uppercase text-zinc-900">Runway Management Factory</h1>
         </div>
 
-        {/* Dynamic Context Workspace Switcher Toggle */}
         <div className="inline-flex bg-zinc-100 p-1 rounded-sm border border-zinc-200">
           <button type="button" onClick={() => { resetForm(); setActiveTab("collection"); }} className={`px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-sm transition-all flex items-center gap-1.5 cursor-pointer ${activeTab === "collection" ? "bg-white text-zinc-900 shadow-sm border border-zinc-200" : "text-zinc-500"}`}>
             <Layers className="h-3.5 w-3.5" />
@@ -188,7 +191,6 @@ export default function RunwayUploadWorkspace() {
           <h3 className="text-sm font-bold uppercase tracking-wider">Runway Ledger References Secured</h3>
         </div>
       ) : activeTab === "collection" ? (
-        /* ================= FORM A: CAMPAIGN DROP FACTORY ================= */
         <form onSubmit={handleCommitCollection} className="grid grid-cols-1 md:grid-cols-12 gap-8">
           <div className="md:col-span-7 space-y-4">
             <div className="space-y-1">
@@ -228,7 +230,6 @@ export default function RunwayUploadWorkspace() {
               <textarea required rows={3} value={campaignPlot} onChange={(e) => setCampaignPlot(e.target.value)} className="w-full border border-zinc-300 p-3 rounded-sm text-sm focus:outline-none font-light text-justify" placeholder="Detail the contextual layout alignment objectives..." />
             </div>
 
-            {/* DYNAMIC PALETTE DISCLOSURE INTERFACE GRID */}
             <div className="pt-4 border-t border-zinc-200 space-y-3">
               <div className="flex justify-between items-center">
                 <label className="text-xs uppercase font-mono font-bold tracking-wider text-zinc-500 flex items-center gap-1"><Palette className="h-3.5 w-3.5" /> Climatic Chromatics Palette</label>
@@ -247,7 +248,6 @@ export default function RunwayUploadWorkspace() {
               ))}
             </div>
 
-            {/* CONDITIONAL INTEGRATION FOR FASHION FILMHOUSE SHORTS */}
             <div className="pt-4 border-t border-zinc-200 space-y-3">
               <label className="flex items-center gap-3 text-xs font-bold uppercase tracking-wider cursor-pointer text-zinc-700">
                 <input type="checkbox" checked={hasFilm} onChange={(e) => setHasFilm(e.target.checked)} className="h-4 w-4 accent-[#C9A84C]" />
@@ -309,7 +309,6 @@ export default function RunwayUploadWorkspace() {
           </div>
         </form>
       ) : (
-        /* ================= FORM B: LOOKBOOK LOOKS APPENDER ================= */
         <form onSubmit={handleCommitLook} className="grid grid-cols-1 md:grid-cols-12 gap-8">
           <div className="md:col-span-7 space-y-4">
             {existingCollections.length === 0 ? (
