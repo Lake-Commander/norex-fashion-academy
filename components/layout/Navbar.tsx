@@ -3,7 +3,8 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X, ChevronDown, ShoppingBag, Heart, User } from "lucide-react";
+import { useSession } from "next-auth/react"; // ⚡ Session Layer Integration
+import { Menu, X, ChevronDown, ShoppingBag, Heart, User, LayoutDashboard } from "lucide-react";
 import { useShop } from "@/context/ShopContext"; 
 
 const menu_data = [
@@ -14,7 +15,7 @@ const menu_data = [
   },
   {
     id: 2,
-    products: true, // Triggers the premium e-commerce Mega Menu
+    products: true,
     title: "Shop",
     link: "/shop",
     product_pages: [
@@ -98,9 +99,17 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [activeMobileMenu, setActiveMobileMenu] = useState<number | null>(null);
+
+  // ⚡ Mutation Notification Alert Animators
+  const [pulseCart, setPulseCart] = useState(false);
+  const [pulseWishlist, setPulseWishlist] = useState(false);
   
   const pathname = usePathname();
   const isHome = pathname === "/";
+  
+  // ⚡ Authentication Status Hydrator
+  const { status } = useSession();
+  const isAuthenticated = status === "authenticated";
   
   const { cart, wishlist } = useShop();
   const cartCount = cart.reduce((acc, item) => acc + item.orderQuantity, 0);
@@ -114,6 +123,22 @@ export default function Navbar() {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  // ⚡ Side-Effect Observer: Fires scale alerts when Cart entries increment/decrement
+  useEffect(() => {
+    if (!mounted || cartCount === 0) return;
+    setPulseCart(true);
+    const timer = setTimeout(() => setPulseCart(false), 400);
+    return () => clearTimeout(timer);
+  }, [cartCount, mounted]);
+
+  // ⚡ Side-Effect Observer: Fires scale alerts when Wishlist entries increment/decrement
+  useEffect(() => {
+    if (!mounted || wishlistCount === 0) return;
+    setPulseWishlist(true);
+    const timer = setTimeout(() => setPulseWishlist(false), 400);
+    return () => clearTimeout(timer);
+  }, [wishlistCount, mounted]);
 
   useEffect(() => {
     setIsOpen(false);
@@ -151,7 +176,7 @@ export default function Navbar() {
         .nav-link { display: flex; align-items: center; gap: 0.15rem; font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 600; transition: color 0.3s ease; text-decoration: none; }
         .nav-link:hover { color: var(--gold) !important; }
 
-        /* --- Desktop Mega Menu (Shop) --- */
+        /* --- Desktop Mega Menu --- */
         .mega-menu {
           position: absolute; top: 100%; left: 50%; transform: translateX(-50%) translateY(10px);
           background-color: white; box-shadow: 0 10px 40px rgba(0,0,0,0.08); border-top: 3px solid var(--gold);
@@ -166,7 +191,7 @@ export default function Navbar() {
         .mega-menu-item a { font-size: 0.8rem; color: #555; text-decoration: none; transition: color 0.2s ease, padding-left 0.2s ease; display: inline-block; }
         .mega-menu-item a:hover { color: var(--gold); padding-left: 4px; }
 
-        /* --- Desktop Simple Sub Menu (Runway/Editorial/Academy/House) --- */
+        /* --- Desktop Simple Sub Menu --- */
         .simple-sub-menu {
           position: absolute; top: 100%; left: 50%; transform: translateX(-50%) translateY(10px);
           background-color: white; box-shadow: 0 10px 40px rgba(0,0,0,0.08); border-top: 3px solid var(--gold);
@@ -210,6 +235,14 @@ export default function Navbar() {
         .mobile-sub-link:last-child { border-bottom: none; }
         .mobile-sub-link:hover { color: var(--gold); }
 
+        /* --- Dynamic Pulse Alerts System Animations --- */
+        @keyframes subtleBadgeGrow {
+          0% { transform: scale(1); }
+          50% { transform: scale(1.35); background-color: #1a1a1a; }
+          100% { transform: scale(1); }
+        }
+        .badge-pulse-active { animation: subtleBadgeGrow 0.4s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
+
         /* --- Mobile Bottom Bar --- */
         @media(max-width: 991px) {
           .mobile-bottom-bar {
@@ -227,11 +260,11 @@ export default function Navbar() {
           .nav-logo { height: 45px !important; }
         }
 
-        /* --- Utility --- */
+        /* --- Utility Badges --- */
         .icon-badge {
           position: absolute; top: 0px; right: -4px; background-color: var(--gold); color: white;
           font-size: 0.55rem; width: 16px; height: 16px; border-radius: 50%; display: flex;
-          align-items: center; justify-content: center; font-weight: bold;
+          align-items: center; justify-content: center; font-weight: bold; transition: all 0.3s;
         }
         .bottom-badge { top: -6px; right: -10px; }
       `}</style>
@@ -312,22 +345,27 @@ export default function Navbar() {
           <div className="nav-cta">
             <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", color: isTransparent ? "white" : "#1a1a1a" }}>
               
-              <Link href="/login" className="header-action-link">
-                <User size={16} />
-                <span className="action-tooltip">Sign In / Register</span>
+              {/* ⚡ Polymorphic Session Redirect Node Link */}
+              <Link href={isAuthenticated ? "/dashboard" : "/login"} className="header-action-link">
+                {isAuthenticated ? <LayoutDashboard size={16} className="text-[#C9A84C]" /> : <User size={16} />}
+                <span className="action-tooltip">{isAuthenticated ? "Console Dashboard" : "Sign In / Register"}</span>
               </Link>
 
               <div style={{ width: "1px", height: "14px", backgroundColor: isTransparent ? "rgba(255,255,255,0.3)" : "#e5e7eb", margin: "0 0.15rem" }} />
 
               <Link href="/wishlist" className="header-action-link">
                 <Heart size={16} />
-                {mounted && wishlistCount > 0 && <span className="icon-badge">{wishlistCount}</span>}
+                {mounted && wishlistCount > 0 && (
+                  <span className={`icon-badge ${pulseWishlist ? "badge-pulse-active" : ""}`}>{wishlistCount}</span>
+                )}
                 <span className="action-tooltip">Wishlist</span>
               </Link>
               
               <Link href="/cart" className="header-action-link">
                 <ShoppingBag size={16} />
-                {mounted && cartCount > 0 && <span className="icon-badge">{cartCount}</span>}
+                {mounted && cartCount > 0 && (
+                  <span className={`icon-badge ${pulseCart ? "badge-pulse-active" : ""}`}>{cartCount}</span>
+                )}
                 <span className="action-tooltip">Cart</span>
               </Link>
             </div>
@@ -358,7 +396,7 @@ export default function Navbar() {
         </nav>
 
         {/* Mobile Sidebar Navigation Menu */}
-        <div className={`mobile-menu ${isOpen ? "open" : ""}`}>
+        <div className="mobile-menu open">
           <div style={{ display: "flex", flexDirection: "column" }}>
             {menu_data.map((item) => {
               const isSubMenuOpen = activeMobileMenu === item.id;
@@ -445,15 +483,18 @@ export default function Navbar() {
 
       {/* Mobile Bottom Navigation Bar */}
       <div className="mobile-bottom-bar">
-        <Link href="/login" className="bottom-bar-link">
-          <User size={20} />
-          <span>Account</span>
+        {/* ⚡ Polymorphic Session Bottom Tab */}
+        <Link href={isAuthenticated ? "/dashboard" : "/login"} className="bottom-bar-link">
+          {isAuthenticated ? <LayoutDashboard size={20} className="text-[#C9A84C]" /> : <User size={20} />}
+          <span>{isAuthenticated ? "Console" : "Account"}</span>
         </Link>
         
         <Link href="/wishlist" className="bottom-bar-link">
           <div style={{ position: "relative" }}>
             <Heart size={20} />
-            {mounted && wishlistCount > 0 && <span className="icon-badge bottom-badge">{wishlistCount}</span>}
+            {mounted && wishlistCount > 0 && (
+              <span className={`icon-badge bottom-badge ${pulseWishlist ? "badge-pulse-active" : ""}`}>{wishlistCount}</span>
+            )}
           </div>
           <span>Wishlist</span>
         </Link>
@@ -461,7 +502,9 @@ export default function Navbar() {
         <Link href="/cart" className="bottom-bar-link">
           <div style={{ position: "relative" }}>
             <ShoppingBag size={20} />
-            {mounted && cartCount > 0 && <span className="icon-badge bottom-badge">{cartCount}</span>}
+            {mounted && cartCount > 0 && (
+              <span className={`icon-badge bottom-badge ${pulseCart ? "badge-pulse-active" : ""}`}>{cartCount}</span>
+            )}
           </div>
           <span>Cart</span>
         </Link>

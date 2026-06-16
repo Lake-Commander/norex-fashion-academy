@@ -91,7 +91,7 @@ export default function SignUpPage() {
                 <div className="space-y-2.5">
                   <div style={{ borderColor: "rgba(201,168,76,0.3)", backgroundColor: "rgba(201,168,76,0.05)", color: "#C9A84C" }} className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border text-[9px] uppercase tracking-widest font-black font-mono"><Sparkles className="h-3 w-3 animate-pulse" /> <span>BESPOKE REGISTER</span></div>
                   <h1 style={{ fontFamily: "var(--font-playfair), serif" }} className="text-3xl font-black uppercase tracking-tight leading-none text-zinc-900">Create Profile</h1>
-                  <p className="text-xs text-zinc-400 font-light">Register credentials for the House database.</p>
+                  <p className="text-xs text-zinc-400 font-light">Register credentials for the House.</p>
                 </div>
 
                 {errorMessage && (
@@ -101,7 +101,7 @@ export default function SignUpPage() {
                 <form onSubmit={handleSubmit} className="space-y-3.5">
                   <div className="space-y-1">
                     <label className="text-[10px] font-mono uppercase tracking-widest font-bold text-zinc-400 flex items-center gap-1.5"><User className="h-3.5 w-3.5" /> <span>Full Name</span></label>
-                    <input type="text" required value={name} onChange={(e) => setName(e.target.value)} onFocus={handleInteract} placeholder="Ephraim Ohise" style={{ borderRadius: "2px" }} className="w-full px-4 py-3 bg-zinc-50/50 border border-zinc-200 text-xs focus:outline-none focus:border-[#C9A84C] text-zinc-900 font-mono" />
+                    <input type="text" required value={name} onChange={(e) => setName(e.target.value)} onFocus={handleInteract} placeholder="First Name Last Name" style={{ borderRadius: "2px" }} className="w-full px-4 py-3 bg-zinc-50/50 border border-zinc-200 text-xs focus:outline-none focus:border-[#C9A84C] text-zinc-900 font-mono" />
                   </div>
 
                   <div className="space-y-1">
