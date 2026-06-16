@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react"; 
-import { Menu, X, ChevronDown, ShoppingBag, Heart, User, LayoutDashboard, ArrowUpRight } from "lucide-react";
+import { Menu, X, ChevronDown, ShoppingBag, Heart, User, LayoutDashboard, ArrowUpRight, ArrowDownRight } from "lucide-react";
 import { useShop } from "@/context/ShopContext"; 
 
 const menu_data = [
@@ -242,27 +242,50 @@ export default function Navbar() {
         }
         .header-action-link:hover .action-tooltip { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0); }
 
-        /* --- Premium High-Contrast Comic Narration Popup Structure --- */
-        .comic-narration-box {
-          position: absolute; bottom: 125%; left: 50%; transform: translateX(-50%);
-          background: white; color: #1a1a1a; border: 2.5px solid #1a1a1a;
+        /* --- Base Comic Narration Speech Properties --- */
+        .comic-base-box {
+          position: absolute; background: white; color: #1a1a1a; border: 2.5px solid #1a1a1a;
           padding: 0.45rem 0.75rem; font-family: monospace; font-size: 10px; font-weight: 900;
           text-transform: uppercase; letter-spacing: 0.05em; white-space: nowrap;
           box-shadow: 4px 4px 0px #1a1a1a; z-index: 150; pointer-events: none;
           display: flex; align-items: center; gap: 0.35rem;
-          animation: comicZoomIn 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
         }
-        .comic-narration-box::after {
+
+        /* ⚡ Desktop Variant Layout: Heads down, pointers face UPWARDS */
+        .comic-desktop-box {
+          top: 110%; left: 50%; transform: translateX(-50%);
+          animation: comicZoomInTop 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+        .comic-desktop-box::after {
+          content: ''; position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%);
+          border-width: 0 7px 7px 7px; border-style: solid; border-color: transparent transparent #1a1a1a transparent;
+        }
+        .comic-desktop-box::before {
+          content: ''; position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%) translateY(2.5px);
+          border-width: 0 6px 6px 6px; border-style: solid; border-color: transparent transparent white transparent; z-index: 160;
+        }
+
+        /* ⚡ Mobile Variant Layout: Heads up, pointers face DOWNWARDS */
+        .comic-mobile-box {
+          bottom: 145%; left: 50%; transform: translateX(-50%);
+          animation: comicZoomInBottom 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+        .comic-mobile-box::after {
           content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
           border-width: 7px 7px 0 7px; border-style: solid; border-color: #1a1a1a transparent transparent transparent;
         }
-        .comic-narration-box::before {
+        .comic-mobile-box::before {
           content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%) translateY(-2.5px);
           border-width: 6px 6px 0 6px; border-style: solid; border-color: white transparent transparent transparent; z-index: 160;
         }
-        @keyframes comicZoomIn {
-          0% { transform: translateX(-50%) scale(0.4); opacity: 0; }
-          100% { transform: translateX(-50%) scale(1); opacity: 1; }
+
+        @keyframes comicZoomInTop {
+          0% { transform: translateX(-50%) scale(0.4) translateY(-10px); opacity: 0; }
+          100% { transform: translateX(-50%) scale(1) translateY(0); opacity: 1; }
+        }
+        @keyframes comicZoomInBottom {
+          0% { transform: translateX(-50%) scale(0.4) translateY(10px); opacity: 0; }
+          100% { transform: translateX(-50%) scale(1) translateY(0); opacity: 1; }
         }
 
         /* --- Mobile Menu --- */
@@ -400,10 +423,10 @@ export default function Navbar() {
                 {mounted && wishlistCount > 0 && (
                   <span className={`icon-badge ${pulseWishlist ? "badge-pulse-active" : ""}`}>{wishlistCount}</span>
                 )}
-                {/* ⚡ Desktop Wishlist Comic Notification Bubble */}
+                {/* ⚡ Desktop Wishlist Comic Notification Bubble (Heads Down, Pointing UP) */}
                 {showWishlistPopup && (
-                  <div className="comic-narration-box">
-                    <span>Pinned to Registry!</span> <ArrowUpRight size={11} className="text-[#C9A84C]" />
+                  <div className="comic-base-box comic-desktop-box">
+                    <span>Pinned to Registry!</span> <ArrowDownRight size={11} className="text-[#C9A84C]" />
                   </div>
                 )}
                 <span className="action-tooltip">Wishlist</span>
@@ -414,10 +437,10 @@ export default function Navbar() {
                 {mounted && cartCount > 0 && (
                   <span className={`icon-badge ${pulseCart ? "badge-pulse-active" : ""}`}>{cartCount}</span>
                 )}
-                {/* ⚡ Desktop Cart Comic Notification Bubble */}
+                {/* ⚡ Desktop Cart Comic Notification Bubble (Heads Down, Pointing UP) */}
                 {showCartPopup && (
-                  <div className="comic-narration-box">
-                    <span>Added to Bag!</span> <ArrowUpRight size={11} className="text-[#C9A84C]" />
+                  <div className="comic-base-box comic-desktop-box">
+                    <span>Added to Bag!</span> <ArrowDownRight size={11} className="text-[#C9A84C]" />
                   </div>
                 )}
                 <span className="action-tooltip">Cart</span>
@@ -549,9 +572,9 @@ export default function Navbar() {
               <span className={`icon-badge bottom-badge ${pulseWishlist ? "badge-pulse-active" : ""}`}>{wishlistCount}</span>
             )}
           </div>
-          {/* ⚡ Mobile Bottom Wishlist Comic Notification Bubble */}
+          {/* ⚡ Mobile Bottom Wishlist Comic Notification Bubble (Heads Up, Pointing DOWN) */}
           {showWishlistPopup && (
-            <div className="comic-narration-box" style={{ bottom: "145%" }}>
+            <div className="comic-base-box comic-mobile-box">
               <span>Pinned to Registry!</span> <ArrowUpRight size={11} className="text-[#C9A84C]" />
             </div>
           )}
@@ -565,9 +588,9 @@ export default function Navbar() {
               <span className={`icon-badge bottom-badge ${pulseCart ? "badge-pulse-active" : ""}`}>{cartCount}</span>
             )}
           </div>
-          {/* ⚡ Mobile Bottom Cart Comic Notification Bubble */}
+          {/* ⚡ Mobile Bottom Cart Comic Notification Bubble (Heads Up, Pointing DOWN) */}
           {showCartPopup && (
-            <div className="comic-narration-box" style={{ bottom: "145%" }}>
+            <div className="comic-base-box comic-mobile-box">
               <span>Added to Bag!</span> <ArrowUpRight size={11} className="text-[#C9A84C]" />
             </div>
           )}
