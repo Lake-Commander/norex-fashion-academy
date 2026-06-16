@@ -17,7 +17,10 @@ import StyleOracle from "@/components/style-oracle";
 type TabKeys = "overview" | "academy" | "commerce" | "telemetry" | "settings";
 
 export default function EnhancedEcosystemDashboard() {
-  const { data: session, status } = useSession();
+  // ⚡ Defensive Safeguard: Fallback to a safe object structure if useSession evaluates to undefined
+  const sessionContext = useSession();
+  const { data: session, status } = sessionContext || { data: null, status: "loading" };
+
   const router = useRouter();
   const { cart, wishlist, toggleWishlist } = useShop();
 

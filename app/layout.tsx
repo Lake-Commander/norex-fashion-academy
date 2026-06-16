@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
-// 1. Import your ShopProvider
 import { ShopProvider } from "@/context/ShopContext";
+// ⚡ Import your NextAuth AuthProvider layout component hook
+import AuthProvider from "@/context/AuthProvider"; 
 
 const inter = Inter({
   subsets: ["latin"],
@@ -39,10 +40,12 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable} ${playfair.variable}`}>
       <body suppressHydrationWarning>
-        {/* 2. Wrap your application in the provider */}
-        <ShopProvider>
-          {children}
-        </ShopProvider>
+        {/* ⚡ Wrapped both contexts globally at the absolute root level */}
+        <AuthProvider>
+          <ShopProvider>
+            {children}
+          </ShopProvider>
+        </AuthProvider>
       </body>
     </html>
   ); 
