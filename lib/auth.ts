@@ -8,13 +8,25 @@ import connectDB from "./mongodb";
 import mongoose from "mongoose";   
 import bcrypt from "bcryptjs";     
 
-// Inline definition to prevent compile loops across dynamic Next.js edge environments
+// ⚡ UPDATED: Integrated cart and wishlist properties directly into the base memorandum model structure
 const UserModel = mongoose.models.User || mongoose.model("User", new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   password: { type: String },
   role: { type: String, default: "student" },
-  image: { type: String }
+  image: { type: String },
+  cart: [
+    {
+      id: { type: String, required: true },
+      name: { type: String },
+      price: { type: Number },
+      image: { type: String },
+      color: { type: String },
+      size: { type: String },
+      orderQuantity: { type: Number, default: 1 }
+    }
+  ],
+  wishlist: [{ type: String }] // Array of dynamic Product ID strings
 }));
 
 export const authOptions: NextAuthOptions = {
@@ -41,7 +53,7 @@ export const authOptions: NextAuthOptions = {
         const inputEmail = credentials.email.toLowerCase().trim();
         const inputPassword = credentials.password;
 
-        // ⚡ 1. THE ENV GUARD: Evaluates secure master credentials flags first
+        // 🔒 1. THE ISOLATED ENV ADMIN GUARD: Completely decoupled from checking user DB arrays
         if (
           process.env.ADMIN_EMAIL && 
           process.env.ADMIN_PASSWORD &&
@@ -52,19 +64,17 @@ export const authOptions: NextAuthOptions = {
             id: "master-admin-env-node",
             name: "Director Admin",
             email: process.env.ADMIN_EMAIL.toLowerCase(),
-            role: "admin",
+            role: "admin", // Strict Admin privilege flag
           };
         }
 
-        // ⚡ 2. THE DATABASE FALLBACK: Evaluates client clusters tables matches
+        // 👤 2. THE STUDENT/CUSTOMER DATABASE FALLBACK
         await connectDB();
-        
-        // ✅ THE FIX: Pull directly from the safe, pre-compiled UserModel variable above. 
-        // This ensures the model registers on context load instead of crash-looping on the connection pool.
         const user = await UserModel.findOne({ email: inputEmail });
         
-        if (!user || !user.password) {
-          throw new Error("No record matches the provided credentials.");
+        // Block entry if a database profile attempts to spoof administrative configurations
+        if (!user || !user.password || user.role === "admin") {
+          throw new Error("No student record matches the provided credentials.");
         }
 
         const passwordMatches = await bcrypt.compare(inputPassword, user.password);
@@ -76,7 +86,7 @@ export const authOptions: NextAuthOptions = {
           id: user._id.toString(),
           name: user.name,
           email: user.email,
-          role: user.role || "student",
+          role: "student", // Enforce standard student profile baseline for DB accounts
           image: user.image
         };
       }

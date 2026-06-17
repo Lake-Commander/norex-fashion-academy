@@ -7,7 +7,8 @@ if (!process.env.SMTP_HOST || !process.env.SMTP_USER || !process.env.SMTP_PASS) 
 
 // Create atomic connection pooling transport instance
 const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST || "smtp.lytehosting.com",
+  pool: true, // ⚡ ADDED: Reuses existing sockets to prevent EBUSY resource exhaustion errors
+  host: process.env.SMTP_HOST || "mail.norexfashion.com", // Fallback updated to your direct domain mail server
   port: Number(process.env.SMTP_PORT) || 465,
   secure: Number(process.env.SMTP_PORT) === 465, // True for 465, false for other ports
   auth: {
@@ -15,7 +16,7 @@ const transporter = nodemailer.createTransport({
     password: process.env.SMTP_PASS || "",
   },
   timeout: 10000,
-} as any); // ⚡ Fixed: Typing assertion 'as any' breaks open Nodemailer's brittle linter overload loop
+} as any); 
 
 interface MailPayload {
   to: string;
