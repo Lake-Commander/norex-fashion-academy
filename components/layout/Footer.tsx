@@ -205,6 +205,14 @@ export default function Footer() {
                     Privacy Protection Policy
                   </Link>
                 </li>
+                            <li className="pt-2 flex flex-col gap-2">
+              <Link href="/privacy" className="text-[10px] font-mono tracking-wider font-bold text-zinc-600 uppercase hover:text-[#C9A84C] transition-colors">
+                Privacy Protection Policy
+              </Link>
+              <Link href="/terms" className="text-[10px] font-mono tracking-wider font-bold text-zinc-600 uppercase hover:text-[#C9A84C] transition-colors">
+                Terms of Service
+              </Link>
+            </li>
               </ul>
             </div>
           </div>
