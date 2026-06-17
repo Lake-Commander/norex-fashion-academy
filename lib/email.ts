@@ -6,17 +6,21 @@ if (!process.env.SMTP_HOST || !process.env.SMTP_USER || !process.env.SMTP_PASS) 
 }
 
 // Create atomic connection pooling transport instance
+// lib/email.ts
 const transporter = nodemailer.createTransport({
-  pool: true, // ⚡ ADDED: Reuses existing sockets to prevent EBUSY resource exhaustion errors
-  host: process.env.SMTP_HOST || "mail.norexfashion.com", // Fallback updated to your direct domain mail server
-  port: Number(process.env.SMTP_PORT) || 465,
-  secure: Number(process.env.SMTP_PORT) === 465, // True for 465, false for other ports
+  pool: true, 
+  host: process.env.SMTP_HOST || "mail.norexfashion.com",
+  port: Number(process.env.SMTP_PORT) || 587, // ⚡ Updated: Changed from 465 to 587 submission standard
+  secure: false,                              // ⚡ Updated: Set to false for explicit STARTTLS negotiation
   auth: {
     user: process.env.SMTP_USER || "",
     password: process.env.SMTP_PASS || "",
   },
+  tls: {
+    rejectUnauthorized: false // ⚡ Avoids self-signed certification handshake loops on local servers
+  },
   timeout: 10000,
-} as any); 
+} as any);
 
 interface MailPayload {
   to: string;
