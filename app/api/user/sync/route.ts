@@ -3,21 +3,32 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import connectDB from "@/lib/mongodb";
-import mongoose from "mongoose"; // ✅ Fixed: Removed the missing UserModel import entirely
+import mongoose from "mongoose";
 
 export async function POST(request: Request) {
   const session = await getServerSession(authOptions);
   
-  // Guardrail: Block unauthenticated users or administrative environment nodes
-  if (!session || (session.user as any).role === "admin") {
-    return NextResponse.json({ success: false, error: "Unauthorized access tier token signature." }, { status: 401 });
+  // ⚡ Fix: Enforce strong type safety boundary right at the top of the execution thread
+  if (!session || !session.user) {
+    return NextResponse.json(
+      { success: false, error: "Unauthenticated session profile context." }, 
+      { status: 401 }
+    );
+  }
+
+  // Safe to read: Evaluates administrative clearance tiers
+  if ((session.user as any).role === "admin" || !session.user.email) {
+    return NextResponse.json(
+      { success: false, error: "Unauthorized access tier token signature." }, 
+      { status: 401 }
+    );
   }
 
   try {
     await connectDB();
     const { cart, wishlist } = await request.json();
 
-    // ✅ The Fix: Resolves from Mongoose connection instead of hardcoded file imports
+    // Resolves model straight from cached memory arrays instead of strict file imports
     const UserModel = mongoose.connection.model("User");
 
     await UserModel.updateOne(
