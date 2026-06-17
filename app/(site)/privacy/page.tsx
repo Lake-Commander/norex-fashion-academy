@@ -3,7 +3,8 @@
 import Header from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import StyleOracle from "@/components/style-oracle";
-import { ShieldCheck, Lock, Eye, Key } from "lucide-react";
+// ✅ Fixed: Added 'Clock' to the named imports destructuring statement below
+import { ShieldCheck, Lock, Eye, Key, Trash2, Cookie, UserCheck, HelpCircle, Clock } from "lucide-react";
 
 export default function PrivacyPolicyPage() {
   return (
@@ -15,7 +16,9 @@ export default function PrivacyPolicyPage() {
         .legal-header { border-bottom: 2px solid #1a1a1a; padding-bottom: 1.5rem; margin-bottom: 3rem; text-center; }
         .legal-section { margin-bottom: 2.5rem; }
         .legal-section-title { font-size: 0.85rem; font-weight: 900; font-family: monospace; letter-spacing: 0.2em; text-transform: uppercase; color: #C9A84C; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
-        .legal-body { font-size: 0.9rem; line-height: 1.85; color: #4b5563; font-family: sans-serif; font-light; text-align: justify; }
+        .legal-body { font-size: 0.9rem; line-height: 1.85; color: #4b5563; font-family: sans-serif; font-weight: 300; text-align: justify; }
+        .mail-link { color: #C9A84C; font-weight: bold; text-decoration: none; border-bottom: 1px dashed #C9A84C; transition: all 0.2s; }
+        .mail-link:hover { color: #1a1a1a; border-bottom-color: #1a1a1a; }
       `}</style>
 
       <div className="legal-container">
@@ -45,17 +48,60 @@ export default function PrivacyPolicyPage() {
 
         {/* Section 3 */}
         <section className="legal-section">
-          <h3 className="legal-section-title"><Lock size={14} /> 3. Cryptographic Storage & Security Measures</h3>
+          <h3 className="legal-section-title"><Cookie size={14} /> 3. Cookies & Local Session Cache Pointers</h3>
           <p className="legal-body">
-            All user passport credentials and password fields are encrypted using one-way cryptographic salting algorithms (Bcrypt.js) before storage in our clusters database collections. Master admin credentials remain locked inside secure environment partitions isolated from public data pipes. Outbound recovery token generation utilizes cryptographic random byte handshakes restricted to 60-minute active lifespans.
+            We utilize persistent cookies and local storage tokens to safeguard browser connection states, sustain active user logins across NextAuth handlers, and retain e-commerce cart counts. These elements track session identity metrics locally to optimize server-side page rendering passes and block unauthenticated URL hijacking attempts. You can change your cookie preferences directly inside your local browser layout tools at any time.
           </p>
         </section>
 
         {/* Section 4 */}
         <section className="legal-section">
-          <h3 className="legal-section-title"><Key size={14} /> 4. Third-Party Handshakes & Outbound Pipes</h3>
+          <h3 className="legal-section-title"><Lock size={14} /> 4. Cryptographic Storage & Security Measures</h3>
+          <p className="legal-body">
+            All user passport credentials and password fields are encrypted using one-way cryptographic salting algorithms (Bcrypt.js) before storage in our clusters database collections. Master admin credentials remain locked inside secure environment partitions isolated from public data pipes. Outbound recovery token generation utilizes cryptographic random byte handshakes restricted to 60-minute active lifespans.
+          </p>
+        </section>
+
+        {/* Section 5 */}
+        <section className="legal-section">
+          <h3 className="legal-section-title"><Key size={14} /> 5. Third-Party Handshakes & Outbound Pipes</h3>
           <p className="legal-body">
             We do not swap, trade, or distribute your identity indices to analytical brokers. External data sharing is strictly limited to transaction processing pipelines: processing mailing dispatches securely via local Lytehosting SMTP relays, initializing manual cart orders through secure WhatsApp workspace lines, and verifying identity handshakes dynamically using NextAuth Google OAuth servers.
+          </p>
+        </section>
+
+        {/* Section 6 */}
+        <section className="legal-section">
+          <h3 className="legal-section-title"><Clock size={14} /> 6. Data Retention Lifecycles</h3>
+          <p className="legal-body">
+            We preserve personal telemetry records and billing coordinates only as long as an account registry profile node remains active in our database ecosystem. Anonymous transactional metadata, custom tailored garment measurement records, and institutional academy grades parameters are archived systematically to comply with standard statutory financial bookkeeping laws and educational tracking regulations.
+          </p>
+        </section>
+
+        {/* Section 7 */}
+        <section className="legal-section">
+          <h3 className="legal-section-title"><UserCheck size={14} /> 7. Regional Statutory NDPR Rights</h3>
+          <p className="legal-body">
+            In compliance with the Nigerian Data Protection Regulation (NDPR), users holding passport nodes in our database possess absolute rights to access their registered profiles, correct measurement variation sheets, restrict tracking packets, or withdraw data processing authorization constraints entirely. Contact the House administrative stations at any time to verify your profile clearance tier parameters.
+          </p>
+        </section>
+
+        {/* Section 8 */}
+        <section className="legal-section">
+          <h3 className="legal-section-title"><Trash2 size={14} /> 8. Account Deletion Request Registry</h3>
+          <p className="legal-body">
+            If you wish to terminate your profile passport node and erase all linked telemetry datasets (including active shopping cart history, pinned wishlists, read logs, and billing coordinates) from our database cluster, you may submit a formal deletion request. Please send an email directly to our system administration team at: <a href="mailto:admin@norexfashion.com" className="mail-link">admin@norexfashion.com</a>. 
+          </p>
+          <p className="legal-body mt-2">
+            Your request will be thoroughly checked against your session cookies, verified, and executed across all production tables within forty-eight (48) hours. Please note that active student tuition records cannot be erased during an active academy semester loop.
+          </p>
+        </section>
+
+        {/* Section 9 */}
+        <section className="legal-section">
+          <h3 className="legal-section-title"><HelpCircle size={14} /> 9. Policy Revisions</h3>
+          <p className="legal-body">
+            The House reserves the absolute privilege to update or adjust these security directives to follow evolving digital protocols and regional data protection modifications. Any changes to our server-side parameters will be updated directly on this page layout view, accompanied by a fresh effective release index flag.
           </p>
         </section>
 
