@@ -2,14 +2,14 @@
 import { NextAuthOptions } from "next-auth";
 import { MongoDBAdapter } from "@next-auth/mongodb-adapter";
 import GoogleProvider from "next-auth/providers/google";
-import CredentialsProvider from "next-auth/providers/credentials"; // ✅ Fixes: Cannot find name 'CredentialsProvider'
+import CredentialsProvider from "next-auth/providers/credentials"; 
 import clientPromise from "./mongodb-client";
-import connectDB from "./mongodb"; // ✅ Fixes: Cannot find name 'connectDB'
-import mongoose from "mongoose";   // ✅ Fixes: Naming conflict with local MongooseCache setups
-import bcrypt from "bcryptjs";     // ✅ Fixes: Cannot find name 'bcrypt'
+import connectDB from "./mongodb"; 
+import mongoose from "mongoose";   
+import bcrypt from "bcryptjs";     
 
 // Inline definition to prevent compile loops across dynamic Next.js edge environments
-const UserSchema = mongoose.models.User || mongoose.model("User", new mongoose.Schema({
+const UserModel = mongoose.models.User || mongoose.model("User", new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   password: { type: String },
@@ -33,7 +33,6 @@ export const authOptions: NextAuthOptions = {
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" }
       },
-      // ✅ Fixes: Parameter 'credentials' implicitly has an 'any' type
       async authorize(credentials: Record<"email" | "password", string> | undefined) {
         if (!credentials?.email || !credentials?.password) {
           throw new Error("Missing credentials parameter inputs.");
@@ -60,8 +59,9 @@ export const authOptions: NextAuthOptions = {
         // ⚡ 2. THE DATABASE FALLBACK: Evaluates client clusters tables matches
         await connectDB();
         
-        // Explicitly utilizing mongoose.connection avoids global type caching bugs
-        const user = await mongoose.connection.model("User").findOne({ email: inputEmail });
+        // ✅ THE FIX: Pull directly from the safe, pre-compiled UserModel variable above. 
+        // This ensures the model registers on context load instead of crash-looping on the connection pool.
+        const user = await UserModel.findOne({ email: inputEmail });
         
         if (!user || !user.password) {
           throw new Error("No record matches the provided credentials.");
