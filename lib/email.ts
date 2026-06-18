@@ -5,38 +5,6 @@ if (!process.env.SMTP_HOST || !process.env.SMTP_USER || !process.env.SMTP_PASS) 
   console.warn("SMTP environment parameters missing. Running mail utilities in fallback mode.");
 }
 
-// Global Cached Transporter to preserve connection pooling across Next.js Hot Module reloads
-let transporter: any;
-
-const isPort465 = Number(process.env.SMTP_PORT) === 465;
-
-const transportConfig = {
-  pool: true, // 🔄 Reuses open network sockets to entirely prevent the EBUSY crash loop
-  maxConnections: 5,
-  maxMessages: 100,
-  host: process.env.SMTP_HOST || "norexfashion.com",
-  port: Number(process.env.SMTP_PORT) || 465,
-  secure: isPort465, // 🔒 True for Port 465 (Implicit SSL), False for Port 587 (STARTTLS)
-  auth: {
-    user: process.env.SMTP_USER || "",
-    password: process.env.SMTP_PASS || "",
-  },
-  tls: {
-    rejectUnauthorized: false, // 🛡️ Bypasses cross-origin certification validation errors
-    ciphers: "SSLv3"           // Forces compatibility with standard cPanel mail exchangers
-  },
-  timeout: 10000,
-};
-
-if (process.env.NODE_ENV === "production") {
-  transporter = nodemailer.createTransport(transportConfig as any);
-} else {
-  if (!(global as any).smtpTransporter) {
-    (global as any).smtpTransporter = nodemailer.createTransport(transportConfig as any);
-  }
-  transporter = (global as any).smtpTransporter;
-}
-
 interface MailPayload {
   to: string;
   subject: string;
@@ -46,6 +14,23 @@ interface MailPayload {
 export async function sendEmail({ to, subject, html }: MailPayload) {
   const fromAddress = process.env.SMTP_FROM || "admin@norexfashion.com";
 
+  // ⚡ SERVERLESS OPTIMIZED: Create a clean, dedicated single-use instance per function invocation
+  const transporter = nodemailer.createTransport({
+    host: process.env.SMTP_HOST || "norexfashion.com",
+    port: Number(process.env.SMTP_PORT) || 465,
+    secure: Number(process.env.SMTP_PORT) === 465, 
+    auth: {
+      user: process.env.SMTP_USER || "",
+      password: process.env.SMTP_PASS || "",
+    },
+    tls: {
+      rejectUnauthorized: false, 
+      ciphers: "SSLv3"           
+    },
+    connectionTimeout: 10000, // Terminate frozen handshakes early
+    greetingTimeout: 10000,
+  } as any);
+
   const mailOptions = {
     from: `"Norex Fashion House" <${fromAddress}>`,
     to: to,
@@ -54,10 +39,18 @@ export async function sendEmail({ to, subject, html }: MailPayload) {
   };
 
   try {
+    // 1. Verify the handshake block works inside this specific serverless instance execution path
+    await transporter.verify();
+
+    // 2. Dispatch the payload
     const info = await transporter.sendMail(mailOptions);
+    
     return { success: true, messageId: info.messageId };
   } catch (error: any) {
-    console.error("Lytehosting SMTP Transport Failure:", error);
+    console.error("Vercel Serverless SMTP Transport Failure:", error);
     throw new Error(`Mail pipeline transaction dropped: ${error.message}`);
+  } finally {
+    // ⚡ CRITICAL FOR VERCEL: Force clean closure of the socket container before the serverless container sleeps
+    transporter.close();
   }
 }
