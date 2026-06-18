@@ -88,9 +88,68 @@ export default function ShopArea() {
         }
         @media(min-width: 1024px) { 
           .shop-layout { 
-            grid-template-columns: 280px 1fr; 
-            gap: 3rem; 
+            grid-template-columns: 240px 1fr; 
+            gap: 4rem; 
           } 
+        }
+
+        /* --- Elegant Sidebar Refinement Overrides --- */
+        .shop-sidebar-container h3, 
+        .shop-sidebar-container .sidebar-heading {
+          font-family: var(--font-playfair), Georgia, serif;
+          font-size: 1.35rem;
+          font-weight: 400;
+          color: #1a1a1a;
+          margin-bottom: 1.25rem;
+          margin-top: 2rem;
+          letter-spacing: 0.02em;
+        }
+        .shop-sidebar-container h3:first-of-type { margin-top: 0; }
+        
+        .shop-sidebar-container ul {
+          list-style: none;
+          padding: 0;
+          margin: 0 0 2rem 0;
+        }
+        
+        .shop-sidebar-container ul li {
+          font-family: var(--font-sans), sans-serif;
+          font-size: 0.95rem;
+          font-weight: 400;
+          color: #27272a;
+          padding: 0.45rem 0;
+          cursor: pointer;
+          transition: color 0.2s ease;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+        .shop-sidebar-container ul li:hover { color: #C9A84C; }
+        
+        /* Custom styled Range track matching your image */
+        .price-slider-track {
+          width: 100%;
+          height: 5px;
+          background: #0066ff;
+          border-radius: 4px;
+          position: relative;
+          margin: 1rem 0;
+        }
+        
+        .price-label-row {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          font-family: var(--font-sans), sans-serif;
+          font-size: 0.9rem;
+          font-weight: 500;
+          color: #71717a;
+          margin-top: 0.75rem;
+        }
+        
+        .price-label-row .max-val {
+          color: #C9A84C;
+          font-weight: 700;
         }
 
         .product-grid { display: grid; grid-template-columns: 1fr; gap: 2rem; }
@@ -117,7 +176,6 @@ export default function ShopArea() {
         }
         .sc:hover .sco { opacity: 1; pointer-events: auto; }
 
-        /* Action Buttons on Product Card Hover Overlay */
         .action-btn {
           color: white; font-size: 0.65rem; letter-spacing: 0.12em; text-transform: uppercase;
           border: 1px solid rgba(255,255,255,0.8); padding: 0.5rem 1rem; transition: all 0.3s ease; 
@@ -140,7 +198,6 @@ export default function ShopArea() {
         }
         .shop-whatsapp-btn:hover { background-color: #20b558; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(37, 211, 102, 0.4); }
 
-        /* Fallbacks to protect desktop layout grids without breaking Tailwind layouts */
         @media (max-width: 1023px) {
           .desktop-only-stat { display: none !important; }
         }
@@ -148,9 +205,8 @@ export default function ShopArea() {
           .mobile-only-filter { display: none !important; }
         }
 
-        /* Luxury Gender Tab Layout Filters Bar styling */
         .gender-tab-btn {
-          font-size: 0.75rem; font-family: monospace; font-weight: 700; uppercase; tracking-widest: 0.15em;
+          font-size: 0.75rem; font-family: monospace; font-weight: 700;
           padding: 0.5rem 1.5rem; background: transparent; border: none; cursor: pointer;
           color: #9ca3af; transition: all 0.3s; text-transform: uppercase; position: relative;
         }
@@ -218,8 +274,10 @@ export default function ShopArea() {
         </div>
 
         <div className="shop-layout">
-          {/* Sidebar Filters View Linkage */}
-          <ShopSidebar isMobileOpen={isMobileFilterOpen} setIsMobileOpen={setIsMobileFilterOpen} />
+          {/* Wraps the component with a class node matching the scoped overrides */}
+          <div className="shop-sidebar-container">
+            <ShopSidebar isMobileOpen={isMobileFilterOpen} setIsMobileOpen={setIsMobileFilterOpen} />
+          </div>
 
           {/* Core Product Grid Display Zone */}
           <div>
@@ -298,6 +356,7 @@ export default function ShopArea() {
         <p style={{ fontSize: "0.7rem", letterSpacing: "0.25em", textTransform: "uppercase", color: goldColor, fontWeight: 600, marginBottom: "1rem", display: "block" }}>Bespoke Assembly</p>
         <h2 style={{ fontFamily: "var(--font-playfair), Georgia, serif", fontSize: "clamp(1.5rem, 3vw, 2.5rem)", fontWeight: 700, color: "#1a1a1a", marginBottom: "1rem" }}>Made-to-Measure Configurations</h2>
         <p style={{ fontSize: "0.9rem", color: "#6b7280", marginBottom: "2rem", maxWidth: "450px", margin: "0 auto 2rem", lineHeight: 1.8 }}>We offer dedicated structural custom tailoring fittings. Reach out directly via WhatsApp to initiate a custom commission with our consultants.</p>
+        {/* ✅ FIXED: 'justify' parameter switched to 'justifyContent' cross-platform layout typing property */}
         <a href="https://wa.me/2349043371380" target="_blank" rel="noopener noreferrer" className="shop-whatsapp-btn" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: "0.75rem" }}>
           <MessageCircle size={18} />
           Consult via WhatsApp
