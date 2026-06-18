@@ -15,7 +15,7 @@ export default function AdminSidebar() {
   useEffect(() => {
     async function fetchAlerts() {
       try {
-        const res = await fetch("/api/admin/notifications"); // Create a minimal API route for this to keep server sync operations light
+        const res = await fetch("/api/admin/notifications"); 
         const data = await res.json();
         if (data.success) {
           setAlerts(data.data);
@@ -136,7 +136,10 @@ export default function AdminSidebar() {
         {/* Header Masthead */}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem", paddingBottom: "1rem", borderBottom: "1px solid rgba(255,255,255,0.1)" }}>
           <div>
-            <img src="/tolani-logo.png" alt="Norex Fashion" style={{ height: "40px", width: "auto", filter: "brightness(0) invert(1)" }} />
+            {/* 🔗 Logo linked directly to the main landing page */}
+            <Link href="/" style={{ display: "inline-block" }}>
+              <img src="/tolani-logo.png" alt="Norex Fashion Home" style={{ height: "40px", width: "auto", filter: "brightness(0) invert(1)" }} />
+            </Link>
             <p style={{ fontSize: "0.6rem", letterSpacing: "0.2em", textTransform: "uppercase", color: "rgba(255,255,255,0.3)", marginTop: "0.35rem", textAlign: "left" }}>Master Control CMS</p>
           </div>
           {/* Mobile Inner Close Cross */}
@@ -153,7 +156,7 @@ export default function AdminSidebar() {
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
             Overview
             {totalAlerts > 0 && (
-              <span style={{ marginLeft: "auto", backgroundColor: "#C9A84C", color: "white", fontSize: "0.65rem", fontWeight: 700, padding: "0.15rem 0.5rem", borderRadius: "999px", minWidth: "20px", textAlign: "center" }}>
+              <span style={{ marginLeft: "auto", backgroundColor: "#C9A84C", color: "white", fontSize: "0.65rem", fontWeight: "700", padding: "0.15rem 0.5rem", borderRadius: "999px", minWidth: "20px", textAlign: "center" }}>
                 {totalAlerts}
               </span>
             )}
@@ -163,7 +166,7 @@ export default function AdminSidebar() {
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
             Applications
             {alerts.pendingApplications > 0 && (
-              <span style={{ marginLeft: "auto", backgroundColor: "#C9A84C", color: "white", fontSize: "0.65rem", fontWeight: 700, padding: "0.15rem 0.5rem", borderRadius: "999px", minWidth: "20px", textAlign: "center" }}>
+              <span style={{ marginLeft: "auto", backgroundColor: "#C9A84C", color: "white", fontSize: "0.65rem", fontWeight: "700", padding: "0.15rem 0.5rem", borderRadius: "999px", minWidth: "20px", textAlign: "center" }}>
                 {alerts.pendingApplications}
               </span>
             )}
@@ -178,7 +181,7 @@ export default function AdminSidebar() {
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
             Payments
             {alerts.pendingPayments > 0 && (
-              <span style={{ marginLeft: "auto", backgroundColor: "#C9A84C", color: "white", fontSize: "0.65rem", fontWeight: 700, padding: "0.15rem 0.5rem", borderRadius: "999px", minWidth: "20px", textAlign: "center" }}>
+              <span style={{ marginLeft: "auto", backgroundColor: "#C9A84C", color: "white", fontSize: "0.65rem", fontWeight: "700", padding: "0.15rem 0.5rem", borderRadius: "999px", minWidth: "20px", textAlign: "center" }}>
                 {alerts.pendingPayments}
               </span>
             )}
@@ -188,7 +191,7 @@ export default function AdminSidebar() {
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
             Messages
             {alerts.unreadMessages > 0 && (
-              <span style={{ marginLeft: "auto", backgroundColor: "#dc2626", color: "white", fontSize: "0.65rem", fontWeight: 700, padding: "0.15rem 0.5rem", borderRadius: "999px", minWidth: "20px", textAlign: "center" }}>
+              <span style={{ marginLeft: "auto", backgroundColor: "#dc2626", color: "white", fontSize: "0.65rem", fontWeight: "700", padding: "0.15rem 0.5rem", borderRadius: "999px", minWidth: "20px", textAlign: "center" }}>
                 {alerts.unreadMessages}
               </span>
             )}

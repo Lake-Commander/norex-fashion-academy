@@ -39,7 +39,7 @@ export default function CreativeDirector() {
           {/* Photo Frame */}
           <div style={{ borderColor: "rgba(255,255,255,0.05)", backgroundColor: "rgba(255,255,255,0.02)" }} className="lg:col-span-5 relative overflow-hidden rounded-sm shadow-2xl aspect-[3/4] group">
             <img 
-              src="/runway/bts-14.avif" 
+              src="/founder.jpg" 
               alt="Bespoke drafting lines in the Norex Studio" 
               className="w-full h-full object-cover scale-[1.01] group-hover:scale-100 transition-transform duration-1000 filter grayscale contrast-[1.05]"
             />

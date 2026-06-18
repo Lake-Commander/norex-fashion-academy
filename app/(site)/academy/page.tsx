@@ -55,7 +55,7 @@ export default function AcademyPage() {
 
       {/* Hero Banner Stage */}
       <div style={{ position: "relative", paddingTop: "9rem", paddingBottom: "7rem", backgroundColor: "#0C0C0C" }}>
-        <div style={{ position: "absolute", inset: 0, backgroundImage: "url(/images/academy-bg.jpg)", backgroundSize: "cover", backgroundPosition: "center", opacity: 0.15 }} />
+        <div style={{ position: "absolute", inset: 0, backgroundImage: "url(/academy1.jpeg)", backgroundSize: "cover", backgroundPosition: "center", opacity: 0.15 }} />
         <div className="container-custom relative z-10 text-left">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
             <div className="lg:col-span-8 space-y-6">

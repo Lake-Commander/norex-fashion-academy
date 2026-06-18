@@ -87,7 +87,7 @@ export default function HousePage() {
             </div>
             <div className="lg:col-span-7">
               <div className="manifesto-img-wrapper">
-                <img src="/runway/hero-banner-2.avif" alt="Norex design lines landscape" className="manifesto-img" />
+                <img src="/house1.jpeg" alt="Norex design lines landscape" className="manifesto-img" />
               </div>
             </div>
           </div>
