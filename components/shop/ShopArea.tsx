@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link"; 
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { formatPrice } from "@/lib/utils";
 import { MessageCircle, Filter, Heart, ShoppingBag, Loader2, ImageIcon } from "lucide-react";
 import ShopSidebar from "./ShopSidebar";
@@ -11,6 +11,7 @@ import { useShop } from "@/context/ShopContext";
 
 export default function ShopArea() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const { addToCart, toggleWishlist, isInWishlist } = useShop();
 
   const [products, setProducts] = useState<any[]>([]);
@@ -23,7 +24,7 @@ export default function ShopArea() {
   const selectedColor = searchParams.get("color");
   const selectedStatus = searchParams.get("status");
   const maxPriceParam = searchParams.get("price");
-  const selectedGender = searchParams.get("gender");
+  const selectedGender = searchParams.get("gender") || "all";
 
   // Fetch product catalog array from live database node on mount
   useEffect(() => {
@@ -43,11 +44,24 @@ export default function ShopArea() {
     fetchCatalog();
   }, []);
 
+  // Handler to mutate Gender parameters in URL query state search strings cleanly
+  const handleGenderChange = (gender: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (gender === "all") {
+      params.delete("gender");
+    } else {
+      params.set("gender", gender);
+    }
+    router.push(`/shop?${params.toString()}`, { scroll: false });
+  };
+
   // Compute live filters completely in memory based on current URL states
   const filteredProducts = useMemo(() => {
     let result = [...products];
 
-    if (selectedGender) result = result.filter((p) => p.gender === selectedGender || p.gender === "Both");
+    if (selectedGender && selectedGender !== "all") {
+      result = result.filter((p) => p.gender === selectedGender || p.gender === "Both");
+    }
     if (selectedCategory) result = result.filter((p) => p.category === selectedCategory);
     if (selectedColor) result = result.filter((p) => p.colors?.some((c: string) => c.toLowerCase() === selectedColor.toLowerCase()));
     if (selectedStatus === "in-stock") result = result.filter((p) => p.inStock);
@@ -133,6 +147,17 @@ export default function ShopArea() {
         @media (min-width: 1024px) {
           .mobile-only-filter { display: none !important; }
         }
+
+        /* Luxury Gender Tab Layout Filters Bar styling */
+        .gender-tab-btn {
+          font-size: 0.75rem; font-family: monospace; font-weight: 700; uppercase; tracking-widest: 0.15em;
+          padding: 0.5rem 1.5rem; background: transparent; border: none; cursor: pointer;
+          color: #9ca3af; transition: all 0.3s; text-transform: uppercase; position: relative;
+        }
+        .gender-tab-btn.active { color: #1a1a1a; }
+        .gender-tab-btn.active::after {
+          content: ''; position: absolute; bottom: -2px; left: 1.5rem; right: 1.5rem; height: 2px; background-color: #C9A84C;
+        }
       `}</style>
 
       {/* Hero Header Area */}
@@ -145,6 +170,24 @@ export default function ShopArea() {
           </div>
           <h1 style={{ fontFamily: "var(--font-playfair), Georgia, serif", fontSize: "clamp(2.5rem, 5vw, 4rem)", fontWeight: 700, color: "#1a1a1a", marginBottom: "1rem", lineHeight: 1.1 }}>Our Collection</h1>
           <p style={{ fontSize: "0.9rem", color: "#6b7280", maxWidth: "500px", lineHeight: 1.8 }}>Discover premium ready-to-wear expressions and custom African heritage designs constructed with architectural care.</p>
+          
+          {/* Gender Horizon Bar Segment */}
+          <div style={{ display: "flex", gap: "0.5rem", marginTop: "2.5rem", borderBottom: "1px solid #e5e7eb", width: "max-content", paddingBottom: "2px" }}>
+            {[
+              { id: "all", label: "All Collection" },
+              { id: "Men", label: "Men" },
+              { id: "Women", label: "Women" },
+              { id: "Both", label: "Bespoke Unisex" }
+            ].map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => handleGenderChange(tab.id)}
+                className={`gender-tab-btn ${selectedGender === tab.id ? "active" : ""}`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -255,7 +298,7 @@ export default function ShopArea() {
         <p style={{ fontSize: "0.7rem", letterSpacing: "0.25em", textTransform: "uppercase", color: goldColor, fontWeight: 600, marginBottom: "1rem", display: "block" }}>Bespoke Assembly</p>
         <h2 style={{ fontFamily: "var(--font-playfair), Georgia, serif", fontSize: "clamp(1.5rem, 3vw, 2.5rem)", fontWeight: 700, color: "#1a1a1a", marginBottom: "1rem" }}>Made-to-Measure Configurations</h2>
         <p style={{ fontSize: "0.9rem", color: "#6b7280", marginBottom: "2rem", maxWidth: "450px", margin: "0 auto 2rem", lineHeight: 1.8 }}>We offer dedicated structural custom tailoring fittings. Reach out directly via WhatsApp to initiate a custom commission with our consultants.</p>
-        <a href="https://wa.me/2349043371380" target="_blank" rel="noopener noreferrer" className="shop-whatsapp-btn">
+        <a href="https://wa.me/2349043371380" target="_blank" rel="noopener noreferrer" className="shop-whatsapp-btn" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: "0.75rem" }}>
           <MessageCircle size={18} />
           Consult via WhatsApp
         </a>
