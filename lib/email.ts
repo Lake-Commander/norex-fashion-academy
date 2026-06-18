@@ -1,4 +1,5 @@
 // lib/email.ts
+
 interface MailPayload {
   to: string;
   subject: string;
@@ -6,27 +7,40 @@ interface MailPayload {
 }
 
 export async function sendEmail({ to, subject, html }: MailPayload) {
-  // Explicitly fetch right inside the call block
-  const url = process.env.MAIL_BRIDGE_URL;
-  const secret = process.env.MAIL_BRIDGE_SECRET;
+  const apiKey = process.env.BREVO_API_KEY;
+  const fromAddress = process.env.SMTP_FROM || "admin@norexfashion.com";
 
-  // 🚨 HARD ASSURANCE CHECK: Force compile errors if Vercel dashboard variables are empty
-  if (!url || !secret) {
-    throw new Error(
-      `Vercel Environment Config Missing. URL Present: ${!!url}, Secret Present: ${!!secret}. Ensure MAIL_BRIDGE_URL and MAIL_BRIDGE_SECRET are completely set up in your Vercel project control panel.`
-    );
+  if (!apiKey) {
+    console.error("BREVO_API_KEY runtime environment variable is missing.");
+    throw new Error("Mail utility engine unconfigured.");
   }
 
-  const response = await fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ secret, to, subject, html }),
-  });
+  try {
+    // ⚡ VERCEL FIREWALL COMPLIANT: Standard secure HTTP Rest API request
+    const response = await fetch("https://api.brevo.com/v3/smtp/email", {
+      method: "POST",
+      headers: {
+        "accept": "application/json",
+        "api-key": apiKey,
+        "content-type": "application/json"
+      },
+      body: JSON.stringify({
+        sender: { name: "Norex Fashion House", email: fromAddress },
+        to: [{ email: to }],
+        subject: subject,
+        htmlContent: html
+      })
+    });
 
-  const data = await response.json();
-  if (!response.ok || !data.success) {
-    throw new Error(data.error || "Bridge endpoint rejected pipeline execution.");
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || "Brevo transmission challenge rejected.");
+    }
+
+    return { success: true, messageId: data.messageId };
+  } catch (error: any) {
+    console.error("Brevo API Delivery Layer Failure:", error);
+    throw new Error(`Mail pipeline transaction dropped: ${error.message}`);
   }
-
-  return { success: true };
 }
