@@ -21,7 +21,9 @@ const UserSchema = new mongoose.Schema({
   wishlist: [{ type: String }],
   // 🔐 Added these fields for token tracking:
   resetToken: { type: String },
-  resetTokenExpiry: { type: Date }
+  resetTokenExpiry: { type: Date },
+  // 🗑️ Soft-delete flag to protect relational order logs
+  isDeleted: { type: Boolean, default: false }
 });
 
 // Checks if model is compiled, otherwise safe-compiles it once globally
