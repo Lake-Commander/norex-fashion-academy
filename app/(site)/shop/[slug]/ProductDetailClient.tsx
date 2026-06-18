@@ -1,19 +1,22 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { formatPrice, generateWhatsAppLink } from "@/lib/utils";
 import { useShop } from "@/context/ShopContext";
-import { useTelemetry } from "@/hooks/useTelemetry"; // ⚡ Telemetry Import
+import { useTelemetry } from "@/hooks/useTelemetry"; 
 import { ShoppingBag, Heart, MessageCircle, Minus, Plus, Star, Check } from "lucide-react";
 
 export default function ProductDetailClient({ product, relatedProducts }: { product: any, relatedProducts: any[] }) {
   const { addToCart, toggleWishlist, isInWishlist } = useShop();
-  const { trackProduct } = useTelemetry(); // ⚡ Destructure Telemetry Engine
+  const { trackProduct } = useTelemetry(); 
   
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState("description");
+  
+  // ⚡ Active Main Display Image Array Index Node Pointer
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
   
   // Local state for reviews so it updates instantly after submission
   const [reviews, setReviews] = useState(product.reviews || []);
@@ -31,7 +34,7 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
   const [selectedColor, setSelectedColor] = useState(product.colors?.[0] || "Default Matrix");
   const [selectedGender, setSelectedGender] = useState(product.gender === "Both" ? "Female" : product.gender);
 
-  // ⚡ Telemetry Effect: Synchronizes product views directly down to customer history arrays
+  // Telemetry Effect: Synchronizes product views directly down to customer history arrays
   useEffect(() => {
     if (product?._id) {
       trackProduct(product._id);
@@ -60,7 +63,6 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
 
   const handleWhatsAppOrderRedirect = async () => {
     try {
-      // Dispatches a manual pending tracer directly to your admin orders dashboard
       await fetch("/api/admin/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -92,7 +94,7 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          productId: product._id, // Updated to track product by database ID string
+          productId: product._id, 
           user: name,
           email,
           rating,
@@ -133,14 +135,35 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
 
         .image-wrapper { position: relative; aspect-ratio: 3/4; overflow: hidden; background-color: #FAF7F4; border-radius: 2px; border: 1px solid #f0ebe3; }
         
-        /* ⚡ Premium Spinning Look Badge Component Style Matrix */
         .look-spinning-badge {
-          position: absolute; top: 1rem; left: 1rem; bg-color: rgba(26,26,26,0.75);
+          position: absolute; top: 1rem; left: 1rem;
           background: rgba(26,26,26,0.75); border: 1px solid rgba(255,255,255,0.1);
           padding: 0.25rem 0.6rem; font-family: monospace; font-size: 8px; color: rgba(255,255,255,0.9);
           letter-spacing: 0.15em; text-transform: uppercase; font-weight: 700; border-radius: 2px;
-          z-index: 20; pointer-events: none; backdrop-blur: 4px; backdrop-filter: blur(4px);
+          z-index: 20; pointer-events: none; backdrop-filter: blur(4px);
         }
+
+        /* ⚡ Luxury Interactive Image Micro-Roll Styles */
+        .image-roll-grid {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 0.75rem;
+          margin-top: 1rem;
+        }
+
+        .roll-thumb-btn {
+          position: relative;
+          aspect-ratio: 3/4;
+          overflow: hidden;
+          background-color: #FAF7F4;
+          border: 1px solid #e5e7eb;
+          cursor: pointer;
+          padding: 0;
+          transition: all 0.3s ease;
+          border-radius: 2px;
+        }
+        .roll-thumb-btn:hover { border-color: #C9A84C; }
+        .roll-thumb-btn.active { border-color: #1a1a1a; ring: 1px solid #1a1a1a; }
 
         .btn-whatsapp { display: flex; align-items: center; justify-content: center; gap: 0.75rem; background-color: #25D366; color: white; padding: 1rem 2rem; font-size: 0.8rem; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; text-decoration: none; width: 100%; transition: all 0.3s ease; border-radius: 2px; border: none; cursor: pointer; }
         .btn-whatsapp:hover { background-color: #20b558; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(37, 211, 102, 0.4); }
@@ -198,15 +221,48 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
 
       <div className="container-custom" style={{ paddingTop: "4rem", paddingBottom: "4rem" }}>
         <div className="pdg">
-          <div className="image-wrapper">
-            {/* ⚡ Spinning Badge Node added directly onto the main cover layout block */}
-            <div className="look-spinning-badge">
-              Look-{String(product.lookNumber || product.id || 1).padStart(2, "0")}
+          
+          {/* Left Media Stage: Image Roll Base Container */}
+          <div>
+            <div className="image-wrapper">
+              <div className="look-spinning-badge">
+                Look-{String(product.lookNumber || product.id || 1).padStart(2, "0")}
+              </div>
+              <Image 
+                src={product.images?.[activeImageIndex] || "/placeholder-garment.png"} 
+                alt={`${product.name} - View ${activeImageIndex + 1}`} 
+                fill 
+                style={{ objectFit: "cover" }} 
+                sizes="(max-width:1024px) 100vw,50vw" 
+                priority 
+              />
             </div>
-            <Image src={product.images?.[0] || "/placeholder-garment.png"} alt={product.name} fill style={{ objectFit: "cover" }} sizes="(max-width:1024px) 100vw,50vw" priority />
+
+            {/* Multi-Image roll grid triggers */}
+            {product.images && product.images.length > 1 && (
+              <div className="image-roll-grid">
+                {product.images.map((imgUrl: string, idx: number) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => setActiveImageIndex(idx)}
+                    className={`roll-thumb-btn ${activeImageIndex === idx ? "active" : ""}`}
+                  >
+                    <Image 
+                      src={imgUrl} 
+                      alt={`${product.name} thumb ${idx + 1}`} 
+                      fill 
+                      style={{ objectFit: "cover" }} 
+                      sizes="120px"
+                    />
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
-          <div style={{ position: "sticky", top: "6rem", alignSelf: "flex-start", textAlign: "left" }}>
+          {/* Right Product Parameters Details Panel */}
+          <div style={{ position: "sticky", top: "8rem", alignSelf: "flex-start", textAlign: "left" }}>
             <p style={{ fontSize: "0.65rem", letterSpacing: "0.25em", textTransform: "uppercase", color: "#C9A84C", fontWeight: 600, marginBottom: "1rem" }}>{product.category}</p>
             <h1 style={{ fontFamily: "var(--font-playfair), Georgia, serif", fontSize: "clamp(2rem, 4vw, 3rem)", fontWeight: 700, color: "#1a1a1a", lineHeight: 1.1, marginBottom: "1rem" }}>{product.name}</h1>
             <p style={{ fontSize: "1.75rem", fontWeight: 700, color: "#C9A84C", marginBottom: "1.5rem", fontFamily: "monospace" }}>{formatPrice(product.price)}</p>
@@ -214,7 +270,7 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
             <div style={{ height: "1px", backgroundColor: "#f0ebe3", marginBottom: "1.5rem" }} />
             <p style={{ fontSize: "0.95rem", color: "#6b7280", lineHeight: 1.9, marginBottom: "2rem" }}>{product.description}</p>
             
-            {/* Conditional Gender Selector Option for Unisex Catalog Pieces */}
+            {/* Conditional Gender Selector Option for Unisex Pieces */}
             {product.gender === "Both" && (
               <div style={{ marginBottom: "1.5rem" }}>
                 <p style={{ fontSize: "0.7rem", letterSpacing: "0.2em", textTransform: "uppercase", fontWeight: 600, color: "#1a1a1a", marginBottom: "0.875rem" }}>Specify Fit Profile</p>
@@ -271,6 +327,7 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
               </div>
             </div>
           </div>
+
         </div>
       </div>
 
@@ -357,7 +414,8 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
       {relatedProducts.length > 0 && (
         <div style={{ paddingTop: "5rem", paddingBottom: "6rem", backgroundColor: "white" }}>
           <div className="container-custom">
-            <div style={{ textAlign: "center", marginBottom: "3rem" }}>
+            {/* ⚡ FIX: 'textLeft' changed to 'textAlign' to conform to standard CSS properties matrix */}
+            <div style={{ marginBottom: "3rem", textAlign: "center" }}>
               <h2 style={{ fontFamily: "var(--font-playfair), Georgia, serif", fontSize: "clamp(1.75rem, 4vw, 2.5rem)", fontWeight: 700, color: "#1a1a1a", textTransform: "uppercase" }}>Related Products</h2>
             </div>
             <div className="pg">
@@ -366,7 +424,6 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
                 return (
                   <div key={p._id || p.id} className="pc">
                     <div className="pc-img-frame">
-                      {/* ⚡ Spinning Badge Layer injected onto each related catalog list child node */}
                       <div className="look-spinning-badge">
                         Look-{String(p.lookNumber || p.id || 1).padStart(2, "0")}
                       </div>
