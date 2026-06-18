@@ -1,47 +1,65 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { ArrowRight, Check, Copy, Sparkles, AlertCircle } from 'lucide-react'
-import { useShop } from '@/context/ShopContext'
-import { sounds } from '@/lib/sound-utils'
+import { useState } from 'react';
+import { ArrowRight, Check, Copy, Sparkles, AlertCircle, Loader2 } from 'lucide-react';
+import { useShop } from '@/context/ShopContext';
+import { sounds } from '@/lib/sound-utils';
 
 export default function Newsletter() {
-  const { soundEnabled } = useShop()
-  const [email, setEmail] = useState('')
-  const [subscribed, setSubscribed] = useState(false)
-  const [error, setError] = useState('')
-  const [copied, setCopied] = useState(false)
+  const { soundEnabled } = useShop();
+  const [email, setEmail] = useState('');
+  const [subscribed, setSubscribed] = useState(false);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [copied, setCopied] = useState(false);
 
-  const promoCode = 'NOREX-SOCIETY-20'
-  const goldColor = "#C9A84C"
+  const promoCode = 'NOREX-SOCIETY-20';
+  const goldColor = "#C9A84C";
 
-  const handleSubscribe = (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleSubscribe = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     if (!emailRegex.test(email)) {
-      if (soundEnabled) sounds.playPop()
-      setError('Please enter a valid structural email.')
-      return
+      if (soundEnabled) sounds.playPop();
+      setError('Please enter a valid structural email.');
+      return;
     }
 
-    setError('')
-    setSubscribed(true)
-    if (soundEnabled) sounds.playSuccess()
-  }
+    setError('');
+    setLoading(true);
+
+    try {
+      // 🚀 Dispatches email profile data down to your backend Brevo handler
+      const res = await fetch("/api/newsletter/subscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email.toLowerCase().trim() })
+      });
+
+      const json = await res.json();
+
+      if (!res.ok) throw new Error(json.error || "Pipes connection mismatch.");
+
+      setSubscribed(true);
+      if (soundEnabled) sounds.playSuccess();
+    } catch (err: any) {
+      setError(err.message || 'System integration node down. Please retry later.');
+      if (soundEnabled) sounds.playPop();
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleCopyCode = () => {
-    if (soundEnabled) sounds.playClick()
-    navigator.clipboard.writeText(promoCode)
-    setCopied(true)
-    setTimeout(() => {
-      setCopied(false)
-    }, 2000)
-  }
+    if (soundEnabled) sounds.playClick();
+    navigator.clipboard.writeText(promoCode);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   return (
-    <div className="bg-[#050505] px-6 py-28 md:px-8 border-b border-white/10 transition-colors duration-500 relative overflow-hidden">
-      {/* Decorative grids/glows */}
+    <div className="bg-[#050505] px-6 py-28 md:px-8 border-b border-white/10 relative overflow-hidden">
       <div className="absolute inset-0 bg-grid-white/[0.02] pointer-events-none" />
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 rounded-full bg-[#C9A84C]/5 blur-[100px] pointer-events-none" />
 
@@ -68,6 +86,7 @@ export default function Newsletter() {
                   <input 
                     type="text" 
                     value={email}
+                    disabled={loading}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="Enter email for private credentials access" 
                     className="w-full px-6 py-4 rounded-sm bg-white/5 border border-white/10 text-white placeholder-white/30 text-xs focus:outline-none focus:border-[#C9A84C] transition-all font-light"
@@ -82,11 +101,11 @@ export default function Newsletter() {
                 
                 <button 
                   type="submit"
+                  disabled={loading}
                   style={{ backgroundColor: goldColor }}
-                  className="px-8 py-4 text-white font-bold rounded-sm text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2 group shrink-0 hover:bg-[#B49542]"
+                  className="px-8 py-4 text-white font-bold rounded-sm text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2 group shrink-0 hover:bg-[#B49542] disabled:opacity-50"
                 >
-                  <span>Request Access</span>
-                  <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                  {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <><span>Request Access</span><ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" /></>}
                 </button>
               </div>
 
@@ -123,5 +142,5 @@ export default function Newsletter() {
         </div>
       </div>
     </div>
-  )
+  );
 }
