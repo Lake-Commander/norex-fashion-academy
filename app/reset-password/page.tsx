@@ -26,7 +26,8 @@ function ResetFormContent() {
       const res = await fetch("/api/auth/reset-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token, password }),
+        // 🔥 FIX: Mapped local 'password' state variable to the 'newPassword' key expected by the backend API destructuring
+        body: JSON.stringify({ token, newPassword: password }),
       });
       const json = await res.json();
       if (json.success) {
