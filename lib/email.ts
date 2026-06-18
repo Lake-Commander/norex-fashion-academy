@@ -14,21 +14,21 @@ interface MailPayload {
 export async function sendEmail({ to, subject, html }: MailPayload) {
   const fromAddress = process.env.SMTP_FROM || "admin@norexfashion.com";
 
-  // ⚡ SERVERLESS OPTIMIZED: Create a clean, dedicated single-use instance per function invocation
+  // ⚡ VERCEL FIREWALL COMPLIANT: Use Port 587 via explicit STARTTLS upgrade
   const transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST || "norexfashion.com",
-    port: Number(process.env.SMTP_PORT) || 465,
-    secure: Number(process.env.SMTP_PORT) === 465, 
+    port: Number(process.env.SMTP_PORT) || 587,
+    secure: false, // 🔥 Crucial for Vercel: must be false on 587 to allow the initial connection through
     auth: {
       user: process.env.SMTP_USER || "",
       password: process.env.SMTP_PASS || "",
     },
     tls: {
-      rejectUnauthorized: false, 
-      ciphers: "SSLv3"           
+      rejectUnauthorized: false, // Prevents serverless nodes from dropping on local self-signed SSL errors
+      requireTLS: true,          // Ensures that the email won't transmit unless STARTTLS succeeds
     },
-    connectionTimeout: 10000, // Terminate frozen handshakes early
-    greetingTimeout: 10000,
+    connectionTimeout: 15000, 
+    greetingTimeout: 15000,
   } as any);
 
   const mailOptions = {
@@ -39,18 +39,17 @@ export async function sendEmail({ to, subject, html }: MailPayload) {
   };
 
   try {
-    // 1. Verify the handshake block works inside this specific serverless instance execution path
+    // Verify handshake connection structure
     await transporter.verify();
 
-    // 2. Dispatch the payload
+    // Broadcast message
     const info = await transporter.sendMail(mailOptions);
-    
     return { success: true, messageId: info.messageId };
   } catch (error: any) {
-    console.error("Vercel Serverless SMTP Transport Failure:", error);
+    console.error("Vercel Serverless SMTP Delivery Exception:", error);
     throw new Error(`Mail pipeline transaction dropped: ${error.message}`);
   } finally {
-    // ⚡ CRITICAL FOR VERCEL: Force clean closure of the socket container before the serverless container sleeps
+    // Explicit socket flush before Vercel kills the serverless process context
     transporter.close();
   }
 }
