@@ -1,42 +1,50 @@
 // app/api/auth/reset-password/route.ts
 import { NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
-import mongoose from "mongoose";
-import bcrypt from "bcryptjs";
+import UserModel from "@/lib/models/UserModel";
+import bcrypt from "bcryptjs"; // or whatever hashing tool you use for passwords
 
 export async function POST(request: Request) {
   try {
-    await connectDB();
-    const { token, password } = await request.json();
+    const body = await request.json();
+    const { token, newPassword } = body;
 
-    if (!token || !password) {
-      return NextResponse.json({ success: false, error: "Validation keys missing out of structural data block." }, { status: 400 });
+    if (!token || !newPassword) {
+      return NextResponse.json({ success: false, error: "Missing required arguments." }, { status: 400 });
     }
 
-    // Evaluate token signatures alongside expiration parameters
-    const user = await mongoose.connection.model("User").findOne({
-      resetPasswordToken: token,
-      resetPasswordExpires: { $gt: Date.now() }
+    await connectDB();
+
+    // 1. Find user with matching token and ensure token expiration date is still in the future ($gt: Greater Than Now)
+    const user = await UserModel.findOne({
+      resetToken: token,
+      resetTokenExpiry: { $gt: new Date() }
     });
 
     if (!user) {
-      return NextResponse.json({ success: false, error: "Recovery window link has expired or tokens signatures match fault." }, { status: 400 });
+      return NextResponse.json({ 
+        success: false, 
+        error: "Recovery window link has expired or token signature match fault." 
+      }, { status: 400 });
     }
 
-    const salt = await bcrypt.genSalt(12);
-    const newHashedPassword = await bcrypt.hash(password, salt);
+    // 2. Hash your incoming password securely before updating records
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
 
-    // Update active security credentials lines and flush token slots clean
-    await mongoose.connection.model("User").updateOne(
-      { _id: user._id },
-      { 
-        $set: { password: newHashedPassword }, 
-        $unset: { resetPasswordToken: 1, resetPasswordExpires: 1 } 
-      }
-    );
+    // 3. Re-save profile updates and completely clear the token fields so they can't be reused
+    user.password = hashedPassword;
+    user.resetToken = undefined;
+    user.resetTokenExpiry = undefined;
+    await user.save();
 
-    return NextResponse.json({ success: true, message: "Access keys mutated successfully." });
+    return NextResponse.json({ 
+      success: true, 
+      message: "Security configurations updated. Your new password shield is active." 
+    });
+
   } catch (error: any) {
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    console.error("RESET_PASSWORD_SYSTEM_FAILURE:", error);
+    return NextResponse.json({ success: false, error: "Internal registry error." }, { status: 500 });
   }
 }

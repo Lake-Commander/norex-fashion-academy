@@ -18,7 +18,10 @@ const UserSchema = new mongoose.Schema({
       orderQuantity: { type: Number, default: 1 }
     }
   ],
-  wishlist: [{ type: String }]
+  wishlist: [{ type: String }],
+  // 🔐 Added these fields for token tracking:
+  resetToken: { type: String },
+  resetTokenExpiry: { type: Date }
 });
 
 // Checks if model is compiled, otherwise safe-compiles it once globally
