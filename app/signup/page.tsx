@@ -59,8 +59,9 @@ export default function SignUpPage() {
     }
   };
 
-  return (
-    <main className="min-h-screen bg-[#FCFAF7] text-zinc-800 transition-colors duration-500 flex flex-col justify-between overflow-x-hidden text-left">
+ return (
+    //  FIX: Added top padding ('pt-20') to safely offset your fixed custom navigation banner height
+    <main className="min-h-screen bg-[#FCFAF7] text-zinc-800 transition-colors duration-500 flex flex-col justify-between overflow-x-hidden text-left pt-20">
       <Header />
       <section className="flex-1 grid grid-cols-1 lg:grid-cols-12 min-h-[calc(100vh-140px)] border-b border-zinc-200">
         
