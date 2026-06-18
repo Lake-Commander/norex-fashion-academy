@@ -15,7 +15,7 @@ export default function SiteLayout({
         .wa-float {
           position: fixed;
           bottom: 2rem;
-          right: 2rem;
+          left: 2rem;         /*  Modified: Default anchor moved to the left for desktop */
           width: 56px;
           height: 56px;
           background-color: #25D366;
@@ -34,8 +34,7 @@ export default function SiteLayout({
         /* RESPONSIVE MOBILE POSITIONING GATEWAY */
         @media (max-width: 767px) {
           .wa-float {
-            right: auto;        /* Clears the standard desktop alignment anchor */
-            left: 1.5rem;       /* Shifts button completely to the left side */
+            left: 1.5rem;       /* Keeps it cleanly pinned to the left on mobile */
             bottom: 5.5rem;     /* Raises it up safely to clear bottom mobile nav elements */
           }
         }
