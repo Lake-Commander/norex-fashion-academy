@@ -113,7 +113,6 @@ export default function PrivacyPolicyPage() {
       </div>
 
       <StyleOracle />
-      <Footer />
     </main>
   );
 }

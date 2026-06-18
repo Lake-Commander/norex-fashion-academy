@@ -95,7 +95,6 @@ export default function TermsOfServicePage() {
       </div>
 
       <StyleOracle />
-      <Footer />
     </main>
   );
 }

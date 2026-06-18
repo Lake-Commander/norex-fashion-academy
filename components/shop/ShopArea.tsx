@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from "react";
 import Image from "next/image";
-import Link from "next/link"; // Fixed: Standard component import path
+import Link from "next/link"; 
 import { useSearchParams } from "next/navigation";
 import { formatPrice } from "@/lib/utils";
 import { MessageCircle, Filter, Heart, ShoppingBag, Loader2, ImageIcon } from "lucide-react";
@@ -66,8 +66,18 @@ export default function ShopArea() {
     <>
       <style>{`
         /* --- Grid Layout Framework --- */
-        .shop-layout { display: grid; grid-template-columns: 1fr; gap: 2rem; }
-        @media(min-width: 1024px) { .shop-layout { grid-template-columns: 280px 1fr; gap: 3rem; } }
+        .shop-layout { 
+          display: grid; 
+          grid-template-columns: 1fr; 
+          gap: 2rem; 
+          align-items: start;
+        }
+        @media(min-width: 1024px) { 
+          .shop-layout { 
+            grid-template-columns: 280px 1fr; 
+            gap: 3rem; 
+          } 
+        }
 
         .product-grid { display: grid; grid-template-columns: 1fr; gap: 2rem; }
         @media(min-width: 640px) { .product-grid { grid-template-columns: repeat(2, 1fr); } }
@@ -115,6 +125,14 @@ export default function ShopArea() {
           width: max-content; margin: 0 auto;
         }
         .shop-whatsapp-btn:hover { background-color: #20b558; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(37, 211, 102, 0.4); }
+
+        /* Fallbacks to protect desktop layout grids without breaking Tailwind layouts */
+        @media (max-width: 1023px) {
+          .desktop-only-stat { display: none !important; }
+        }
+        @media (min-width: 1024px) {
+          .mobile-only-filter { display: none !important; }
+        }
       `}</style>
 
       {/* Hero Header Area */}
@@ -137,17 +155,17 @@ export default function ShopArea() {
           <button 
             onClick={() => setIsMobileFilterOpen(true)}
             style={{ display: "flex", background: "none", border: "none", cursor: "pointer", fontSize: "0.8rem", fontWeight: 600, letterSpacing: "0.15em", textTransform: "uppercase", alignItems: "center", gap: "0.5rem" }}
-            className="lg:hidden"
+            className="mobile-only-filter"
           >
             <Filter size={16} /> Filters
           </button>
           
-          <p style={{ fontSize: "0.85rem", color: "#9ca3af" }} className="hidden lg:block">
+          <p style={{ fontSize: "0.85rem", color: "#9ca3af" }} className="desktop-only-stat">
             Showing <span style={{ color: "#1a1a1a", fontWeight: 600 }}>{filteredProducts.length}</span> of {products.length} active design records
           </p>
 
           <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-            <span style={{ fontSize: "0.85rem", color: "#6b7280" }} className="hidden sm:block">Sort framework:</span>
+            <span style={{ fontSize: "0.85rem", color: "#6b7280" }}>Sort framework:</span>
             <select className="sort-select" value={sortOption} onChange={(e) => setSortOption(e.target.value)}>
               <option value="default">Default Framework</option>
               <option value="low-to-high">Price: Low to High</option>
