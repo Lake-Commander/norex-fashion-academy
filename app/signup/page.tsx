@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import Header from '@/components/layout/Navbar'
-import Footer from '@/components/layout/Footer'
-import StyleOracle from '@/components/style-oracle'
+import Header from '@/components/layout/Navbar';
+import Footer from '@/components/layout/Footer';
+import StyleOracle from '@/components/style-oracle';
 import { useRouter } from "next/navigation";
 import { useShop } from "@/context/ShopContext";
 import { sounds } from "@/lib/sound-utils";
@@ -23,6 +23,9 @@ export default function SignUpPage() {
   const [success, setSuccess] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
+  // ⚡ Track if image loading fails to swap with structural canvas assets
+  const [imageError, setImageError] = useState(false);
+
   const handleInteract = () => { if (soundEnabled) sounds.playPop(); };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -33,6 +36,7 @@ export default function SignUpPage() {
       return;
     }
 
+    // ✅ Fixed: Changed direct assignments to use setLoading state handlers
     setLoading(true);
     setErrorMessage("");
     if (soundEnabled) sounds.playSweep();
@@ -51,27 +55,37 @@ export default function SignUpPage() {
         setTimeout(() => router.push("/login"), 1800);
       } else {
         setErrorMessage(data.error || "Profile ledger configuration failure.");
-        setLoading(false);
+        setLoading(false); // ✅ Fixed here
       }
     } catch (err) {
       setErrorMessage("Network cluster exception drop.");
-      setLoading(false);
+      setLoading(false); // ✅ Fixed here
     }
   };
 
- return (
-    //  FIX: Added top padding ('pt-20') to safely offset your fixed custom navigation banner height
+  return (
     <main className="min-h-screen bg-[#FCFAF7] text-zinc-800 transition-colors duration-500 flex flex-col justify-between overflow-x-hidden text-left pt-20">
       <Header />
       <section className="flex-1 grid grid-cols-1 lg:grid-cols-12 min-h-[calc(100vh-140px)] border-b border-zinc-200">
         
         {/* Left Side Campaign Feature Box */}
-        <div className="hidden lg:block lg:col-span-7 relative bg-zinc-900 overflow-hidden">
-          <img src="/runway/look-07.png" onError={(e)=>{e.currentTarget.src="/placeholder-garment.png"}} alt="NOREX Campaign" className="absolute inset-0 w-full h-full object-cover grayscale select-none scale-[1.01] opacity-75" />
+        <div 
+          className="hidden lg:block lg:col-span-7 relative overflow-hidden transition-all duration-500"
+          style={{ backgroundColor: imageError ? "#C9A84C" : "#1a1a1a" }} 
+        >
+          <img 
+            src="/signup.jpeg" 
+            onError={() => setImageError(true)} 
+            alt="NOREX Campaign" 
+            className={`absolute inset-0 w-full h-full object-cover grayscale select-none scale-[1.01] transition-opacity duration-500 ${
+              imageError ? "opacity-0" : "opacity-75"
+            }`} 
+          />
           <div className="absolute inset-0 bg-black/30 mix-blend-multiply" />
           <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
+          
           <div className="absolute bottom-12 left-12 right-12 text-left text-white space-y-3 z-10">
-            <span className="text-[10px] font-mono tracking-[0.35em] text-[#C9A84C] uppercase font-black">NOREX BESPOKE REGISTRY</span>
+            <span className="text-[10px] font-mono tracking-[0.35em] text-[#C9A84C] uppercase font-black" style={{ color: imageError ? "#1a1a1a" : "#C9A84C" }}>NOREX BESPOKE REGISTRY</span>
             <h2 style={{ fontFamily: "var(--font-playfair), serif" }} className="text-4xl font-bold uppercase tracking-tight max-w-lg leading-tight">Crafted Beyond Trends, Tailored For You</h2>
             <p className="text-xs text-gray-300 font-mono tracking-wider max-w-md font-light">Create a personalized style card. Retain measurements for quick checkout, early access to new seasonal collections, and studio academy tracking lines.</p>
           </div>

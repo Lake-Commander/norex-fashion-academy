@@ -49,7 +49,7 @@ const menu_data = [
     title: "Runway", 
     link: "/runway",
     sub_menus: [
-      { title: "Latest Show", link: "/runway" },
+     // { title: "Latest Show", link: "/runway" },
       { title: "Seasonal Collections", link: "/collections" },
       { title: "Luxury Campaigns", link: "/runway/campaigns" },
       { title: "Fashion Films", link: "/runway/fashion-films" },
@@ -62,7 +62,7 @@ const menu_data = [
     title: "Editorial", 
     link: "/editorial",
     sub_menus: [
-      { title: "Gazette Hub", link: "/editorial" },
+   //   { title: "Gazette Hub", link: "/editorial" },
       { title: "Stories", link: "/editorial/stories" },
       { title: "Insights", link: "/editorial/insights" },
       { title: "Interviews", link: "/editorial/interviews" }
@@ -85,7 +85,7 @@ const menu_data = [
     title: "House", 
     link: "/house",
     sub_menus: [
-      { title: "Overview", link: "/house" },
+  //    { title: "Overview", link: "/house" },
       { title: "About Us", link: "/about" },
       { title: "Atelier Craftsmanship", link: "/house/craftsmanship" },
       { title: "Sustainability", link: "/house/sustainability" },

@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import Header from '@/components/layout/Navbar'
-import Footer from '@/components/layout/Footer'
-import StyleOracle from '@/components/style-oracle'
+import Header from '@/components/layout/Navbar';
+import Footer from '@/components/layout/Footer';
+import StyleOracle from '@/components/style-oracle';
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useShop } from "@/context/ShopContext";
@@ -12,7 +12,7 @@ import { Eye, EyeOff, Sparkles, Mail, Lock, ArrowRight, ShieldAlert } from "luci
 import Link from "next/link";
 
 export default function SignInPage() {
-  const { soundEnabled } = useShop(); // Adaptable to useAppState fallback cleanly
+  const { soundEnabled } = useShop(); 
   const router = useRouter();
   
   const [email, setEmail] = useState("");
@@ -20,6 +20,9 @@ export default function SignInPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+
+  // ⚡ Track if image loading fails to swap with structural canvas assets
+  const [imageError, setImageError] = useState(false);
 
   const handleInteract = () => { if (soundEnabled) sounds.playPop(); };
 
@@ -49,7 +52,7 @@ export default function SignInPage() {
       } else {
         if (soundEnabled) sounds.playSuccess();
         router.push("/dashboard");
-        router.refresh(); // Forces Next.js to re-read updated live session tokens matrices
+        router.refresh(); 
       }
     } catch (err) {
       setErrorMessage("Authentication pipeline interface timeout.");
@@ -58,23 +61,28 @@ export default function SignInPage() {
   };
 
   return (
-    //  FIX: Added top padding ('pt-20') to safely offset your fixed custom navigation banner height
     <main className="min-h-screen bg-[#FCFAF7] text-zinc-800 transition-colors duration-500 flex flex-col justify-between overflow-x-hidden text-left pt-20">
       <Header />
       <section className="flex-1 grid grid-cols-1 lg:grid-cols-12 min-h-[calc(100vh-140px)] border-b border-zinc-200">
         
         {/* Left Side: Immersive Editorial Graphic Column */}
-        <div className="hidden lg:block lg:col-span-7 relative bg-zinc-900 overflow-hidden">
+        <div 
+          className="hidden lg:block lg:col-span-7 relative overflow-hidden transition-all duration-500"
+          style={{ backgroundColor: imageError ? "#C9A84C" : "#1a1a1a" }} // ⚡ Flips container background if asset drops out
+        >
           <img 
-            src="/runway/look-05.png" 
-            onError={(e)=>{e.currentTarget.src="/placeholder-garment.png"}}
+            src="/login.jpeg" 
+            onError={() => setImageError(true)}
             alt="NOREX Editorial Campaign" 
-            className="absolute inset-0 w-full h-full object-cover grayscale select-none scale-[1.01] opacity-75" 
+            className={`absolute inset-0 w-full h-full object-cover grayscale select-none scale-[1.01] transition-opacity duration-500 ${
+              imageError ? "opacity-0" : "opacity-75"
+            }`} 
           />
           <div className="absolute inset-0 bg-black/30 mix-blend-multiply" />
           <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
+          
           <div className="absolute bottom-12 left-12 right-12 text-left text-white space-y-3 z-10">
-            <span className="text-[10px] font-mono tracking-[0.35em] text-[#C9A84C] uppercase font-black">NOREX ATELIER ACCESS</span>
+            <span className="text-[10px] font-mono tracking-[0.35em] text-[#C9A84C] uppercase font-black" style={{ color: imageError ? "#1a1a1a" : "#C9A84C" }}>NOREX ATELIER ACCESS</span>
             <h2 style={{ fontFamily: "var(--font-playfair), serif" }} className="text-4xl font-bold uppercase tracking-tight max-w-lg leading-tight">A Bespoke Identity for Creative Minds</h2>
             <p className="text-xs text-gray-300 font-mono tracking-wider max-w-md font-light">Access the exclusive digital wardrobe, retrieve customized studio measurements, and synchronize style matrices dynamically.</p>
           </div>

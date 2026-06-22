@@ -1,15 +1,13 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Mail, Phone, ExternalLink, MessageSquare, Loader2, CheckCircle2 } from "lucide-react";
-import { formatPrice } from "@/lib/utils";
+import { Mail, Phone, Loader2, Star } from "lucide-react";
 
 export default function ContactsPage() {
   const [contacts, setContacts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
 
-  // Fetch collections on component mount
   const fetchContacts = async () => {
     try {
       const res = await fetch("/api/contact");
@@ -28,7 +26,6 @@ export default function ContactsPage() {
     fetchContacts();
   }, []);
 
-  // Dynamic state handler pushing mutations back to MongoDB
   const handleStatusChange = async (id: string, newStatus: "unread" | "read" | "replied") => {
     setUpdatingId(id);
     try {
@@ -39,7 +36,6 @@ export default function ContactsPage() {
       });
       const data = await res.json();
       if (data.success) {
-        // Instantly patch state variable matrices in memory
         setContacts((prev) =>
           prev.map((c) => (c._id === id ? { ...c, status: newStatus } : c))
         );

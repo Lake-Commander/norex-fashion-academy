@@ -142,7 +142,7 @@ export default function Footer() {
               <h4 className="text-white font-bold text-xs uppercase tracking-widest mb-6">Collections</h4>
               <ul className="space-y-3 text-xs font-light list-none p-0 m-0">
                 {[
-                  { name: "New Arrivals", path: "/shop" },
+                  { name: "New Arrivals", path: "/new-arrivals" },
                   { name: "Best Sellers", path: "/shop" },
                   { name: "Collections", path: "/collections" },
                   { name: "Bespoke Atelier", path: "/house/craftsmanship" }
