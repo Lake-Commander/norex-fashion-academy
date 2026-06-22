@@ -1,7 +1,10 @@
 "use client";
-import { useState } from "react";
+
+import React, { useState, useEffect } from "react";
 import { Phone, Mail, MapPin, MessageCircle, Clock } from "lucide-react";
 import dynamic from "next/dynamic";
+import Link from "next/link";
+
 const SuccessModal = dynamic(() => import("@/components/ui/SuccessModal"), { ssr: false });
 
 export default function ContactPage() {
@@ -41,7 +44,7 @@ export default function ContactPage() {
     fontSize: "0.7rem",
     letterSpacing: "0.2em",
     textTransform: "uppercase",
-    fontWeight: 600,
+    fontWeight: "600",
     color: "#1a1a1a",
     marginBottom: "0.5rem",
   };
@@ -62,7 +65,8 @@ export default function ContactPage() {
         name={submittedName}
       />
 
-      <div style={{ minHeight: "100vh", backgroundColor: "white" }}>
+      {/* 🔐 FIX: Added pt-20 here to prevent the fixed header menu from covering layout contents */}
+      <div style={{ minHeight: "100vh", backgroundColor: "white", paddingTop: "5rem" }}>
         <style>{`
           .cform-grid { display: grid; grid-template-columns: 1fr; gap: 4rem; }
           @media(min-width: 1024px) { .cform-grid { grid-template-columns: 2fr 3fr; } }
@@ -147,10 +151,10 @@ export default function ContactPage() {
         `}</style>
 
         {/* Header */}
-        <div style={{ paddingTop: "8rem", paddingBottom: "4rem", backgroundColor: "#FAF7F4", borderBottom: "1px solid #f0ebe3" }}>
+        <div style={{ paddingTop: "4rem", paddingBottom: "4rem", backgroundColor: "#FAF7F4", borderBottom: "1px solid #f0ebe3" }}>
           <div className="container-custom">
-            <p style={{ fontSize: "0.7rem", letterSpacing: "0.35em", textTransform: "uppercase", color: "#C9A84C", fontWeight: 600, marginBottom: "1rem", display: "block" }}>Get In Touch</p>
-            <h1 style={{ fontFamily: "var(--font-playfair), Georgia, serif", fontSize: "clamp(2.5rem, 5vw, 4rem)", fontWeight: 700, color: "#1a1a1a", marginBottom: "1rem", lineHeight: 1.1 }}>Contact Us</h1>
+            <p style={{ fontSize: "0.7rem", letterSpacing: "0.35em", textTransform: "uppercase", color: "#C9A84C", fontWeight: "600", marginBottom: "1rem", display: "block" }}>Get In Touch</p>
+            <h1 style={{ fontFamily: "var(--font-playfair), Georgia, serif", fontSize: "clamp(2.5rem, 5vw, 4rem)", fontWeight: "700", color: "#1a1a1a", marginBottom: "1rem", lineHeight: 1.1 }}>Contact Us</h1>
             <p style={{ fontSize: "1rem", color: "#6b7280", maxWidth: "500px", lineHeight: 1.8 }}>We would love to hear from you. Reach out for orders, academy inquiries, or any questions.</p>
           </div>
         </div>
@@ -161,7 +165,7 @@ export default function ContactPage() {
 
             {/* Contact Info */}
             <div>
-              <h2 style={{ fontFamily: "var(--font-playfair), Georgia, serif", fontSize: "1.5rem", fontWeight: 700, color: "#1a1a1a", marginBottom: "2.5rem" }}>Reach Us Directly</h2>
+              <h2 style={{ fontFamily: "var(--font-playfair), Georgia, serif", fontSize: "1.5rem", fontWeight: "700", color: "#1a1a1a", marginBottom: "2.5rem" }}>Reach Us Directly</h2>
               <div style={{ display: "flex", flexDirection: "column", gap: "2rem", marginBottom: "3rem" }}>
                 {contactInfo.map((item) => {
                   const Icon = item.icon;
@@ -171,8 +175,8 @@ export default function ContactPage() {
                         <Icon size={18} style={{ color: "#C9A84C", transition: "color 0.3s ease" }} />
                       </div>
                       <div>
-                        <p style={{ fontSize: "0.65rem", letterSpacing: "0.2em", textTransform: "uppercase", color: "#9ca3af", marginBottom: "0.25rem", fontWeight: 600 }}>{item.label}</p>
-                        <p style={{ fontSize: "0.95rem", color: "#1a1a1a", fontWeight: 500 }}>{item.value}</p>
+                        <p style={{ fontSize: "0.65rem", letterSpacing: "0.2em", textTransform: "uppercase", color: "#9ca3af", marginBottom: "0.25rem", fontWeight: "600" }}>{item.label}</p>
+                        <p style={{ fontSize: "0.95rem", color: "#1a1a1a", fontWeight: "500" }}>{item.value}</p>
                       </div>
                     </div>
                   );
