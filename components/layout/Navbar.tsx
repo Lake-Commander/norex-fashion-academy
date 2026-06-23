@@ -440,29 +440,32 @@ export default function Navbar() {
                   {!isAuthenticated && <span className="action-tooltip">Sign In / Register</span>}
                 </div>
 
-                {/* Account Dashboard Popover menu passes */}
-                {isAuthenticated && (
-                  <div className={`user-luxury-dropdown ${showUserDropdown ? "open" : ""}`}>
-                   {/* <div className="dropdown-greeting">Atelier Registry Node</div> */}
-                    <Link href="/dashboard" className="dropdown-menu-item">
-                      <LayoutDashboard size={13} /> <span>Go to Dashboard</span>
-                    </Link>
-                    <Link href="/dashboard?tab=commerce" className="dropdown-menu-item">
-                      <ClipboardList size={13} /> <span>My Orders</span>
-                    </Link>
-                    <Link href="/dashboard?tab=academy" className="dropdown-menu-item">
-                      <GraduationCap size={13} /> <span>Academy Apps</span>
-                    </Link>
-                    <button 
-                      type="button" 
-                      onClick={() => signOut({ callbackUrl: "/" })} 
-                      className="dropdown-menu-item text-red-500 hover:text-red-600 font-bold border-t"
-                      style={{ borderTopColor: '#f4f4f5', marginTop: '0.25rem', paddingTop: '0.5rem' }}
-                    >
-                      <LogOut size={13} /> <span>Sign Out</span>
-                    </button>
-                  </div>
-                )}
+                            {/* Account Dashboard Popover menu passes */}
+            {isAuthenticated && (
+              <div 
+                className={`user-luxury-dropdown ${showUserDropdown ? "open" : ""}`}
+                style={{ top: "calc(100% + 12px)" }} /* ⚡ Pushes the layout block down directly */
+              >
+                {/* <div className="dropdown-greeting">Atelier Registry Node</div> */}
+                <Link href="/dashboard" className="dropdown-menu-item">
+                  <LayoutDashboard size={13} /> <span>Go to Dashboard</span>
+                </Link>
+                <Link href="/dashboard?tab=commerce" className="dropdown-menu-item">
+                  <ClipboardList size={13} /> <span>My Orders</span>
+                </Link>
+                <Link href="/dashboard?tab=academy" className="dropdown-menu-item">
+                  <GraduationCap size={13} /> <span>Academy Apps</span>
+                </Link>
+                <button 
+                  type="button" 
+                  onClick={() => signOut({ callbackUrl: "/" })} 
+                  className="dropdown-menu-item text-red-500 hover:text-red-600 font-bold border-t"
+                  style={{ borderTopColor: '#f4f4f5', marginTop: '0.25rem', paddingTop: '0.5rem' }}
+                >
+                  <LogOut size={13} /> <span>Sign Out</span>
+                </button>
+              </div>
+            )}
               </div>
 
               <div style={{ width: "1px", height: "14px", backgroundColor: isTransparent ? "rgba(255,255,255,0.3)" : "#e5e7eb", margin: "0 0.15rem" }} />
