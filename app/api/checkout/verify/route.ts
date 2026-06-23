@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
-import Order from "@/lib/models/OrderModel";
+import Order from "@/lib/models/OrderModel"; 
 import User from "@/lib/models/UserModel";
 
 export async function POST(req: NextRequest) {
@@ -26,33 +26,42 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, error: "Transaction verification declined by gateway." }, { status: 400 });
     }
 
-    // 2. Extract safe contextual metadata bundled in step 2
     const transactionData = paystackData.data;
+    
+    // 2. Safely parse out the custom item metrics arrays nested inside metadata custom fields
     const cartItems = JSON.parse(transactionData.metadata.custom_fields.find((f: any) => f.variable_name === "cart_items")?.value || "[]");
     const shippingAddress = transactionData.metadata.custom_fields.find((f: any) => f.variable_name === "shipping_address")?.value || "";
     const phoneLine = transactionData.metadata.custom_fields.find((f: any) => f.variable_name === "phone_line")?.value || "";
 
     await connectDB();
 
-    // 3. Find the profile and map the completed order payload to MongoDB logs
-    const user = await User.findOne({ email: transactionData.customer.email });
+    // 3. Match user account via their customer profile identity Node email
+    const user = await User.findOne({ email: transactionData.customer.email.toLowerCase() });
 
+    // 4. Create the final order matching your strict schema fields
     const newOrder = await Order.create({
+      email: transactionData.customer.email.toLowerCase(),
       user: user ? user._id : null,
-      email: transactionData.customer.email,
-      items: cartItems,
-      totalAmount: transactionData.amount / 100, // Normalize Kobo back to Naira
+      items: cartItems.map((item: any) => ({
+        product: item.id,
+        name: item.name,
+        quantity: item.orderQuantity,
+        size: item.selectedSize,
+        color: item.selectedColor,
+        gender: item.selectedGender
+      })),
+      totalAmount: transactionData.amount / 100, // Convert Kobo back to standard Naira
       shippingAddress: shippingAddress,
       phone: phoneLine,
       paymentGateway: "Paystack",
-      paymentStatus: "Paid",
+      paymentStatus: "Paid", // Automatically clears into user ledger array view
       paymentReference: reference,
-      createdAt: new Date(),
+      orderType: "Storefront"
     });
 
-    return NextResponse.json({ success: true, orderId: newOrder._id });
+    return NextResponse.json({ success: true, orderId: newOrder.orderId });
   } catch (error: any) {
-    console.error("Paystack server side audit crash:", error);
+    console.error("Paystack backend server audit exception crash:", error);
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }

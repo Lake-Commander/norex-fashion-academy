@@ -1,8 +1,19 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { formatPrice } from "@/lib/utils";
-import { Loader2, CreditCard, MessageCircle, Check, ShoppingBag, GraduationCap, DollarSign, TrendingUp, AlertCircle } from "lucide-react";
+import { 
+  Loader2, 
+  CreditCard, 
+  MessageCircle, 
+  Check, 
+  ShoppingBag, 
+  GraduationCap, 
+  DollarSign, 
+  TrendingUp, 
+  AlertCircle,
+  Save
+} from "lucide-react";
 
 export default function MasterLedgerDashboard() {
   // Tabs Workspace Management State
@@ -16,6 +27,14 @@ export default function MasterLedgerDashboard() {
   const [loading, setLoading] = useState(true);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [customPrice, setCustomPrice] = useState<{ [key: string]: string }>({});
+
+  /* --- Manual Ledger Injection Forms State Matrix --- */
+  const [studentEmail, setStudentEmail] = useState("");
+  const [courseTitle, setCourseTitle] = useState("");
+  const [amountCredited, setAmountCredited] = useState("");
+  const [customNote, setCustomNote] = useState("");
+  const [formProcessing, setFormProcessing] = useState(false);
+  const [formSuccess, setFormSuccess] = useState(false);
 
   // Sync Financial Databases Concurrently
   useEffect(() => {
@@ -69,28 +88,81 @@ export default function MasterLedgerDashboard() {
     }
   };
 
+  // Handles submitting the inline sub-component form data up to your ledger API route
+  const handleCommitLedgerEntry = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setFormProcessing(true);
+    setFormSuccess(false);
+
+    try {
+      const res = await fetch("/api/admin/manual-ledger", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ studentEmail, courseTitle, amountCredited, customNote })
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        setFormSuccess(true);
+        
+        // Append the new manual entry straight into the working state memory to refresh metrics instantly
+        const simulatedNewRecord = {
+          _id: `TEMP-${Date.now()}`,
+          studentName: "Manual Audit Student",
+          email: studentEmail.trim().toLowerCase(),
+          course: courseTitle,
+          amount: Number(amountCredited),
+          paymentMethod: "manual_audit",
+          reference: `MAN-${Date.now()}`,
+          status: "confirmed",
+          createdAt: new Date().toISOString()
+        };
+        
+        setAcademyPayments((prev) => [simulatedNewRecord, ...prev]);
+        setStudentEmail("");
+        setCourseTitle("");
+        setAmountCredited("");
+        setCustomNote("");
+        setTimeout(() => setFormSuccess(false), 3000);
+      } else {
+        alert(`Ledger transaction rejected: ${data.error}`);
+      }
+    } catch (err) {
+      alert("Network timeout logging entry.");
+    } finally {
+      setFormProcessing(false);
+    }
+  };
+
   // Dynamic Workspace Metrics Computations
   const getMetrics = () => {
     if (activeTab === "storefront") {
-      const confirmedRevenue = orders.filter((o) => o.paymentStatus === "Completed").reduce((sum, o) => sum + o.totalAmount, 0);
+      // ✅ UPDATED: Captures both custom dashboard overrides ('Completed') and real-time Paystack logs ('Paid')
+      const confirmedRevenue = orders
+        .filter((o) => o.paymentStatus === "Completed" || o.paymentStatus === "Paid")
+        .reduce((sum, o) => sum + (o.totalAmount || 0), 0);
+
       return [
         { label: "Boutique Revenue", value: formatPrice(confirmedRevenue), icon: TrendingUp, color: "#1a1a1a" },
-        { label: "Orders Cleared", value: orders.filter((o) => o.paymentStatus === "Completed").length, icon: Check, color: "#16a34a" },
+        { label: "Orders Cleared", value: orders.filter((o) => o.paymentStatus === "Completed" || o.paymentStatus === "Paid").length, icon: Check, color: "#16a34a" },
         { label: "WhatsApp Pending", value: orders.filter((o) => o.paymentStatus === "Pending" && o.paymentGateway === "WhatsApp").length, icon: MessageCircle, color: "#C9A84C" },
         { label: "Failed Drops", value: orders.filter((o) => o.paymentStatus === "Failed").length, icon: AlertCircle, color: "#dc2626" },
       ];
     } else {
-      const confirmedTuition = academyPayments.filter((p) => p.status === "confirmed").reduce((sum, p) => sum + p.amount, 0);
+      const confirmedTuition = academyPayments
+        .filter((p) => p.status === "confirmed" || p.status === "Paid")
+        .reduce((sum, p) => sum + (p.amount || p.totalAmount || 0), 0);
+
       return [
         { label: "Academy Revenue", value: formatPrice(confirmedTuition), icon: DollarSign, color: "#1a1a1a" },
-        { label: "Tuition Confirmed", value: academyPayments.filter((p) => p.status === "confirmed").length, icon: Check, color: "#16a34a" },
-        { label: "Invoices Pending", value: academyPayments.filter((p) => p.status === "pending").length, icon: Loader2, color: "#C9A84C" },
-        { label: "Rejected Transfers", value: academyPayments.filter((p) => p.status === "failed").length, icon: XIcon, color: "#dc2626" },
+        { label: "Tuition Confirmed", value: academyPayments.filter((p) => p.status === "confirmed" || p.status === "Paid").length, icon: Check, color: "#16a34a" },
+        { label: "Invoices Pending", value: academyPayments.filter((p) => p.status === "pending" || p.status === "Pending").length, icon: Loader2, color: "#C9A84C" },
+        { label: "Rejected Transfers", value: academyPayments.filter((p) => p.status === "failed" || p.status === "Failed").length, icon: XIcon, color: "#dc2626" },
       ];
     }
   };
 
-  const goldColor = "#C9A84C";
+  const inputStyle = "w-full border border-zinc-200 p-3 text-xs text-[#1a1a1a] bg-zinc-50 outline-none rounded-sm focus:bg-white focus:border-[#C9A84C] transition-all";
 
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-8 text-left text-zinc-800">
@@ -105,15 +177,17 @@ export default function MasterLedgerDashboard() {
         {/* Dynamic Control Room Workspace Switches */}
         <div className="inline-flex bg-zinc-100 p-1 rounded-sm border border-zinc-200">
           <button 
+            type="button"
             onClick={() => setActiveTab("storefront")}
-            className={`px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-sm transition-all flex items-center gap-2 cursor-pointer ${activeTab === "storefront" ? "bg-white text-zinc-900 shadow-sm border border-zinc-200" : "text-zinc-500 hover:text-zinc-900"}`}
+            className={`px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-sm transition-all flex items-center gap-2 cursor-pointer border-none ${activeTab === "storefront" ? "bg-white text-zinc-900 shadow-sm border border-zinc-200" : "text-zinc-500 hover:text-zinc-900 bg-transparent"}`}
           >
             <ShoppingBag className="h-3.5 w-3.5" />
             <span>Storefront Orders</span>
           </button>
           <button 
+            type="button"
             onClick={() => setActiveTab("academy")}
-            className={`px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-sm transition-all flex items-center gap-2 cursor-pointer ${activeTab === "academy" ? "bg-white text-zinc-900 shadow-sm border border-zinc-200" : "text-zinc-500 hover:text-zinc-900"}`}
+            className={`px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-sm transition-all flex items-center gap-2 cursor-pointer border-none ${activeTab === "academy" ? "bg-white text-zinc-900 shadow-sm border border-zinc-200" : "text-zinc-500 hover:text-zinc-900 bg-transparent"}`}
           >
             <GraduationCap className="h-3.5 w-3.5" />
             <span>Academy Tuition</span>
@@ -189,7 +263,7 @@ export default function MasterLedgerDashboard() {
                         <td className="p-4 font-mono font-bold text-zinc-900">{formatPrice(order.totalAmount)}</td>
                         <td className="p-4">
                           <span className={`text-[9px] font-mono uppercase tracking-wider px-2.5 py-0.5 rounded-sm border font-bold ${
-                            order.paymentStatus === "Completed" ? "bg-emerald-50 border-emerald-200 text-emerald-700" :
+                            order.paymentStatus === "Completed" || order.paymentStatus === "Paid" ? "bg-emerald-50 border-emerald-200 text-emerald-700" :
                             order.paymentStatus === "Failed" ? "bg-rose-50 border-rose-200 text-red-700" : "bg-amber-50 border-amber-200 text-amber-700"
                           }`}>
                             {order.paymentStatus}
@@ -209,9 +283,10 @@ export default function MasterLedgerDashboard() {
                                 />
                               </div>
                               <button
+                                type="button"
                                 disabled={updatingId !== null}
                                 onClick={() => handleUpdateOrderStatus(order._id, "Completed")}
-                                className="px-3 py-1.5 bg-zinc-900 hover:bg-[#C9A84C] text-white text-[10px] font-bold uppercase tracking-wider rounded-sm transition-colors cursor-pointer flex items-center gap-1"
+                                className="px-3 py-1.5 bg-zinc-900 hover:bg-[#C9A84C] text-white text-[10px] font-bold uppercase tracking-wider rounded-sm transition-colors cursor-pointer flex items-center gap-1 border-none"
                               >
                                 {updatingId === order._id ? <Loader2 className="h-3 w-3 animate-spin" /> : <Check className="h-3 w-3" />}
                                 <span>Approve</span>
@@ -246,19 +321,21 @@ export default function MasterLedgerDashboard() {
                     {academyPayments.map((payment) => (
                       <tr key={payment._id} className="hover:bg-zinc-50/50 transition-colors">
                         <td className="p-4">
-                          <p className="font-bold text-zinc-900 text-xs uppercase tracking-wide">{payment.studentName}</p>
+                          <p className="font-bold text-zinc-900 text-xs uppercase tracking-wide">{payment.studentName || "Audited Profile"}</p>
                           <p className="text-[10px] font-mono text-zinc-400 lowercase mt-0.5">{payment.email}</p>
                         </td>
                         <td className="p-4 text-xs font-semibold text-zinc-600 uppercase tracking-wider">{payment.course}</td>
-                        <td className="p-4 font-mono font-bold text-[#C9A84C]">{formatPrice(payment.amount)}</td>
-                        <td className="p-4 text-[10px] font-mono font-bold text-zinc-500 uppercase tracking-wider">{payment.paymentMethod?.replace("_", " ")}</td>
-                        <td className="p-4 text-xs font-mono text-zinc-500">{payment.reference}</td>
+                        <td className="p-4 font-mono font-bold text-[#C9A84C]">{formatPrice(payment.amount || payment.totalAmount || 0)}</td>
+                        <td className="p-4 text-[10px] font-mono font-bold text-zinc-500 uppercase tracking-wider">
+                          {String(payment.paymentMethod || payment.paymentGateway || "Manual").replace("_", " ")}
+                        </td>
+                        <td className="p-4 text-xs font-mono text-zinc-500">{payment.reference || payment.paymentReference}</td>
                         <td className="p-4">
                           <span className={`text-[9px] font-mono uppercase tracking-wider px-2 py-0.5 rounded-sm border font-bold ${
-                            payment.status === "confirmed" ? "bg-emerald-50 border-emerald-200 text-emerald-700" :
-                            payment.status === "pending" ? "bg-amber-50 border-amber-200 text-amber-700" : "bg-rose-50 border-rose-200 text-red-700"
+                            payment.status === "confirmed" || payment.status === "Paid" ? "bg-emerald-50 border-emerald-200 text-emerald-700" :
+                            payment.status === "pending" || payment.status === "Pending" ? "bg-amber-50 border-amber-200 text-amber-700" : "bg-rose-50 border-rose-200 text-red-700"
                           }`}>
-                            {payment.status}
+                            {payment.status || payment.paymentStatus}
                           </span>
                         </td>
                         <td className="p-4 text-xs font-mono text-zinc-400 whitespace-nowrap">
@@ -275,6 +352,63 @@ export default function MasterLedgerDashboard() {
 
             </div>
           </div>
+
+          {/* ⚡ INTEGRATED COMPONENT BLOCK: Embedded Admin Manual Ledger Ingestion Framework */}
+          {activeTab === "academy" && (
+            <div className="bg-white border border-zinc-200 p-6 shadow-sm rounded-sm text-left mt-8" style={{ borderTop: "2px solid #C9A84C" }}>
+              <div>
+                <span className="text-[9px] font-mono tracking-[0.2em] text-[#C9A84C] font-black uppercase block">ACADEMY TUITION LEDGER</span>
+                <h3 style={{ fontFamily: "var(--font-playfair), serif" }} className="text-lg font-bold uppercase text-zinc-900 mt-1">Log Manual Student Payment</h3>
+                <p className="text-xs text-zinc-400 font-light">Directly credit custom student receipts into user profiles for clear dashboard record tracking.</p>
+              </div>
+
+              <form onSubmit={handleCommitLedgerEntry} className="space-y-4 text-left mt-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-mono font-black uppercase text-zinc-400">Student Identity Email</label>
+                    <input type="email" required value={studentEmail} onChange={(e) => setStudentEmail(e.target.value)} placeholder="student@email.com" className={inputStyle} />
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-mono font-black uppercase text-zinc-400">Syllabus Instruction Track</label>
+                    <select required value={courseTitle} onChange={(e) => setCourseTitle(e.target.value)} className={inputStyle}>
+                      <option value="">Select track course...</option>
+                      <option value="Fashion Design Fundamentals">Fashion Design Fundamentals</option>
+                      <option value="Advanced Pattern Making & Draping">Advanced Pattern Making & Draping</option>
+                      <option value="Fashion Business & Entrepreneurship">Fashion Business & Entrepreneurship</option>
+                      <option value="Luxury Bridal Design">Luxury Bridal Design</option>
+                    </select>
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-mono font-black uppercase text-zinc-400">Amount Paid (₦)</label>
+                    <input type="number" required value={amountCredited} onChange={(e) => setAmountCredited(e.target.value)} placeholder="150000" className={inputStyle} />
+                  </div>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-[10px] font-mono font-black uppercase text-zinc-400">Audit Ledger Annotations / Reference Notes</label>
+                  <input type="text" value={customNote} onChange={(e) => setCustomNote(e.target.value)} placeholder="E.g., Bank transfer verified via payment confirmation snapshot copy..." className={inputStyle} />
+                </div>
+
+                {formSuccess && (
+                  <div className="p-3 bg-emerald-50 border border-emerald-100 text-xs font-mono font-bold text-emerald-800 uppercase tracking-wider flex items-center gap-1.5">
+                    <Check size={14} className="text-emerald-600" /> System Document updated and synced with user dashboard arrays.
+                  </div>
+                )}
+
+                <button 
+                  type="submit" 
+                  disabled={formProcessing} 
+                  style={{ backgroundColor: formProcessing ? "#e4e4e7" : "#1a1a1a" }} 
+                  className="px-5 py-3 text-white font-bold text-xs uppercase tracking-widest hover:bg-[#C9A84C] flex items-center gap-2 rounded-sm transition-all cursor-pointer border-none shadow"
+                >
+                  {formProcessing ? <Loader2 className="h-3.5 w-3.5 animate-spin text-zinc-400" /> : <Save size={13} />}
+                  <span>Commit Custom Receipt Sheet</span>
+                </button>
+              </form>
+            </div>
+          )}
         </>
       )}
     </div>
