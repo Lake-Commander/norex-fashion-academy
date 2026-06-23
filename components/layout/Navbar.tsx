@@ -443,7 +443,7 @@ export default function Navbar() {
                 {/* Account Dashboard Popover menu passes */}
                 {isAuthenticated && (
                   <div className={`user-luxury-dropdown ${showUserDropdown ? "open" : ""}`}>
-                    <div className="dropdown-greeting">Atelier Registry Node</div>
+                   {/* <div className="dropdown-greeting">Atelier Registry Node</div> */}
                     <Link href="/dashboard" className="dropdown-menu-item">
                       <LayoutDashboard size={13} /> <span>Go to Dashboard</span>
                     </Link>
