@@ -41,6 +41,13 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
     }
   }, [product?._id, trackProduct]);
 
+  // Update reviews state when product prop changes
+  useEffect(() => {
+    if (product.reviews) {
+      setReviews(product.reviews);
+    }
+  }, [product._id, product.reviews]);
+
   // WhatsApp Intent Trigger String Configuration
   const msg = `Hi Norex Atelier, I am interested in ordering the ${product.name} (${formatPrice(product.price)}).\n\nMy Configurations:\n- Size: ${selectedSize}\n- Color Swatch: ${selectedColor}\n- Fit Cut: ${selectedGender === "Both" ? "Unisex" : selectedGender}\n\nPlease verify availability.`;
   const whatsappLink = generateWhatsAppLink("+2349043371380", msg);
@@ -143,7 +150,6 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
           z-index: 20; pointer-events: none; backdrop-filter: blur(4px);
         }
 
-        /* ⚡ Luxury Interactive Image Micro-Roll Styles */
         .image-roll-grid {
           display: grid;
           grid-template-columns: repeat(4, 1fr);
@@ -222,7 +228,7 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
       <div className="container-custom" style={{ paddingTop: "4rem", paddingBottom: "4rem" }}>
         <div className="pdg">
           
-          {/* Left Media Stage: Image Roll Base Container */}
+          {/* Left Media Stage */}
           <div>
             <div className="image-wrapper">
               <div className="look-spinning-badge">
@@ -238,7 +244,6 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
               />
             </div>
 
-            {/* Multi-Image roll grid triggers */}
             {product.images && product.images.length > 1 && (
               <div className="image-roll-grid">
                 {product.images.map((imgUrl: string, idx: number) => (
@@ -270,7 +275,6 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
             <div style={{ height: "1px", backgroundColor: "#f0ebe3", marginBottom: "1.5rem" }} />
             <p style={{ fontSize: "0.95rem", color: "#6b7280", lineHeight: 1.9, marginBottom: "2rem" }}>{product.description}</p>
             
-            {/* Conditional Gender Selector Option for Unisex Pieces */}
             {product.gender === "Both" && (
               <div style={{ marginBottom: "1.5rem" }}>
                 <p style={{ fontSize: "0.7rem", letterSpacing: "0.2em", textTransform: "uppercase", fontWeight: 600, color: "#1a1a1a", marginBottom: "0.875rem" }}>Specify Fit Profile</p>
@@ -284,7 +288,6 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
               </div>
             )}
 
-            {/* Sizes & Color Variation Option Blocks */}
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2rem", marginBottom: "2.5rem" }}>
               <div>
                 <p style={{ fontSize: "0.7rem", letterSpacing: "0.2em", textTransform: "uppercase", fontWeight: 600, color: "#1a1a1a", marginBottom: "0.875rem" }}>Sizes</p>
@@ -331,7 +334,7 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
         </div>
       </div>
 
-      {/* Product Detail Specifications Tabs */}
+      {/* Specifications Tabs */}
       <div style={{ backgroundColor: "#FAF7F4", borderTop: "1px solid #f0ebe3", borderBottom: "1px solid #f0ebe3" }}>
         <div className="container-custom">
           <div style={{ display: "flex", justifyContent: "center", borderBottom: "1px solid #e5e7eb", gap: "1rem", flexWrap: "wrap" }}>
@@ -410,11 +413,10 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
         </div>
       </div>
       
-      {/* RELATED STATEMENT PRODUCTS OVERLAY GRID */}
+      {/* RELATED PRODUCTS GRID */}
       {relatedProducts.length > 0 && (
         <div style={{ paddingTop: "5rem", paddingBottom: "6rem", backgroundColor: "white" }}>
           <div className="container-custom">
-            {/* ⚡ FIX: 'textLeft' changed to 'textAlign' to conform to standard CSS properties matrix */}
             <div style={{ marginBottom: "3rem", textAlign: "center" }}>
               <h2 style={{ fontFamily: "var(--font-playfair), Georgia, serif", fontSize: "clamp(1.75rem, 4vw, 2.5rem)", fontWeight: 700, color: "#1a1a1a", textTransform: "uppercase" }}>Related Products</h2>
             </div>
@@ -451,7 +453,7 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", paddingTop: "1rem" }}>
                       <div style={{ textAlign: "left" }}>
                         <Link href={`/shop/${p.slug}`} style={{ textDecoration: "none" }}>
-                          <h3 style={{ fontFamily: "var(--font-playfair), Georgia, serif", fontSize: "1.05rem", fontWeight: 700, color: "#1a1a1a", marginBottom: "0.25rem" }} className="sct">{p.name}</h3>
+                          <h3 style={{ fontFamily: "var(--font-playfair), Georgia, serif", fontSize: "1.05rem", fontWeight: 700, color: "#1a1a1a", marginBottom: "0.25rem" }}>{p.name}</h3>
                         </Link>
                         <p style={{ fontSize: "0.8rem", color: "#9ca3af", fontWeight: 500 }}>{p.category}</p>
                       </div>

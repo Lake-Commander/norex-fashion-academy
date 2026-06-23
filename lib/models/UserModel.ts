@@ -7,26 +7,25 @@ const UserSchema = new mongoose.Schema({
   password: { type: String },
   role: { type: String, default: "student" },
   image: { type: String },
+  
+  // ⚡ Normalized to map perfectly with your Frontend CartItem typing keys
   cart: [
     {
       id: { type: String, required: true },
       name: { type: String },
       price: { type: Number },
-      image: { type: String },
-      color: { type: String },
-      size: { type: String },
+      images: [{ type: String }], // Array fallback match for Cloudinary maps
+      selectedColor: { type: String },
+      selectedSize: { type: String },
+      selectedGender: { type: String },
       orderQuantity: { type: Number, default: 1 }
     }
   ],
-  wishlist: [{ type: String }],
-  // 🔐 Added these fields for token tracking:
+  wishlist: [{ type: String }], // Array of matching Product ID strings
   resetToken: { type: String },
   resetTokenExpiry: { type: Date },
-  // 🗑️ Soft-delete flag to protect relational order logs
   isDeleted: { type: Boolean, default: false }
 });
 
-// Checks if model is compiled, otherwise safe-compiles it once globally
 const UserModel = mongoose.models.User || mongoose.model("User", UserSchema);
-
 export default UserModel;

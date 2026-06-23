@@ -1,12 +1,11 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect, useRef } from "react";
 import { Product } from "@/types";
 import { sounds } from "@/lib/sound-utils";
 
 export type Theme = 'obsidian' | 'cyber' | 'ivory' | 'emerald';
 
-// Expanded CartItem type to explicitly track unique garment attribute configurations
 export type CartItem = Product & { 
   orderQuantity: number;
   selectedSize: string;
@@ -49,7 +48,10 @@ export function ShopProvider({ children }: { children: React.ReactNode }) {
   const [isWishlistOpen, setWishlistOpen] = useState<boolean>(false);
   const [isOracleOpen, setOracleOpen] = useState<boolean>(false);
 
-  // Load from local storage securely on mount
+  // Skip the initial mount synchronization lock
+  const isFirstRender = useRef(true);
+
+  // 1. Initial hydration safely from local cache matrices on mount
   useEffect(() => {
     const savedCart = localStorage.getItem("norex_cart");
     const savedWishlist = localStorage.getItem("norex_wishlist");
@@ -57,10 +59,40 @@ export function ShopProvider({ children }: { children: React.ReactNode }) {
     if (savedWishlist) setWishlist(JSON.parse(savedWishlist));
   }, []);
 
-  // Sync to local storage on mutation loop changes
+  // 2. ⚡ DUAL SYNC ACTION: Update Local Storage and dispatch updates to MongoDB pipelines
   useEffect(() => {
     localStorage.setItem("norex_cart", JSON.stringify(cart));
     localStorage.setItem("norex_wishlist", JSON.stringify(wishlist));
+
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+
+    // Prepare clean strings values from the target wishlist object parameters
+    const sanitizedWishlistIds = wishlist.map((item: any) => item.id || item._id);
+
+    const syncDatabaseLedger = async () => {
+      try {
+        await fetch("/api/user/sync", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            cart: cart,
+            wishlist: sanitizedWishlistIds
+          })
+        });
+      } catch (err) {
+        console.error("Background ledger sync thread timeout:", err);
+      }
+    };
+
+    // Debounce the database dispatches slightly to handle quick quantity double-clicks gracefully
+    const debounceTimeout = setTimeout(() => {
+      syncDatabaseLedger();
+    }, 800);
+
+    return () => clearTimeout(debounceTimeout);
   }, [cart, wishlist]);
 
   useEffect(() => {
@@ -84,15 +116,15 @@ export function ShopProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  // Evaluates combination parameters uniquely before incrementing quantities
   const addToCart = (product: any, quantity = 1) => {
     const targetSize = product.selectedSize || "M";
     const targetColor = product.selectedColor || "Default Matrix";
     const targetGender = product.selectedGender || product.gender || "Female";
+    const targetId = product.id || product._id;
 
     setCart((prev) => {
       const isMatch = (item: CartItem) => 
-        item.id === product.id && 
+        item.id === targetId && 
         item.selectedSize === targetSize && 
         item.selectedColor === targetColor && 
         item.selectedGender === targetGender;
@@ -106,7 +138,7 @@ export function ShopProvider({ children }: { children: React.ReactNode }) {
       
       return [...prev, { 
         ...product, 
-        id: product.id || product._id,
+        id: targetId,
         selectedSize: targetSize, 
         selectedColor: targetColor, 
         selectedGender: targetGender, 

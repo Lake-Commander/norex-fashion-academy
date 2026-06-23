@@ -356,7 +356,7 @@ export default function ShopArea() {
         <p style={{ fontSize: "0.7rem", letterSpacing: "0.25em", textTransform: "uppercase", color: goldColor, fontWeight: 600, marginBottom: "1rem", display: "block" }}>Bespoke Assembly</p>
         <h2 style={{ fontFamily: "var(--font-playfair), Georgia, serif", fontSize: "clamp(1.5rem, 3vw, 2.5rem)", fontWeight: 700, color: "#1a1a1a", marginBottom: "1rem" }}>Made-to-Measure Configurations</h2>
         <p style={{ fontSize: "0.9rem", color: "#6b7280", marginBottom: "2rem", maxWidth: "450px", margin: "0 auto 2rem", lineHeight: 1.8 }}>We offer dedicated structural custom tailoring fittings. Reach out directly via WhatsApp to initiate a custom commission with our consultants.</p>
-        {/* ✅ FIXED: 'justify' parameter switched to 'justifyContent' cross-platform layout typing property */}
+        {/*  FIXED: 'justify' parameter switched to 'justifyContent' cross-platform layout typing property */}
         <a href="https://wa.me/2349043371380" target="_blank" rel="noopener noreferrer" className="shop-whatsapp-btn" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: "0.75rem" }}>
           <MessageCircle size={18} />
           Consult via WhatsApp
