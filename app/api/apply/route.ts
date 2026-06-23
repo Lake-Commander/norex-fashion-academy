@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import Application from "@/lib/models/ApplicationModel";
-import { Resend } from "resend";
 
 export const dynamic = "force-dynamic";
 
@@ -14,9 +13,6 @@ const courseNames: Record<string, string> = {
 
 export async function POST(req: NextRequest) {
   try {
-    // Initialize Resend INSIDE the function so it doesn't break the build
-    const resend = new Resend(process.env.RESEND_API_KEY);
-    
     const body = await req.json();
     const { fullName, email, phone, course, experienceLevel, message } = body;
 
@@ -29,6 +25,7 @@ export async function POST(req: NextRequest) {
 
     await connectDB();
 
+    // 1. Commit and persist the record data into your MongoDB collections
     const application = await Application.create({
       fullName,
       email,
@@ -39,97 +36,76 @@ export async function POST(req: NextRequest) {
       status: "pending",
     });
 
-    // Send notification to admin
-    await resend.emails.send({
-      from: "Norex Fashion <onboarding@resend.dev>",
-      to: process.env.ADMIN_EMAIL!,
-      subject: `New Academy Application — ${fullName}`,
-      html: `
-        <div style="font-family: Georgia, serif; max-width: 600px; margin: 0 auto; padding: 2rem; background: #FAF7F4;">
-          <div style="background: #C9A84C; padding: 2rem; text-align: center; margin-bottom: 2rem;">
-            <h1 style="color: white; margin: 0; font-size: 1.5rem; letter-spacing: 0.1em;">NEW APPLICATION RECEIVED</h1>
-          </div>
-          <div style="background: white; padding: 2rem; margin-bottom: 1rem;">
-            <h2 style="color: #C9A84C; font-size: 1.1rem; margin-bottom: 1.5rem; border-bottom: 1px solid #f0ebe3; padding-bottom: 1rem;">Applicant Details</h2>
-            <table style="width: 100%; border-collapse: collapse;">
-              <tr style="border-bottom: 1px solid #f0ebe3;">
-                <td style="padding: 0.75rem 0; font-size: 0.8rem; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.1em; width: 140px;">Full Name</td>
-                <td style="padding: 0.75rem 0; font-size: 0.95rem; color: #1a1a1a; font-weight: 600;">${fullName}</td>
-              </tr>
-              <tr style="border-bottom: 1px solid #f0ebe3;">
-                <td style="padding: 0.75rem 0; font-size: 0.8rem; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.1em;">Email</td>
-                <td style="padding: 0.75rem 0; font-size: 0.95rem; color: #1a1a1a;">${email}</td>
-              </tr>
-              <tr style="border-bottom: 1px solid #f0ebe3;">
-                <td style="padding: 0.75rem 0; font-size: 0.8rem; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.1em;">Phone</td>
-                <td style="padding: 0.75rem 0; font-size: 0.95rem; color: #1a1a1a;">${phone}</td>
-              </tr>
-              <tr style="border-bottom: 1px solid #f0ebe3;">
-                <td style="padding: 0.75rem 0; font-size: 0.8rem; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.1em;">Course</td>
-                <td style="padding: 0.75rem 0; font-size: 0.95rem; color: #C9A84C; font-weight: 600;">${courseNames[course] || course}</td>
-              </tr>
-              <tr style="border-bottom: 1px solid #f0ebe3;">
-                <td style="padding: 0.75rem 0; font-size: 0.8rem; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.1em;">Experience</td>
-                <td style="padding: 0.75rem 0; font-size: 0.95rem; color: #1a1a1a;">${experienceLevel}</td>
-              </tr>
-              ${message ? `
-              <tr>
-                <td style="padding: 0.75rem 0; font-size: 0.8rem; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.1em; vertical-align: top;">Message</td>
-                <td style="padding: 0.75rem 0; font-size: 0.95rem; color: #1a1a1a; line-height: 1.6;">${message}</td>
-              </tr>` : ""}
-            </table>
-          </div>
-          <div style="text-align: center; padding: 1rem;">
-            <a href="${process.env.NEXTAUTH_URL}/admin/applications" style="display: inline-block; background: #C9A84C; color: white; padding: 0.875rem 2rem; font-size: 0.8rem; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; text-decoration: none;">
-              View in Dashboard →
-            </a>
-          </div>
-          <p style="text-align: center; font-size: 0.75rem; color: #9ca3af; margin-top: 1.5rem;">Norex Fashion Admin · Automated Notification</p>
-        </div>
-      `,
-    });
-
-    // Send confirmation to applicant
-    await resend.emails.send({
-      from: "Norex Fashion <onboarding@resend.dev>",
-      to: email,
-      subject: "We received your application — Norex Fashion Academy",
-      html: `
-        <div style="font-family: Georgia, serif; max-width: 600px; margin: 0 auto; padding: 2rem; background: #FAF7F4;">
-          <div style="background: #C9A84C; padding: 2rem; text-align: center; margin-bottom: 2rem;">
-            <h1 style="color: white; margin: 0; font-size: 1.5rem; letter-spacing: 0.1em;">NOREX FASHION ACADEMY</h1>
-          </div>
-          <div style="background: white; padding: 2rem; margin-bottom: 1rem;">
-            <h2 style="color: #1a1a1a; font-size: 1.3rem; margin-bottom: 1rem;">Hi ${fullName},</h2>
-            <p style="color: #4b5563; line-height: 1.8; margin-bottom: 1.5rem;">
-              Thank you for applying to <strong style="color: #C9A84C;">Norex Fashion Academy</strong>. We have received your application for the <strong>${courseNames[course] || course}</strong> program.
-            </p>
-            <div style="background: #FAF7F4; border-left: 4px solid #C9A84C; padding: 1.25rem; margin-bottom: 1.5rem;">
-              <p style="margin: 0; color: #4b5563; font-size: 0.95rem; line-height: 1.7;">
-                Our team will review your application and get back to you within <strong>48 hours</strong>. If you have any questions in the meantime, feel free to reach out via WhatsApp or email.
-              </p>
-            </div>
-            <p style="color: #4b5563; line-height: 1.8;">
-              We are excited about the possibility of welcoming you to our community of passionate fashion designers.
-            </p>
-            <p style="color: #C9A84C; font-weight: 600; margin-top: 1.5rem;">With elegance,<br/>The Norex Fashion Team</p>
-          </div>
-          <div style="text-align: center; padding: 1rem;">
-            <a href="https://wa.me/2348081258048" style="display: inline-block; background: #25D366; color: white; padding: 0.875rem 2rem; font-size: 0.8rem; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; text-decoration: none;">
-              Chat on WhatsApp
-            </a>
-          </div>
-          <p style="text-align: center; font-size: 0.75rem; color: #9ca3af; margin-top: 1.5rem;">Norex Fashion · Warri, Nigeria · hello@norexfashion.com</p>
-        </div>
-      `,
-    });
+    // 2. 🛡️ Safe Notification Layer: Dispatch Admin alerts via Brevo HTTP API
+    const brevoApiKey = process.env.BREVO_API_KEY;
+    if (brevoApiKey) {
+      try {
+        await fetch("https://api.brevo.com/v3/smtp/email", {
+          method: "POST",
+          headers: {
+            "accept": "application/json",
+            "content-type": "application/json",
+            "api-key": brevoApiKey,
+          },
+          body: JSON.stringify({
+            sender: { name: "Norex Academy Registry", email: "system@norexfashion.com" },
+            to: [{ email: process.env.ADMIN_EMAIL! }],
+            subject: `New Academy Application — ${fullName}`,
+            htmlContent: `
+              <div style="font-family: Georgia, serif; max-width: 600px; margin: 0 auto; padding: 2rem; background: #FAF7F4;">
+                <div style="background: #1a1a1a; padding: 2rem; text-align: center; margin-bottom: 2rem; border-bottom: 2px solid #C9A84C;">
+                  <h1 style="color: white; margin: 0; font-size: 1.3rem; letter-spacing: 0.1em; text-transform: uppercase;">New Application Received</h1>
+                </div>
+                <div style="background: white; padding: 2rem; margin-bottom: 1rem; border: 1px solid #f0ebe3;">
+                  <h2 style="color: #C9A84C; font-size: 1.1rem; margin-bottom: 1.5rem; border-bottom: 1px solid #f0ebe3; padding-bottom: 1rem;">Applicant Details</h2>
+                  <table style="width: 100%; border-collapse: collapse;">
+                    <tr style="border-bottom: 1px solid #f0ebe3;">
+                      <td style="padding: 0.75rem 0; font-size: 0.8rem; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.1em; width: 140px;">Full Name</td>
+                      <td style="padding: 0.75rem 0; font-size: 0.95rem; color: #1a1a1a; font-weight: 600;">${fullName}</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #f0ebe3;">
+                      <td style="padding: 0.75rem 0; font-size: 0.8rem; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.1em;">Email</td>
+                      <td style="padding: 0.75rem 0; font-size: 0.95rem; color: #1a1a1a;">${email}</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #f0ebe3;">
+                      <td style="padding: 0.75rem 0; font-size: 0.8rem; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.1em;">Phone</td>
+                      <td style="padding: 0.75rem 0; font-size: 0.95rem; color: #1a1a1a;">${phone}</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #f0ebe3;">
+                      <td style="padding: 0.75rem 0; font-size: 0.8rem; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.1em;">Course</td>
+                      <td style="padding: 0.75rem 0; font-size: 0.95rem; color: #C9A84C; font-weight: 600;">${courseNames[course] || course}</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #f0ebe3;">
+                      <td style="padding: 0.75rem 0; font-size: 0.8rem; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.1em;">Experience</td>
+                      <td style="padding: 0.75rem 0; font-size: 0.95rem; color: #1a1a1a;">${experienceLevel}</td>
+                    </tr>
+                    ${message ? `
+                    <tr>
+                      <td style="padding: 0.75rem 0; font-size: 0.8rem; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.1em; vertical-align: top;">Message</td>
+                      <td style="padding: 0.75rem 0; font-size: 0.95rem; color: #1a1a1a; line-height: 1.6;">${message}</td>
+                    </tr>` : ""}
+                  </table>
+                </div>
+                <div style="text-align: center; padding: 1rem;">
+                  <a href="${process.env.NEXTAUTH_URL || ''}/admin/applications" style="display: inline-block; background: #C9A84C; color: white; padding: 0.875rem 2rem; font-size: 0.8rem; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; text-decoration: none;">
+                    View in Dashboard →
+                  </a>
+                </div>
+              </div>
+            `
+          })
+        });
+      } catch (emailErr) {
+        console.error("Brevo application notification drop fallback triggered:", emailErr);
+      }
+    }
 
     return NextResponse.json(
       { success: true, message: "Application received successfully", id: application._id },
       { status: 200 }
     );
   } catch (error) {
-    console.error("Apply API error:", error);
+    console.error("Apply API core exception context crash:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
