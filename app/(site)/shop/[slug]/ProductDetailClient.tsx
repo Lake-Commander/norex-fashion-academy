@@ -18,7 +18,7 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
   // ⚡ Active Main Display Image Array Index Node Pointer
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   
-  // ✅ FIXED: Single unified reviews state tracker declaration
+  // Single unified reviews state tracker declaration
   const [reviews, setReviews] = useState(product.reviews || []);
   
   // Interactive Review State
@@ -54,13 +54,14 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
 
   // Normalization Adapter to guarantee absolute runtime alignment with global type constraints
   const getContextPayload = (targetProduct = product) => {
+    const isMainProduct = targetProduct._id === product._id || targetProduct.id === product.id;
     return {
       ...targetProduct,
       id: targetProduct._id || targetProduct.id,
       featured: targetProduct.isFeatured || targetProduct.featured,
-      selectedSize: targetProduct === product ? selectedSize : targetProduct.sizes?.[0] || "M",
-      selectedColor: targetProduct === product ? selectedColor : targetProduct.colors?.[0] || "Default Matrix",
-      selectedGender: targetProduct === product ? selectedGender : targetProduct.gender === "Both" ? "Female" : targetProduct.gender
+      selectedSize: isMainProduct ? selectedSize : targetProduct.sizes?.[0] || "M",
+      selectedColor: isMainProduct ? selectedColor : targetProduct.colors?.[0] || "Default Matrix",
+      selectedGender: isMainProduct ? selectedGender : targetProduct.gender === "Both" ? "Female" : targetProduct.gender
     };
   };
 
