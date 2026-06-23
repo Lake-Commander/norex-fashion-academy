@@ -73,27 +73,30 @@ export default function PaystackCheckoutButton({ shippingDetails }: { shippingDe
             }
           ],
         },
-        onSuccess: async (response: any) => {
-          try {
-            const verifyRes = await fetch("/api/checkout/verify", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ reference: response.reference }),
-            });
-            const verificationData = await verifyRes.json();
+            onSuccess: async (response: any) => {
+      try {
+        const verifyRes = await fetch("/api/checkout/verify", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ reference: response.reference }),
+        });
+        
+        const verificationData = await verifyRes.json();
 
-            if (verificationData.success) {
-              clearCart();
-              window.location.href = `/dashboard?success=true`;
-            } else {
-              alert("Payment captured securely, but database transaction sync timed out. Please contact care support.");
-            }
-          } catch (err) {
-            console.error("Order logging map exception dropped:", err);
-            alert("Network timeout tracking order data. Your fund allocation remains safe.");
-          } finally {
-            setProcessing(false);
-          }
+        if (verificationData.success) {
+          clearCart(); // Safely clears your local application cache boundaries
+          // Hard redirect flushes window instances to ensure state parameters refresh perfectly
+          window.location.href = "/dashboard?success=true";
+        } else {
+          console.error("Verification endpoint logged database issue:", verificationData.error);
+          alert(`Payment captured securely, but database transaction sync timed out: ${verificationData.error || 'Server Drop'}`);
+        }
+      } catch (err) {
+        console.error("Order logging map exception dropped:", err);
+        alert("Network timeout tracking order data. Your fund allocation remains safe inside Paystack.");
+      } finally {
+        setProcessing(false);
+      }
         },
         onCancel: () => {
           setProcessing(false);
