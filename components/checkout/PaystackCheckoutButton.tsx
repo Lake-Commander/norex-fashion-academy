@@ -5,7 +5,6 @@ import { useShop } from "@/context/ShopContext";
 import { useSession } from "next-auth/react";
 import { formatPrice } from "@/lib/utils";
 import { Loader2, CreditCard } from "lucide-react";
-import PaystackPop from "@paystack/inline-js";
 
 interface ShippingDetails {
   name: string;
@@ -19,13 +18,12 @@ export default function PaystackCheckoutButton({ shippingDetails }: { shippingDe
   const [processing, setProcessing] = useState(false);
 
   const handlePaystackPayment = async () => {
-    // 1. Guard: Ensure user is logged in so we can bind the transaction to their email profile
+    // 1. Guards
     if (!session?.user?.email) {
       alert("Please sign in to your digital profile passport before checking out.");
       return;
     }
 
-    // 2. Guard: Ensure vital shipping credentials parameters are filled out
     if (!shippingDetails.name || !shippingDetails.phone || !shippingDetails.address) {
       alert("Please complete your delivery coordinates entry fields before placing your order.");
       return;
@@ -34,17 +32,17 @@ export default function PaystackCheckoutButton({ shippingDetails }: { shippingDe
     setProcessing(true);
 
     try {
-      // Generate a unique transaction tracking reference token signature
-      const transactionReference = `NRX-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
+      // 2. ⚡ FIX: Dynamically import Paystack Pop inside the browser execution layer
+      // This shields the Next.js server-side prerender engine from top-level window errors.
+      const { default: PaystackPop } = await import("@paystack/inline-js");
 
-      // Initialize Paystack Inline Pop layer
+      const transactionReference = `NRX-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
       const paystack = new PaystackPop();
       
       paystack.newTransaction({
         key: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY!,
         email: session.user.email,
-        // ⚡ CRITICAL: Paystack calculates values in Kobo (Naira * 100)
-        amount: Math.round(cartTotal * 100),
+        amount: Math.round(cartTotal * 100), // Naira to Kobo
         currency: "NGN",
         ref: transactionReference,
         metadata: {
@@ -76,7 +74,6 @@ export default function PaystackCheckoutButton({ shippingDetails }: { shippingDe
           ],
         },
         onSuccess: async (response: any) => {
-          // 3. Handshake Execution: Fire verification script payload to pass into your MongoDB logs
           try {
             const verifyRes = await fetch("/api/checkout/verify", {
               method: "POST",
@@ -86,8 +83,7 @@ export default function PaystackCheckoutButton({ shippingDetails }: { shippingDe
             const verificationData = await verifyRes.json();
 
             if (verificationData.success) {
-              clearCart(); // Flush local cache structures
-              // Redirect cleanly over to the customer storefront orders panel console view
+              clearCart();
               window.location.href = `/dashboard?success=true`;
             } else {
               alert("Payment captured securely, but database transaction sync timed out. Please contact care support.");
