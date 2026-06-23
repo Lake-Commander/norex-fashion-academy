@@ -1,12 +1,12 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { formatPrice, generateWhatsAppLink } from "@/lib/utils";
 import { useShop } from "@/context/ShopContext";
 import { useTelemetry } from "@/hooks/useTelemetry"; 
-import { ShoppingBag, Heart, MessageCircle, Minus, Plus, Star, Check } from "lucide-react";
+import { ShoppingBag, Heart, MessageCircle, Minus, Plus, Star } from "lucide-react";
 
 export default function ProductDetailClient({ product, relatedProducts }: { product: any, relatedProducts: any[] }) {
   const { addToCart, toggleWishlist, isInWishlist } = useShop();
@@ -18,7 +18,7 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
   // ⚡ Active Main Display Image Array Index Node Pointer
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   
-  // Local state for reviews so it updates instantly after submission
+  // ✅ FIXED: Single unified reviews state tracker declaration
   const [reviews, setReviews] = useState(product.reviews || []);
   
   // Interactive Review State
