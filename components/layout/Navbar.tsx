@@ -1,18 +1,14 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useSession } from "next-auth/react"; 
-import { Menu, X, ChevronDown, ShoppingBag, Heart, User, LayoutDashboard, ArrowUpRight, ArrowDownRight } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation"; // ✅ FIXED: Added useRouter import
+import { useSession, signOut } from "next-auth/react"; 
+import { Menu, X, ChevronDown, ShoppingBag, Heart, User, LayoutDashboard, ArrowUpRight, ArrowDownRight, ClipboardList, GraduationCap, LogOut } from "lucide-react";
 import { useShop } from "@/context/ShopContext"; 
 
 const menu_data = [
-  {
-    id: 1,
-    title: "Home",
-    link: "/",
-  },
+  { id: 1, title: "Home", link: "/" },
   {
     id: 2,
     products: true,
@@ -49,7 +45,6 @@ const menu_data = [
     title: "Runway", 
     link: "/runway",
     sub_menus: [
-     // { title: "Latest Show", link: "/runway" },
       { title: "Seasonal Collections", link: "/collections" },
       { title: "Luxury Campaigns", link: "/runway/campaigns" },
       { title: "Fashion Films", link: "/runway/fashion-films" },
@@ -62,7 +57,6 @@ const menu_data = [
     title: "Editorial", 
     link: "/editorial",
     sub_menus: [
-   //   { title: "Gazette Hub", link: "/editorial" },
       { title: "Stories", link: "/editorial/stories" },
       { title: "Insights", link: "/editorial/insights" },
       { title: "Interviews", link: "/editorial/interviews" }
@@ -85,7 +79,6 @@ const menu_data = [
     title: "House", 
     link: "/house",
     sub_menus: [
-  //    { title: "Overview", link: "/house" },
       { title: "About Us", link: "/about" },
       { title: "Atelier Craftsmanship", link: "/house/craftsmanship" },
       { title: "Sustainability", link: "/house/sustainability" },
@@ -95,29 +88,32 @@ const menu_data = [
 ];
 
 export default function Navbar() {
+  const router = useRouter(); // ✅ FIXED: Initialized the application routing controller hook
+  const pathname = usePathname();
+
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [activeMobileMenu, setActiveMobileMenu] = useState<number | null>(null);
+  const [showUserDropdown, setShowUserDropdown] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   const [pulseCart, setPulseCart] = useState(false);
   const [pulseWishlist, setPulseWishlist] = useState(false);
 
-  // ⚡ Comic Narration Display Management States
   const [showCartPopup, setShowCartPopup] = useState(false);
   const [showWishlistPopup, setShowWishlistPopup] = useState(false);
   
-  const pathname = usePathname();
   const isHome = pathname === "/";
   
-  const { status } = useSession();
+  const { data: session, status } = useSession();
   const isAuthenticated = status === "authenticated";
+  const firstName = session?.user?.name ? session.user.name.split(" ")[0] : "Member";
   
   const { cart, wishlist } = useShop();
   const cartCount = cart.reduce((acc, item) => acc + item.orderQuantity, 0);
   const wishlistCount = wishlist.length;
 
-  // Track previous counts to ensure popups only trigger when items increase
   const [prevCartCount, setPrevCartCount] = useState(cartCount);
   const [prevWishlistCount, setPrevWishlistCount] = useState(wishlistCount);
 
@@ -127,10 +123,20 @@ export default function Navbar() {
     setMounted(true);
     const handleScroll = () => setScrolled(window.scrollY > 50);
     window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+
+    const handleOutsideClick = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setShowUserDropdown(false);
+      }
+    };
+    window.addEventListener("click", handleOutsideClick);
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("click", handleOutsideClick);
+    };
   }, []);
 
-  // ⚡ Cart Observer: Fires the popup only when an item is added
   useEffect(() => {
     if (!mounted) return;
     if (cartCount > prevCartCount) {
@@ -145,7 +151,6 @@ export default function Navbar() {
     setPrevCartCount(cartCount);
   }, [cartCount, prevCartCount, mounted]);
 
-  // ⚡ Wishlist Observer: Fires the popup only when an item is added
   useEffect(() => {
     if (!mounted) return;
     if (wishlistCount > prevWishlistCount) {
@@ -163,6 +168,7 @@ export default function Navbar() {
   useEffect(() => {
     setIsOpen(false);
     setActiveMobileMenu(null);
+    setShowUserDropdown(false);
   }, [pathname]);
 
   const isTransparent = isHome && !scrolled;
@@ -175,7 +181,6 @@ export default function Navbar() {
     <>
       <style>{`
         :root { --gold: ${goldColor}; }
-        
         .nav-links { display: none; }
         .nav-cta { display: none; }
         .mobile-actions { display: flex; }
@@ -191,12 +196,10 @@ export default function Navbar() {
           .nav-cta { gap: 1.25rem; }
         }
 
-        /* --- Desktop Menu Styling --- */
         .nav-item { position: relative; display: flex; align-items: center; height: 72px; }
         .nav-link { display: flex; align-items: center; gap: 0.15rem; font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 600; transition: color 0.3s ease; text-decoration: none; }
         .nav-link:hover { color: var(--gold) !important; }
 
-        /* --- Desktop Mega Menu --- */
         .mega-menu {
           position: absolute; top: 100%; left: 50%; transform: translateX(-50%) translateY(10px);
           background-color: white; box-shadow: 0 10px 40px rgba(0,0,0,0.08); border-top: 3px solid var(--gold);
@@ -211,7 +214,6 @@ export default function Navbar() {
         .mega-menu-item a { font-size: 0.8rem; color: #555; text-decoration: none; transition: color 0.2s ease, padding-left 0.2s ease; display: inline-block; }
         .mega-menu-item a:hover { color: var(--gold); padding-left: 4px; }
 
-        /* --- Desktop Simple Sub Menu --- */
         .simple-sub-menu {
           position: absolute; top: 100%; left: 50%; transform: translateX(-50%) translateY(10px);
           background-color: white; box-shadow: 0 10px 40px rgba(0,0,0,0.08); border-top: 3px solid var(--gold);
@@ -222,13 +224,24 @@ export default function Navbar() {
         .simple-sub-menu-item a { font-size: 0.8rem; color: #555; text-decoration: none; padding: 0.5rem 1.25rem; display: block; transition: all 0.2s ease; text-align: left; }
         .simple-sub-menu-item a:hover { color: var(--gold); background-color: #faf9f7; padding-left: 1.5rem; }
 
-        /* --- Header Actions & Tooltips --- */
         .header-action-link {
           position: relative; display: flex; align-items: center; justify-content: center;
-          color: inherit; transition: color 0.3s; height: 100%; padding: 0.5rem;
+          color: inherit; transition: color 0.3s; height: 100%; padding: 0.5rem; cursor: pointer;
         }
         .header-action-link:hover { color: var(--gold) !important; }
         
+        .user-luxury-dropdown {
+          position: absolute; top: calc(100% - 15px); right: 0;
+          background-color: white; box-shadow: 0 10px 40px rgba(0,0,0,0.1); border-top: 3px solid var(--gold);
+          padding: 0.5rem 0; display: flex; flex-direction: column; opacity: 0; visibility: hidden;
+          transform: translateY(10px); transition: all 0.25s cubic-bezier(0.165, 0.84, 0.44, 1);
+          z-index: 110; min-width: 220px; border-radius: 0 0 2px 2px;
+        }
+        .user-luxury-dropdown.open { opacity: 1; visibility: visible; transform: translateY(0); }
+        .dropdown-greeting { padding: 0.75rem 1.25rem; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #1a1a1a; border-bottom: 1px solid #f4f4f5; text-align: left; }
+        .dropdown-menu-item { display: flex; align-items: center; gap: 0.75rem; font-size: 0.8rem; color: #555; text-decoration: none; padding: 0.65rem 1.25rem; transition: all 0.2s ease; border: none; background: transparent; width: 100%; cursor: pointer; }
+        .dropdown-menu-item:hover { color: var(--gold); background-color: #faf9f7; padding-left: 1.5rem; }
+
         .action-tooltip {
           position: absolute; bottom: -35px; left: 50%; transform: translateX(-50%) translateY(5px);
           background-color: #1a1a1a; color: white; padding: 0.4rem 0.75rem;
@@ -242,7 +255,6 @@ export default function Navbar() {
         }
         .header-action-link:hover .action-tooltip { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0); }
 
-        /* --- Base Comic Narration Speech Properties --- */
         .comic-base-box {
           position: absolute; background: white; color: #1a1a1a; border: 2.5px solid #1a1a1a;
           padding: 0.45rem 0.75rem; font-family: monospace; font-size: 10px; font-weight: 900;
@@ -250,8 +262,6 @@ export default function Navbar() {
           box-shadow: 4px 4px 0px #1a1a1a; z-index: 150; pointer-events: none;
           display: flex; align-items: center; gap: 0.35rem;
         }
-
-        /* ⚡ Desktop Variant Layout: Heads down, pointers face UPWARDS */
         .comic-desktop-box {
           top: 110%; left: 50%; transform: translateX(-50%);
           animation: comicZoomInTop 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
@@ -264,8 +274,6 @@ export default function Navbar() {
           content: ''; position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%) translateY(2.5px);
           border-width: 0 6px 6px 6px; border-style: solid; border-color: transparent transparent white transparent; z-index: 160;
         }
-
-        /* ⚡ Mobile Variant Layout: Heads up, pointers face DOWNWARDS */
         .comic-mobile-box {
           bottom: 145%; left: 50%; transform: translateX(-50%);
           animation: comicZoomInBottom 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
@@ -288,20 +296,17 @@ export default function Navbar() {
           100% { transform: translateX(-50%) scale(1) translateY(0); opacity: 1; }
         }
 
-        /* --- Mobile Menu --- */
         .mobile-menu {
           display: none; position: fixed; top: 72px; left: 0; width: 100%; height: calc(100vh - 72px);
           overflow-y: auto; background-color: white; z-index: 40; padding-bottom: 80px;
         }
         .mobile-menu.open { display: block; }
-        
         .mobile-sub-menu { background-color: #faf9f7; overflow: hidden; transition: max-height 0.3s ease; }
         .mobile-sub-menu-inner { padding: 0.5rem 1.5rem; display: flex; flex-direction: column; }
         .mobile-sub-link { padding: 0.75rem 0; font-size: 0.85rem; color: #555; text-decoration: none; border-bottom: 1px solid #f0ebe3; text-align: left; }
         .mobile-sub-link:last-child { border-bottom: none; }
         .mobile-sub-link:hover { color: var(--gold); }
 
-        /* --- Dynamic Badge Animations --- */
         @keyframes subtleBadgeGrow {
           0% { transform: scale(1); }
           50% { transform: scale(1.35); background-color: #1a1a1a; }
@@ -309,7 +314,6 @@ export default function Navbar() {
         }
         .badge-pulse-active { animation: subtleBadgeGrow 0.4s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
 
-        /* --- Mobile Bottom Bar --- */
         @media(max-width: 991px) {
           .mobile-bottom-bar {
             display: flex; position: fixed; bottom: 0; left: 0; width: 100%;
@@ -326,7 +330,6 @@ export default function Navbar() {
           .nav-logo { height: 45px !important; }
         }
 
-        /* --- Utility Badges --- */
         .icon-badge {
           position: absolute; top: 0px; right: -4px; background-color: var(--gold); color: white;
           font-size: 0.55rem; width: 16px; height: 16px; border-radius: 50%; display: flex;
@@ -372,7 +375,6 @@ export default function Navbar() {
                     {(item.products || item.sub_menu) && <ChevronDown size={11} style={{ marginLeft: "1px" }} />}
                   </Link>
 
-                  {/* Mega Menu Dropdown */}
                   {item.products && item.product_pages && (
                     <div className="mega-menu">
                       {item.product_pages.map((col, idx) => (
@@ -390,7 +392,6 @@ export default function Navbar() {
                     </div>
                   )}
 
-                  {/* Simple Sub Menu Dropdown */}
                   {item.sub_menu && item.sub_menus && (
                     <div className="simple-sub-menu">
                       <ul style={{ listStyle: "none", margin: 0, padding: 0 }}>
@@ -411,10 +412,58 @@ export default function Navbar() {
           <div className="nav-cta">
             <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", color: isTransparent ? "white" : "#1a1a1a" }}>
               
-              <Link href={isAuthenticated ? "/dashboard" : "/login"} className="header-action-link">
-                {isAuthenticated ? <LayoutDashboard size={16} className="text-[#C9A84C]" /> : <User size={16} />}
-                <span className="action-tooltip">{isAuthenticated ? "Dashboard" : "Sign In / Register"}</span>
-              </Link>
+              {/* Interactive Dropdown Core */}
+              <div 
+                ref={dropdownRef} 
+                className="relative" 
+                style={{ height: "100%", display: "flex", alignItems: "center" }}
+              >
+                <div 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (isAuthenticated) {
+                      setShowUserDropdown(!showUserDropdown);
+                    } else {
+                      router.push("/login");
+                    }
+                  }} 
+                  className="header-action-link"
+                >
+                  {isAuthenticated ? (
+                    <div className="flex items-center gap-1 text-[11px] font-bold uppercase tracking-wider text-[#C9A84C]">
+                      <span>Hi, {firstName}</span>
+                      <ChevronDown size={12} style={{ transform: showUserDropdown ? "rotate(180deg)" : "none", transition: "transform 0.2s" }} />
+                    </div>
+                  ) : (
+                    <User size={16} />
+                  )}
+                  {!isAuthenticated && <span className="action-tooltip">Sign In / Register</span>}
+                </div>
+
+                {/* Account Dashboard Popover menu passes */}
+                {isAuthenticated && (
+                  <div className={`user-luxury-dropdown ${showUserDropdown ? "open" : ""}`}>
+                    <div className="dropdown-greeting">Atelier Registry Node</div>
+                    <Link href="/dashboard" className="dropdown-menu-item">
+                      <LayoutDashboard size={13} /> <span>Go to Dashboard</span>
+                    </Link>
+                    <Link href="/dashboard?tab=commerce" className="dropdown-menu-item">
+                      <ClipboardList size={13} /> <span>My Orders</span>
+                    </Link>
+                    <Link href="/dashboard?tab=academy" className="dropdown-menu-item">
+                      <GraduationCap size={13} /> <span>Academy Apps</span>
+                    </Link>
+                    <button 
+                      type="button" 
+                      onClick={() => signOut({ callbackUrl: "/" })} 
+                      className="dropdown-menu-item text-red-500 hover:text-red-600 font-bold border-t"
+                      style={{ borderTopColor: '#f4f4f5', marginTop: '0.25rem', paddingTop: '0.5rem' }}
+                    >
+                      <LogOut size={13} /> <span>Sign Out</span>
+                    </button>
+                  </div>
+                )}
+              </div>
 
               <div style={{ width: "1px", height: "14px", backgroundColor: isTransparent ? "rgba(255,255,255,0.3)" : "#e5e7eb", margin: "0 0.15rem" }} />
 
@@ -423,7 +472,6 @@ export default function Navbar() {
                 {mounted && wishlistCount > 0 && (
                   <span className={`icon-badge ${pulseWishlist ? "badge-pulse-active" : ""}`}>{wishlistCount}</span>
                 )}
-                {/* ⚡ Desktop Wishlist Comic Notification Bubble (Heads Down, Pointing UP) */}
                 {showWishlistPopup && (
                   <div className="comic-base-box comic-desktop-box">
                     <span>Pinned to Registry!</span> <ArrowDownRight size={11} className="text-[#C9A84C]" />
@@ -437,7 +485,6 @@ export default function Navbar() {
                 {mounted && cartCount > 0 && (
                   <span className={`icon-badge ${pulseCart ? "badge-pulse-active" : ""}`}>{cartCount}</span>
                 )}
-                {/* ⚡ Desktop Cart Comic Notification Bubble (Heads Down, Pointing UP) */}
                 {showCartPopup && (
                   <div className="comic-base-box comic-desktop-box">
                     <span>Added to Bag!</span> <ArrowDownRight size={11} className="text-[#C9A84C]" />
@@ -562,7 +609,7 @@ export default function Navbar() {
       <div className="mobile-bottom-bar">
         <Link href={isAuthenticated ? "/dashboard" : "/login"} className="bottom-bar-link">
           {isAuthenticated ? <LayoutDashboard size={20} className="text-[#C9A84C]" /> : <User size={20} />}
-          <span>{isAuthenticated ? "Console" : "Account"}</span>
+          <span>{isAuthenticated ? "Dashboard" : "Account"}</span>
         </Link>
         
         <Link href="/wishlist" className="bottom-bar-link">
@@ -572,7 +619,6 @@ export default function Navbar() {
               <span className={`icon-badge bottom-badge ${pulseWishlist ? "badge-pulse-active" : ""}`}>{wishlistCount}</span>
             )}
           </div>
-          {/* ⚡ Mobile Bottom Wishlist Comic Notification Bubble (Heads Up, Pointing DOWN) */}
           {showWishlistPopup && (
             <div className="comic-base-box comic-mobile-box">
               <span>Pinned to Registry!</span> <ArrowUpRight size={11} className="text-[#C9A84C]" />
@@ -588,7 +634,6 @@ export default function Navbar() {
               <span className={`icon-badge bottom-badge ${pulseCart ? "badge-pulse-active" : ""}`}>{cartCount}</span>
             )}
           </div>
-          {/* ⚡ Mobile Bottom Cart Comic Notification Bubble (Heads Up, Pointing DOWN) */}
           {showCartPopup && (
             <div className="comic-base-box comic-mobile-box">
               <span>Added to Bag!</span> <ArrowUpRight size={11} className="text-[#C9A84C]" />
