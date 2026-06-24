@@ -217,10 +217,11 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
         .pc-img { transition: transform 0.7s ease; }
         .pc:hover .pc-img { transform: scale(1.03); }
 
-        /* --- Re-integrated Absolute Hover Overlays for Desktop --- */
+        /* --- Desktop Hover Overlay Layer --- */
         .pc-overlay { position: absolute; inset: 0; background-color: rgba(0,0,0,0.15); display: flex; align-items: flex-end; justify-content: center; padding-bottom: 2rem; gap: 0.5rem; opacity: 0; transition: opacity 0.3s ease; pointer-events: none; z-index: 10; }
         .pc:hover .pc-overlay { opacity: 1; pointer-events: auto; }
         
+        /* ⚡ FIX: Strict media override keeps the layout clean on viewport size mutations */
         @media (max-width: 1023px) {
           .pc-overlay { display: none !important; }
         }
@@ -480,8 +481,8 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
                       </div>
                     </div>
 
-                    {/* 📱 Mobile Context Action Tray (Hidden on Desktop) */}
-                    <div className="lg:hidden" style={{ display: "flex", gap: "0.5rem", width: "100%", padding: "0.5rem 0", boxSizing: "border-box" }}>
+                    {/* 📱 Mobile Context Action Tray (Hidden on Desktop via explicit lg:hidden container rule) */}
+                    <div className="flex lg:hidden" style={{ gap: "0.5rem", width: "100%", padding: "0.5rem 0", boxSizing: "border-box" }}>
                       <button 
                         type="button" 
                         onClick={() => addToCart(getContextPayload(p), 1)} 
