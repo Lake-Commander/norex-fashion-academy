@@ -1,36 +1,92 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Norex Atelier — Architectural African Heritage & Premium E-Commerce Ecosystem
 
-## Getting Started
+Norex Atelier is a luxury, hyper-optimized e-commerce platform built specifically for ready-to-wear expressions and bespoke, made-to-measure African heritage garments. Engineered with standard-setting performance, architectural layout systems, structural database models, and automated payment synchronizations.
 
-First, run the development server:
+##  Architectural Tech Stack
+
+*   **Framework:** Next.js 14+ (App Router architecture with Serverless Edge Runtime bindings)
+*   **Language:** TypeScript (Strict runtime typing configurations)
+*   **Database:** MongoDB via Mongoose ODM (Resilient multi-model indexation structures)
+*   **Styling:** Scoped CSS Modules & Tailwind CSS (Fluid responsive clamp parameters)
+*   **Gateways:** Paystack API Integration (Native validation handshake cycles)
+*   **Icons:** Lucide React
+
+---
+
+##  Key System Features
+
+### 1. Hardened Verification Loop (`/api/checkout/verify`)
+Features a proactive security and string cleaning mechanism. Bypasses trailing whitespace or newline characters added during pasting cycles by processing tokens via `.trim()`. Bypasses transaction verification drops by comparing context target boundaries against custom field matrices before executing database inserts.
+
+### 2. Multi-Viewport Responsive Layout
+*   **Dynamic Fluid Grid Architecture:** Completely eliminates horizontal screen swaying on mobile viewports by mapping responsive container constraints (`width: 100%; overflow-x: hidden;`).
+*   **Context Action Toggle:** On desktop screens, interactive controls (Add to Basket, Details, Wishlist) render elegantly within absolute hover overlays (`.sco`). On mobile viewports, these transition into permanent, touch-friendly persistent action bars underneath thumbnails.
+*   **Adaptive Navigation Controls:** Filters and gender tab rows automatically condense into clear, minimal select dropdown selectors on mobile interfaces, while mapping back into side-by-side matrices for desktop displays.
+
+### 3. Integrated Telemetry Pipeline
+Tracks product impressions, view duration parameters, and fashion-film streams seamlessly to profile consumer history models without performance drops.
+
+---
+
+## Installation & Local Environment Matrix
+
+### 1. Clone the Architecture
+```bash
+git clone [https://github.com/Lake-Commander/norex-fashion-academy.git](https://github.com/Lake-Commander/norex-fashion-academy.git)
+cd norex-fashion
+
+
+Then
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Create a .env.local file in the root context directory and establish the environmental mapping exactly as structured below:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+# MongoDB Connection URI
+MONGODB_URI=mongodb+srv://<username>:<password>@cluster.mongodb.net/norexfashion
 
-## Learn More
+# Admin amd Auth Credentials
+ADMIN_EMAIL=name@memxample.co
+ADMIN_PASSWORD=Adminpassword
+NEXTAUTH_SECRET=your-long-random-secret
+NEXTAUTH_URL=http://localhost:3000
 
-To learn more about Next.js, take a look at the following resources:
+# Paystack Key Infrastructure (Ensure token target matching)
+NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY=pk_test_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+PAYSTACK_SECRET_KEY=sk_test_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+# Cloudinary
+CLOUDINARY_CLOUD_NAME=cloudinary_ID
+CLOUDINARY_API_KEY=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+CLOUDINARY_API_SECRET=Jxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+# Google Developer Credentials Cluster
+GOOGLE_CLIENT_ID=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+GOOGLE_CLIENT_SECRET=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
-## Deploy on Vercel
+# BREVO API KEY
+BREVO_API_KEY=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+SMTP_FROM=name@example.com
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Core folders
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+├── app/
+│   ├── api/
+│   │   ├── checkout/verify/     # Paystack transaction verification node
+│   │   ├── admin/products/      # Master catalog CRUD operations
+│   │   └── reviews/             # Critique ledger aggregation loops
+│   ├── shop/
+│   │   ├── page.tsx             # Main collection catalog area
+│   │   └── [slug]/              # Rigid single item breakdown stage
+│   └── campaigns/               # Seasonal editorial directory routes
+├── context/
+│   └── ShopContext.tsx          # Global cart and registry lifecycle state
+├── hooks/
+│   └── useTelemetry.ts          # Customer viewing analytics interface
+└── lib/
+    ├── models/                  # Strict Mongoose schema configurations
+    └── utils.ts                 # Naira string normalization hooks
