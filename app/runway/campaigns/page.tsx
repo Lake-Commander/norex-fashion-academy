@@ -39,7 +39,9 @@ export default function PublicCampaignsDirectory() {
   return (
     <main className="min-h-screen bg-[#FCFAF7] text-zinc-900 transition-colors duration-500 flex flex-col justify-between overflow-x-hidden text-left">
       <Header />
-      <section className="relative w-full py-16 md:py-24 border-b border-zinc-200">
+      
+      {/* ⚡ FIXED: Added explicit pt-32 on mobile and pt-40 on desktop to clear the fixed luxury navigation boundary seamlessly */}
+      <section className="relative w-full pt-32 pb-16 md:pt-40 md:pb-24 border-b border-zinc-200">
         <div className="mx-auto max-w-7xl px-6 md:px-8 space-y-12">
           
           <div className="space-y-3 max-w-2xl">
@@ -76,14 +78,14 @@ export default function PublicCampaignsDirectory() {
 
       {/* Dynamic Detail Modal Box Overlay */}
       {selectedIndex !== null && campaigns[selectedIndex] && (
-        <div className="fixed inset-0 z-50 bg-black/95 backdrop-blur-md flex items-center justify-center p-6">
+        <div className="fixed inset-0 z-50 bg-black/95 backdrop-blur-md flex items-center justify-center p-4 md:p-6">
           <div className="absolute inset-0 cursor-pointer" onClick={() => setSelectedIndex(null)} />
-          <div className="relative w-full max-w-2xl bg-white border border-zinc-200 rounded-sm p-6 md:p-8 text-left shadow-2xl z-10 overflow-y-auto max-h-[90vh]">
+          <div className="relative w-full max-w-2xl bg-white border border-zinc-200 rounded-sm p-6 md:p-8 text-left shadow-2xl z-10 overflow-y-auto max-h-[85vh] md:max-h-[90vh]">
             <div className="flex justify-between items-center pb-4 border-b border-zinc-100 mb-6">
               <span style={{ color: goldColor }} className="text-xs font-mono font-bold uppercase tracking-wider">CAMPAIGN LEDGER CONFIG // {campaigns[selectedIndex].waSeason.toUpperCase()}</span>
               <button type="button" onClick={() => setSelectedIndex(null)} className="p-1.5 rounded-full hover:bg-zinc-100 text-zinc-900 cursor-pointer"><X size={18} /></button>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-8 items-center">
               <div className="md:col-span-6 aspect-[3/4] rounded-sm overflow-hidden bg-zinc-50 border border-zinc-200 shadow-sm"><img src={campaigns[selectedIndex].coverImage} alt="" className="w-full h-full object-cover" /></div>
               <div className="md:col-span-6 space-y-5">
                 <div className="space-y-1.5">
@@ -100,7 +102,9 @@ export default function PublicCampaignsDirectory() {
           </div>
         </div>
       )}
-      <StyleOracle /><Footer />
+      
+      <StyleOracle />
+      <Footer />
     </main>
   );
 }

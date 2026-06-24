@@ -49,7 +49,8 @@ export default function FashionFilmsPage() {
     <main className="min-h-screen bg-black text-[#faf9f6] transition-colors duration-500 flex flex-col justify-between overflow-x-hidden text-left">
       <Header />
 
-      <section className="relative w-full py-16 md:py-24 border-b border-white/10">
+      {/* ⚡ FIXED: Adjusted from py-16/py-24 to explicit pt-32 on mobile and pt-40 on desktop to clear the nav collision seamlessly */}
+      <section className="relative w-full pt-32 pb-16 md:pt-40 md:pb-24 border-b border-white/10">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8 space-y-12">
           
           <div className="space-y-4 max-w-2xl">
@@ -77,7 +78,7 @@ export default function FashionFilmsPage() {
                   <div className="absolute inset-6 md:inset-12 z-10 flex flex-col justify-end space-y-3 max-w-xl">
                     <span className="text-[8px] font-mono text-[#C9A84C] font-black uppercase tracking-widest">LATEST MATURED CINEMATIC SHORT</span>
                     <h2 style={{ fontFamily: "var(--font-playfair), Georgia, serif" }} className="text-2xl sm:text-4xl font-bold text-white uppercase leading-none">{featuredFilm.filmTitle}</h2>
-                    <p className="text-xs text-gray-300 font-light leading-relaxed font-serif italic">
+                    <p className="text-xs text-gray-300 font-light leading-relaxed font-serif italic line-clamp-2 sm:line-clamp-none">
                       "{featuredFilm.filmDescription}"
                     </p>
                     <button

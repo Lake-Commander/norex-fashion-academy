@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link"; 
 import { useSearchParams, useRouter } from "next/navigation";
 import { formatPrice } from "@/lib/utils";
-import { MessageCircle, Filter, Heart, ShoppingBag, Loader2, ImageIcon } from "lucide-react";
+import { MessageCircle, Filter, Heart, ShoppingBag, Loader2, ImageIcon, ChevronDown } from "lucide-react";
 import ShopSidebar from "./ShopSidebar";
 import { useShop } from "@/context/ShopContext";
 
@@ -25,6 +25,14 @@ export default function ShopArea() {
   const selectedStatus = searchParams.get("status");
   const maxPriceParam = searchParams.get("price");
   const selectedGender = searchParams.get("gender") || "all";
+
+  // Gender Option Master Array
+  const genderOptions = [
+    { id: "all", label: "All Collection" },
+    { id: "Men", label: "Men" },
+    { id: "Women", label: "Women" },
+    { id: "Both", label: "Bespoke Unisex" }
+  ];
 
   // Fetch product catalog array from live database node on mount
   useEffect(() => {
@@ -126,42 +134,18 @@ export default function ShopArea() {
           align-items: center;
         }
         .shop-sidebar-container ul li:hover { color: #C9A84C; }
-        
-        /* Custom styled Range track */
-        .price-slider-track {
-          width: 100%;
-          height: 5px;
-          background: #0066ff;
-          border-radius: 4px;
-          position: relative;
-          margin: 1rem 0;
-        }
-        
-        .price-label-row {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          font-family: var(--font-sans), sans-serif;
-          font-size: 0.9rem;
-          font-weight: 500;
-          color: #71717a;
-          margin-top: 0.75rem;
-        }
-        
-        .price-label-row .max-val {
-          color: #C9A84C;
-          font-weight: 700;
-        }
 
         .product-grid { display: grid; grid-template-columns: 1fr; gap: 2rem; width: 100%; }
         @media(min-width: 640px) { .product-grid { grid-template-columns: repeat(2, 1fr); } }
         @media(min-width: 1280px) { .product-grid { grid-template-columns: repeat(3, 1fr); } }
 
-        .sort-select {
-          padding: 0.5rem 1rem; border: 1px solid #e5e7eb; background: white;
-          color: #4b5563; font-size: 0.85rem; outline: none; cursor: pointer; border-radius: 2px; transition: border-color 0.2s;
+        .sort-select, .gender-select {
+          padding: 0.5rem 2rem 0.5rem 1rem; border: 1px solid #e5e7eb; background: white;
+          color: #1a1a1a; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.05em;
+          text-transform: uppercase; outline: none; cursor: pointer; border-radius: 2px; 
+          transition: border-color 0.2s; appearance: none; font-family: monospace;
         }
-        .sort-select:focus { border-color: #C9A84C; }
+        .sort-select:focus, .gender-select:focus { border-color: #C9A84C; }
 
         .breadcrumb-link { font-size: 0.72rem; color: #9ca3af; letter-spacing: 0.1em; text-transform: uppercase; text-decoration: none; transition: color 0.3s ease; }
         .breadcrumb-link:hover { color: #C9A84C; }
@@ -177,7 +161,7 @@ export default function ShopArea() {
         }
         .sc:hover .sco { opacity: 1; pointer-events: auto; }
 
-        /* Ensure overlay layout controls function fully on touch viewports */
+        /* Mobile touch configuration styling overrides */
         @media (max-width: 1023px) {
           .sco { opacity: 1; background-color: transparent; pointer-events: auto; align-items: flex-start; justify-content: flex-start; padding: 0.5rem; gap: 0.35rem; }
           .action-btn { background: rgba(26,26,26,0.9) !important; padding: 0.4rem 0.6rem !important; font-size: 0.55rem !important; }
@@ -205,12 +189,18 @@ export default function ShopArea() {
         }
         .shop-whatsapp-btn:hover { background-color: #20b558; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(37, 211, 102, 0.4); }
 
+        /* Adaptive Visibility Breaks */
+        .gender-mobile-wrapper { display: block; margin-top: 2rem; width: 100%; }
+        .gender-desktop-wrapper { display: none; }
+
         @media (max-width: 1023px) {
           .desktop-only-stat { display: none !important; }
           .shop-sidebar-container { display: none !important; }
         }
         @media (min-width: 1024px) {
           .mobile-only-filter { display: none !important; }
+          .gender-mobile-wrapper { display: none; }
+          .gender-desktop-wrapper { display: block; margin-top: 2.5rem; border-bottom: 1px solid #e5e7eb; width: max-content; padding-bottom: 2px; }
         }
 
         .gender-tab-btn {
@@ -221,7 +211,7 @@ export default function ShopArea() {
         }
         .gender-tab-btn.active { color: #1a1a1a; }
         .gender-tab-btn.active::after {
-          content: ''; position: absolute; bottom: -2px; left: 1rem; right: 1rem; height: 2px; background-color: #C9A84C;
+          content: ''; position: absolute; bottom: -3px; left: 1rem; right: 1rem; height: 2px; background-color: #C9A84C;
         }
       `}</style>
 
@@ -236,15 +226,26 @@ export default function ShopArea() {
           <h1 style={{ fontFamily: "var(--font-playfair), Georgia, serif", fontSize: "clamp(2.2rem, 5vw, 4rem)", fontWeight: 700, color: "#1a1a1a", marginBottom: "1rem", lineHeight: 1.1 }}>Our Collection</h1>
           <p style={{ fontSize: "0.9rem", color: "#6b7280", maxWidth: "500px", lineHeight: 1.8 }}>Discover premium ready-to-wear expressions and custom African heritage designs constructed with architectural care.</p>
           
-          {/* ⚡ FIXED: Overflow-X handling on modern viewports prevents horizontal layout squishing */}
-          <div style={{ width: "100%", overflowX: "auto", WebkitOverflowScrolling: "touch", marginTop: "2.5rem", borderBottom: "1px solid #e5e7eb" }} className="scrollbar-hide">
-            <div style={{ display: "flex", gap: "0.25rem", paddingBottom: "2px", width: "max-content" }}>
-              {[
-                { id: "all", label: "All Collection" },
-                { id: "Men", label: "Men" },
-                { id: "Women", label: "Women" },
-                { id: "Both", label: "Bespoke Unisex" }
-              ].map((tab) => (
+          {/* 📱 Mobile Dynamic Dropdown Selector */}
+          <div className="gender-mobile-wrapper">
+            <div className="relative flex items-center w-full max-w-xs">
+              <select 
+                className="gender-select w-full" 
+                value={selectedGender} 
+                onChange={(e) => handleGenderChange(e.target.value)}
+              >
+                {genderOptions.map((opt) => (
+                  <option key={opt.id} value={opt.id}>{opt.label}</option>
+                ))}
+              </select>
+              <ChevronDown size={14} className="absolute right-3 text-zinc-500 pointer-events-none" />
+            </div>
+          </div>
+
+          {/* 💻 Desktop Horizon Navigation Link Bar */}
+          <div className="gender-desktop-wrapper">
+            <div style={{ display: "flex", gap: "0.25rem" }}>
+              {genderOptions.map((tab) => (
                 <button
                   key={tab.id}
                   type="button"
@@ -261,7 +262,7 @@ export default function ShopArea() {
 
       <div className="container-custom" style={{ paddingTop: "4rem", paddingBottom: "6rem", paddingLeft: "1.5rem", paddingRight: "1.5rem" }}>
         
-        {/* Mobile Filter Toggle & Sort Header */}
+        {/* Sorting & Filter Interactivity Header */}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2.5rem", paddingBottom: "1.5rem", borderBottom: "1px solid #f0ebe3", gap: "1rem", flexWrap: "wrap" }}>
           <button 
             type="button"
@@ -276,18 +277,20 @@ export default function ShopArea() {
             Showing <span style={{ color: "#1a1a1a", fontWeight: 600 }}>{filteredProducts.length}</span> of {products.length} active design records
           </p>
 
-          <div style={{ display: "flex", alignItems: "center", gap: "1rem", marginLeft: "auto" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "1rem", marginLeft: "auto", position: "relative" }}>
             <span style={{ fontSize: "0.85rem", color: "#6b7280" }} className="desktop-only-stat">Sort framework:</span>
-            <select className="sort-select" value={sortOption} onChange={(e) => setSortOption(e.target.value)}>
-              <option value="default">Default Framework</option>
-              <option value="low-to-high">Price: Low to High</option>
-              <option value="high-to-low">Price: High to Low</option>
-            </select>
+            <div className="relative flex items-center">
+              <select className="sort-select" value={sortOption} onChange={(e) => setSortOption(e.target.value)}>
+                <option value="default">Default Framework</option>
+                <option value="low-to-high">Price: Low to High</option>
+                <option value="high-to-low">Price: High to Low</option>
+              </select>
+              <ChevronDown size={12} className="absolute right-3 text-zinc-500 pointer-events-none" />
+            </div>
           </div>
         </div>
 
         <div className="shop-layout">
-          {/* Desktop Sidebar Layout */}
           <div className="shop-sidebar-container">
             <ShopSidebar isMobileOpen={isMobileFilterOpen} setIsMobileOpen={setIsMobileFilterOpen} />
           </div>
@@ -311,7 +314,6 @@ export default function ShopArea() {
                   <div key={product._id} className="sc">
                     <div style={{ position: "relative", overflow: "hidden", backgroundColor: "#FAF7F4", aspectRatio: "3/4", marginBottom: "1.25rem", borderRadius: "2px" }}>
                       
-                      {/* Image Core Layer Linkage */}
                       <Link href={`/shop/${product.slug}`} style={{ display: "block", width: "100%", height: "100%" }}>
                         {product.images?.[0] ? (
                           <Image src={product.images[0]} alt={product.name} fill className="sci" style={{ objectFit: "cover" }} sizes="(max-width:640px) 100vw,(max-width:1024px) 50vw,33vw" />
@@ -320,12 +322,10 @@ export default function ShopArea() {
                         )}
                       </Link>
 
-                      {/* Floating Meta Scope Tag */}
                       <div style={{ position: "absolute", top: "1rem", left: "1rem", backgroundColor: "white", padding: "0.3rem 0.875rem", fontSize: "0.6rem", letterSpacing: "0.15em", textTransform: "uppercase", fontWeight: 700, color: goldColor, borderRadius: "1px", pointerEvents: "none", border: "1px solid #f0ebe3" }}>
                         {product.category}
                       </div>
 
-                      {/* Interactive Wishlist Button Overlay Frame */}
                       <button 
                         type="button"
                         onClick={() => toggleWishlist(product)}
@@ -335,7 +335,6 @@ export default function ShopArea() {
                         <Heart size={15} color="#C9A84C" fill={isInWishlist(product._id) ? goldColor : "transparent"} />
                       </button>
 
-                      {/* Interactive Hover Actions Layout Grid */}
                       <div className="sco">
                         <button type="button" className="action-btn" onClick={() => addToCart(product, 1)}>
                           <ShoppingBag size={13} /> Add
@@ -347,7 +346,6 @@ export default function ShopArea() {
 
                     </div>
                     
-                    {/* Typography Breakdown Row */}
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "0.5rem" }}>
                       <div style={{ textAlign: "left", minWidth: 0, flex: 1 }}>
                         <Link href={`/shop/${product.slug}`} style={{ textDecoration: "none" }}>
@@ -365,7 +363,7 @@ export default function ShopArea() {
         </div>
       </div>
 
-      {/* Mobile Sidebar Backing Drawer Portal Trigger */}
+      {/* Drawer Overlay for Mobile Sidebar Filters */}
       {isMobileFilterOpen && (
         <div style={{ position: "fixed", inset: 0, zIndex: 50, display: "flex" }} className="mobile-only-filter">
           <div style={{ position: "absolute", inset: 0, backgroundColor: "rgba(0,0,0,0.4)" }} onClick={() => setIsMobileFilterOpen(false)} />
@@ -378,7 +376,7 @@ export default function ShopArea() {
         </div>
       )}
 
-      {/* Made-To-Measure WhatsApp Order Actions Section */}
+      {/* Made-To-Measure WhatsApp Call-to-Action Section */}
       <div style={{ backgroundColor: "#FAF7F4", borderTop: "1px solid #f0ebe3", paddingTop: "5rem", paddingBottom: "5rem", textAlign: "center", paddingLeft: "1.5rem", paddingRight: "1.5rem", width: "100%", boxSizing: "border-box" }}>
         <p style={{ fontSize: "0.7rem", letterSpacing: "0.25em", textTransform: "uppercase", color: goldColor, fontWeight: 600, marginBottom: "1rem", display: "block" }}>Bespoke Assembly</p>
         <h2 style={{ fontFamily: "var(--font-playfair), Georgia, serif", fontSize: "clamp(1.5rem, 3vw, 2.5rem)", fontWeight: 700, color: "#1a1a1a", marginBottom: "1rem" }}>Made-to-Measure Configurations</h2>
@@ -390,12 +388,5 @@ export default function ShopArea() {
         </a>
       </div>
     </>
-  );
-}
-
-// Quick component abstraction icon alignment safety hook
-function XIcon(props: React.SVGProps<SVGSVGElement>) {
-  return (
-    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
   );
 }

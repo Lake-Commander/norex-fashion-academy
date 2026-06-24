@@ -129,19 +129,19 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
   };
 
   return (
-    <div style={{ minHeight: "100vh", backgroundColor: "white" }}>
+    <div style={{ minHeight: "100vh", backgroundColor: "white", width: "100%", overflowX: "hidden" }}>
       <style>{`
-        .pdg { display: grid; grid-template-columns: 1fr; gap: 4rem; position: relative; }
-        @media(min-width: 1024px) { .pdg { grid-template-columns: 1fr 1.2fr; } }
+        .pdg { display: grid; grid-template-columns: 1fr; gap: 2.5rem; position: relative; width: 100%; box-sizing: border-box; }
+        @media(min-width: 1024px) { .pdg { grid-template-columns: 1fr 1.2fr; gap: 4rem; } }
 
         .breadcrumb-link { font-size: 0.72rem; color: #9ca3af; letter-spacing: 0.1em; text-transform: uppercase; text-decoration: none; transition: color 0.3s ease; }
         .breadcrumb-link:hover { color: #C9A84C; }
 
-        .sz { border: 1px solid #e5e7eb; padding: 0.6rem 1.25rem; font-size: 0.8rem; cursor: pointer; transition: all 0.3s ease; background: white; font-family: inherit; border-radius: 2px; font-weight: 500; color: #4b5563; }
-        .sz:hover { border-color: #C9A84C; color: #C9A84C; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(201, 168, 76, 0.15); }
+        .sz { border: 1px solid #e5e7eb; padding: 0.5rem 1rem; font-size: 0.75rem; cursor: pointer; transition: all 0.3s ease; background: white; font-family: inherit; border-radius: 2px; font-weight: 500; color: #4b5563; }
+        .sz:hover { border-color: #C9A84C; color: #C9A84C; }
         .sz.active { border-color: #1a1a1a; color: #1a1a1a; background-color: #FAF7F4; font-weight: 700; }
 
-        .image-wrapper { position: relative; aspect-ratio: 3/4; overflow: hidden; background-color: #FAF7F4; border-radius: 2px; border: 1px solid #f0ebe3; }
+        .image-wrapper { position: relative; aspect-ratio: 3/4; overflow: hidden; background-color: #FAF7F4; border-radius: 2px; border: 1px solid #f0ebe3; width: 100%; }
         
         .look-spinning-badge {
           position: absolute; top: 1rem; left: 1rem;
@@ -154,8 +154,9 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
         .image-roll-grid {
           display: grid;
           grid-template-columns: repeat(4, 1fr);
-          gap: 0.75rem;
-          margin-top: 1rem;
+          gap: 0.5rem;
+          margin-top: 0.75rem;
+          width: 100%;
         }
 
         .roll-thumb-btn {
@@ -168,69 +169,94 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
           padding: 0;
           transition: all 0.3s ease;
           border-radius: 2px;
+          width: 100%;
         }
         .roll-thumb-btn:hover { border-color: #C9A84C; }
-        .roll-thumb-btn.active { border-color: #1a1a1a; ring: 1px solid #1a1a1a; }
+        .roll-thumb-btn.active { border-color: #1a1a1a; }
 
-        .btn-whatsapp { display: flex; align-items: center; justify-content: center; gap: 0.75rem; background-color: #25D366; color: white; padding: 1rem 2rem; font-size: 0.8rem; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; text-decoration: none; width: 100%; transition: all 0.3s ease; border-radius: 2px; border: none; cursor: pointer; }
-        .btn-whatsapp:hover { background-color: #20b558; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(37, 211, 102, 0.4); }
+        /* Unified responsive action button blocks */
+        .btn-whatsapp, .btn-gold-solid, .btn-wishlist {
+          display: flex; align-items: center; justify-content: center; gap: 0.75rem; 
+          padding: 1rem; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.12em; 
+          text-transform: uppercase; text-decoration: none; transition: all 0.3s ease; 
+          border-radius: 2px; cursor: pointer; width: 100%; box-sizing: border-box;
+        }
+        .btn-whatsapp { background-color: #25D366; color: white; border: none; }
+        .btn-whatsapp:hover { background-color: #20b558; }
+        .btn-gold-solid { background-color: #1a1a1a; color: white; border: 1px solid #1a1a1a; }
+        .btn-gold-solid:hover { background-color: #C9A84C; border-color: #C9A84C; }
+        .btn-wishlist { background-color: white; color: #4b5563; border: 1px solid #e5e7eb; }
+        .btn-wishlist:hover { border-color: #1a1a1a; color: #1a1a1a; }
 
-        .btn-gold-solid { display: flex; align-items: center; justify-content: center; gap: 0.75rem; background-color: #1a1a1a; color: white; padding: 1rem 2rem; font-size: 0.8rem; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; text-decoration: none; transition: all 0.3s ease; border-radius: 2px; border: 1px solid #1a1a1a; cursor: pointer; width: 100%; }
-        .btn-gold-solid:hover { background-color: #C9A84C; border-color: #C9A84C; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(201, 168, 76, 0.25); }
+        .qty-container-row { display: flex; flex-direction: column; gap: 1rem; width: 100%; }
+        @media (min-width: 480px) { .qty-container-row { flex-direction: row; } }
 
-        .btn-wishlist { display: flex; align-items: center; justify-content: center; gap: 0.75rem; background-color: white; color: #4b5563; padding: 1rem 2rem; font-size: 0.8rem; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; transition: all 0.3s ease; border-radius: 2px; border: 1px solid #e5e7eb; cursor: pointer; width: 100%; }
-        .btn-wishlist:hover { border-color: #1a1a1a; color: #1a1a1a; transform: translateY(-2px); }
-
-        .qty-wrapper { display: inline-flex; align-items: center; border: 1px solid #e5e7eb; border-radius: 2px; }
-        .qty-btn { background: white; border: none; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #1a1a1a; transition: all 0.2s; }
+        .qty-wrapper { display: inline-flex; align-items: center; border: 1px solid #e5e7eb; border-radius: 2px; width: 100%; justify-content: space-between; }
+        @media (min-width: 480px) { .qty-wrapper { width: auto; justify-content: flex-start; } }
+        
+        .qty-btn { background: white; border: none; width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #1a1a1a; transition: all 0.2s; }
         .qty-btn:hover { color: #C9A84C; background: #FAF7F4; }
-        .qty-input { width: 50px; height: 40px; text-align: center; border: none; border-left: 1px solid #e5e7eb; border-right: 1px solid #e5e7eb; font-size: 0.95rem; font-weight: 600; outline: none; background: white; color: #1a1a1a; }
+        .qty-input { width: 50px; height: 45px; text-align: center; border: none; border-left: 1px solid #e5e7eb; border-right: 1px solid #e5e7eb; font-size: 0.95rem; font-weight: 600; outline: none; background: white; color: #1a1a1a; }
 
-        .tab-btn { background: none; border: none; border-bottom: 2px solid transparent; padding: 1rem 1.5rem; font-size: 0.9rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #9ca3af; cursor: pointer; transition: all 0.3s; }
+        .tab-btn { background: none; border: none; border-bottom: 2px solid transparent; padding: 0.75rem 1rem; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: #9ca3af; cursor: pointer; transition: all 0.3s; white-space: nowrap; }
         .tab-btn.active { color: #C9A84C; border-bottom-color: #C9A84C; }
-        .tab-btn:hover:not(.active) { color: #1a1a1a; }
 
-        .pg { display: grid; grid-template-columns: 1fr; gap: 2rem; }
-        @media(min-width:640px){ .pg { grid-template-columns: repeat(2,1fr); } }
+        /* Handle responsive tab alignment */
+        .tabs-nav-bar { display: flex; justify-content: flex-start; border-bottom: 1px solid #e5e7eb; gap: 0.5rem; overflow-x: auto; WebkitOverflowScrolling: touch; padding-left: 1.5rem; }
+        @media (min-width: 640px) { .tabs-nav-bar { justify-content: center; padding-left: 0; } }
+
+        /* Handle responsive button splitting */
+        .action-split-row { display: flex; gap: 1rem; flexDirection: column; width: 100%; }
+        @media (min-width: 640px) { .action-split-row { flex-direction: row; } }
+
+        .pg { display: grid; grid-template-columns: 1fr; gap: 1.5rem; width: 100%; box-sizing: border-box; }
+        @media(min-width:640px){ .pg { grid-template-columns: repeat(2,1fr); gap: 2rem; } }
         @media(min-width:1024px){ .pg { grid-template-columns: repeat(3,1fr); } }
         
-        .pc { display: block; text-decoration: none; position: relative; background: white; border: 1px solid #f4f4f5; padding: 0.75rem; border-radius: 1px; }
-        .pc-img-frame { position: relative; overflow: hidden; aspect-ratio: 3/4; background-color: #FAF7F4; }
+        .pc { display: block; text-decoration: none; position: relative; background: white; border: 1px solid #f4f4f5; padding: 0.5rem; border-radius: 1px; width: 100%; box-sizing: border-box; }
+        .pc-img-frame { position: relative; overflow: hidden; aspect-ratio: 3/4; background-color: #FAF7F4; width: 100%; }
         .pc-img { transition: transform 0.7s ease; }
         .pc:hover .pc-img { transform: scale(1.03); }
 
-        .pc-overlay { position: absolute; inset: 0; background-color: rgba(0,0,0,0.12); display: flex; align-items: flex-end; justify-content: center; padding-bottom: 1.5rem; gap: 0.5rem; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 10; }
+        .pc-overlay { position: absolute; inset: 0; background-color: rgba(0,0,0,0.12); display: flex; align-items: flex-end; justify-content: center; padding-bottom: 1rem; gap: 0.5rem; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 10; }
         .pc:hover .pc-overlay { opacity: 1; pointer-events: auto; }
         
+        @media(max-width: 1023px) {
+          .pc-overlay { opacity: 1; background-color: transparent; pointer-events: auto; align-items: flex-start; justify-content: flex-start; padding: 0.5rem; }
+          .pc-action-btn { background: rgba(26,26,26,0.9) !important; padding: 0.4rem 0.6rem !important; font-size: 0.55rem !important; }
+        }
+
         .pc-action-btn { color: white; font-size: 0.65rem; letter-spacing: 0.12em; text-transform: uppercase; border: 1px solid rgba(255,255,255,0.8); padding: 0.5rem 1rem; transition: all 0.2s; font-weight: 700; background: rgba(26,26,26,0.8); border-radius: 1px; display: inline-flex; align-items: center; gap: 0.35rem; cursor: pointer; }
         .pc-action-btn:hover { background-color: #C9A84C; border-color: #C9A84C; }
-        .pc-wishlist-trigger { position: absolute; top: 0.75rem; right: 0.75rem; background: white; border: 1px solid #f4f4f5; border-radius: 50%; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 20; box-shadow: 0 4px 10px rgba(0,0,0,0.02); transition: transform 0.2s; }
-        .pc-wishlist-trigger:hover { transform: scale(1.08); }
+        .pc-wishlist-trigger { position: absolute; top: 0.5rem; right: 0.5rem; background: white; border: 1px solid #f4f4f5; border-radius: 50%; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 20; box-shadow: 0 4px 10px rgba(0,0,0,0.02); }
 
-        .form-input { width: 100%; padding: 0.875rem 1rem; border: 1px solid #e5e7eb; border-radius: 2px; font-size: 0.9rem; color: #1a1a1a; outline: none; transition: border-color 0.2s; font-family: inherit; }
-        .form-input:focus { border-color: #C9A84C; box-shadow: 0 0 0 1px #C9A84C; }
-        .btn-submit { align-self: flex-start; background-color: #1a1a1a; color: white; padding: 0.875rem 2rem; font-size: 0.8rem; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; border: 1px solid #1a1a1a; cursor: pointer; transition: all 0.3s ease; border-radius: 2px; }
-        .btn-submit:hover { background-color: #C9A84C; border-color: #C9A84C; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(201, 168, 76, 0.3); }
+        .form-input { width: 100%; padding: 0.875rem 1rem; border: 1px solid #e5e7eb; border-radius: 2px; font-size: 0.9rem; color: #1a1a1a; outline: none; transition: border-color 0.2s; font-family: inherit; box-sizing: border-box; }
+        .form-input:focus { border-color: #C9A84C; }
+        .btn-submit { background-color: #1a1a1a; color: white; padding: 0.875rem 2rem; font-size: 0.8rem; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; border: 1px solid #1a1a1a; cursor: pointer; transition: all 0.3s ease; border-radius: 2px; width: 100%; sm:width: auto; }
+        .btn-submit:hover { background-color: #C9A84C; border-color: #C9A84C; }
+        
+        .variation-row { display: grid; grid-template-columns: 1fr; gap: 1.5rem; margin-bottom: 2rem; }
+        @media (min-width: 560px) { .variation-row { grid-template-columns: 1fr 1fr; gap: 2rem; } }
       `}</style>
       
       {/* Breadcrumbs Row */}
-      <div style={{ paddingTop: "8rem", paddingBottom: "1.5rem", borderBottom: "1px solid #f0ebe3", backgroundColor: "#FAF7F4" }}>
-        <div className="container-custom">
-          <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", justifyContent: "flex-start" }}>
+      <div style={{ paddingTop: "8rem", paddingBottom: "1.5rem", borderBottom: "1px solid #f0ebe3", backgroundColor: "#FAF7F4", width: "100%" }}>
+        <div className="container-custom" style={{ paddingLeft: "1.5rem", paddingRight: "1.5rem" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flexWrap: "wrap", justifyContent: "flex-start" }}>
             <Link href="/" className="breadcrumb-link">Home</Link>
-            <span style={{ color: "#d1d5db" }}>/</span>
+            <span style={{ color: "#d1d5db", fontSize: "0.7rem" }}>/</span>
             <Link href="/shop" className="breadcrumb-link">Shop</Link>
-            <span style={{ color: "#d1d5db" }}>/</span>
-            <span style={{ fontSize: "0.72rem", color: "#C9A84C", letterSpacing: "0.1em", textTransform: "uppercase", fontWeight: 600 }}>{product.name}</span>
+            <span style={{ color: "#d1d5db", fontSize: "0.7rem" }}>/</span>
+            <span style={{ fontSize: "0.72rem", color: "#C9A84C", letterSpacing: "0.1em", textTransform: "uppercase", fontWeight: 600, display: "inline-block", maxWidth: "180px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{product.name}</span>
           </div>
         </div>
       </div>
 
-      <div className="container-custom" style={{ paddingTop: "4rem", paddingBottom: "4rem" }}>
+      <div className="container-custom" style={{ paddingTop: "3rem", paddingBottom: "4rem", paddingLeft: "1.5rem", paddingRight: "1.5rem" }}>
         <div className="pdg">
           
           {/* Left Media Stage */}
-          <div>
+          <div style={{ width: "100%" }}>
             <div className="image-wrapper">
               <div className="look-spinning-badge">
                 Look-{String(product.lookNumber || product.id || 1).padStart(2, "0")}
@@ -268,30 +294,30 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
           </div>
 
           {/* Right Product Parameters Details Panel */}
-          <div style={{ position: "sticky", top: "8rem", alignSelf: "flex-start", textAlign: "left" }}>
-            <p style={{ fontSize: "0.65rem", letterSpacing: "0.25em", textTransform: "uppercase", color: "#C9A84C", fontWeight: 600, marginBottom: "1rem" }}>{product.category}</p>
-            <h1 style={{ fontFamily: "var(--font-playfair), Georgia, serif", fontSize: "clamp(2rem, 4vw, 3rem)", fontWeight: 700, color: "#1a1a1a", lineHeight: 1.1, marginBottom: "1rem" }}>{product.name}</h1>
-            <p style={{ fontSize: "1.75rem", fontWeight: 700, color: "#C9A84C", marginBottom: "1.5rem", fontFamily: "monospace" }}>{formatPrice(product.price)}</p>
+          <div style={{ textAlign: "left", width: "100%" }}>
+            <p style={{ fontSize: "0.65rem", letterSpacing: "0.25em", textTransform: "uppercase", color: "#C9A84C", fontWeight: 600, marginBottom: "0.75rem" }}>{product.category}</p>
+            <h1 style={{ fontFamily: "var(--font-playfair), Georgia, serif", fontSize: "clamp(1.8rem, 4vw, 3rem)", fontWeight: 700, color: "#1a1a1a", lineHeight: 1.1, marginBottom: "1rem" }}>{product.name}</h1>
+            <p style={{ fontSize: "1.5rem", fontWeight: 700, color: "#C9A84C", marginBottom: "1.5rem", fontFamily: "monospace" }}>{formatPrice(product.price)}</p>
             
             <div style={{ height: "1px", backgroundColor: "#f0ebe3", marginBottom: "1.5rem" }} />
-            <p style={{ fontSize: "0.95rem", color: "#6b7280", lineHeight: 1.9, marginBottom: "2rem" }}>{product.description}</p>
+            <p style={{ fontSize: "0.9rem", color: "#6b7280", lineHeight: 1.8, marginBottom: "2rem" }}>{product.description}</p>
             
             {product.gender === "Both" && (
               <div style={{ marginBottom: "1.5rem" }}>
-                <p style={{ fontSize: "0.7rem", letterSpacing: "0.2em", textTransform: "uppercase", fontWeight: 600, color: "#1a1a1a", marginBottom: "0.875rem" }}>Specify Fit Profile</p>
-                <div style={{ display: "flex", gap: "0.5rem" }}>
+                <p style={{ fontSize: "0.7rem", letterSpacing: "0.2em", textTransform: "uppercase", fontWeight: 600, color: "#1a1a1a", marginBottom: "0.75rem" }}>Specify Fit Profile</p>
+                <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
                   {["Female", "Male"].map((genderOption) => (
-                    <button key={genderOption} type="button" onClick={() => setSelectedGender(genderOption)} className={`sz ${selectedGender === genderOption ? "active" : ""}`}>
-                      {genderOption === "Female" ? "Women's Fit Profile" : "Men's Fit Profile"}
+                    <button key={genderOption} type="button" onClick={() => setSelectedGender(genderOption)} className={`sz ${selectedGender === genderOption ? "active" : ""}`} style={{ flex: "1 1 auto", textAlign: "center" }}>
+                      {genderOption === "Female" ? "Women's Fit" : "Men's Fit"}
                     </button>
                   ))}
                 </div>
               </div>
             )}
 
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2rem", marginBottom: "2.5rem" }}>
+            <div className="variation-row">
               <div>
-                <p style={{ fontSize: "0.7rem", letterSpacing: "0.2em", textTransform: "uppercase", fontWeight: 600, color: "#1a1a1a", marginBottom: "0.875rem" }}>Sizes</p>
+                <p style={{ fontSize: "0.7rem", letterSpacing: "0.2em", textTransform: "uppercase", fontWeight: 600, color: "#1a1a1a", marginBottom: "0.75rem" }}>Sizes</p>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
                   {product.sizes?.map((size: string) => (
                     <button key={size} type="button" onClick={() => setSelectedSize(size)} className={`sz ${selectedSize === size ? "active" : ""}`}>{size}</button>
@@ -299,7 +325,7 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
                 </div>
               </div>
               <div>
-                <p style={{ fontSize: "0.7rem", letterSpacing: "0.2em", textTransform: "uppercase", fontWeight: 600, color: "#1a1a1a", marginBottom: "0.875rem" }}>Colors</p>
+                <p style={{ fontSize: "0.7rem", letterSpacing: "0.2em", textTransform: "uppercase", fontWeight: 600, color: "#1a1a1a", marginBottom: "0.75rem" }}>Colors</p>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
                   {product.colors?.map((color: string) => (
                     <button key={color} type="button" onClick={() => setSelectedColor(color)} className={`sz ${selectedColor === color ? "active" : ""}`}>{color}</button>
@@ -308,25 +334,25 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
               </div>
             </div>
             
-            <div style={{ display: "flex", flexDirection: "column", gap: "1rem", marginBottom: "2rem" }}>
-              <div style={{ display: "flex", gap: "1rem" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "1rem", marginBottom: "2rem", width: "100%" }}>
+              <div className="qty-container-row">
                 <div className="qty-wrapper">
-                  <button type="button" className="qty-btn" onClick={() => setQuantity(Math.max(1, quantity - 1))}><Minus size={16}/></button>
+                  <button type="button" className="qty-btn" onClick={() => setQuantity(Math.max(1, quantity - 1))}><Minus size={14}/></button>
                   <input type="text" value={quantity} readOnly className="qty-input" />
-                  <button type="button" className="qty-btn" onClick={() => setQuantity(quantity + 1)}><Plus size={16}/></button>
+                  <button type="button" className="qty-btn" onClick={() => setQuantity(quantity + 1)}><Plus size={14}/></button>
                 </div>
                 <button type="button" onClick={handleAddToCart} className="btn-gold-solid">
-                  <ShoppingBag size={18} /> Add to Cart
+                  <ShoppingBag size={16} /> Add to Cart
                 </button>
               </div>
 
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
+              <div className="action-split-row">
                 <button type="button" onClick={() => toggleWishlist(getContextPayload())} className="btn-wishlist">
-                  <Heart size={18} fill={isInWishlist(product._id) ? "#C9A84C" : "transparent"} color={isInWishlist(product._id) ? "#C9A84C" : "#4b5563"} /> 
+                  <Heart size={16} fill={isInWishlist(product._id) ? "#C9A84C" : "transparent"} color={isInWishlist(product._id) ? "#C9A84C" : "#4b5563"} /> 
                   {isInWishlist(product._id) ? "Saved in Registry" : "Wishlist"}
                 </button>
                 <button type="button" onClick={handleWhatsAppOrderRedirect} className="btn-whatsapp">
-                  <MessageCircle size={18} /> WhatsApp
+                  <MessageCircle size={16} /> WhatsApp Order
                 </button>
               </div>
             </div>
@@ -336,26 +362,26 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
       </div>
 
       {/* Specifications Tabs */}
-      <div style={{ backgroundColor: "#FAF7F4", borderTop: "1px solid #f0ebe3", borderBottom: "1px solid #f0ebe3" }}>
-        <div className="container-custom">
-          <div style={{ display: "flex", justifyContent: "center", borderBottom: "1px solid #e5e7eb", gap: "1rem", flexWrap: "wrap" }}>
+      <div style={{ backgroundColor: "#FAF7F4", borderTop: "1px solid #f0ebe3", borderBottom: "1px solid #f0ebe3", width: "100%" }}>
+        <div className="container-custom" style={{ paddingLeft: "0rem", paddingRight: "0rem" }}>
+          <div className="tabs-nav-bar scrollbar-hide">
             <button type="button" className={`tab-btn ${activeTab === 'description' ? 'active' : ''}`} onClick={() => setActiveTab('description')}>Description</button>
             <button type="button" className={`tab-btn ${activeTab === 'info' ? 'active' : ''}`} onClick={() => setActiveTab('info')}>Additional Info</button>
             <button type="button" className={`tab-btn ${activeTab === 'reviews' ? 'active' : ''}`} onClick={() => setActiveTab('reviews')}>Reviews ({reviews.length})</button>
           </div>
 
-          <div style={{ padding: "4rem 0", maxWidth: "800px", margin: "0 auto", textAlign: "left" }}>
-            {activeTab === 'description' && <div><h3 style={{ fontFamily: "var(--font-playfair), serif", fontSize: "1.25rem", marginBottom: "1rem" }} className="font-bold uppercase">Description</h3><p style={{ color: "#4b5563" }} className="text-sm font-light leading-relaxed">{product.description}</p></div>}
+          <div style={{ padding: "3rem 1.5rem", maxWidth: "800px", margin: "0 auto", textAlign: "left", boxSizing: "border-box" }}>
+            {activeTab === 'description' && <div><h3 style={{ fontFamily: "var(--font-playfair), serif", fontSize: "1.1rem", marginBottom: "1rem" }} className="font-bold uppercase">Description</h3><p style={{ color: "#4b5563", lineHeight: 1.7 }} className="text-sm font-light">{product.description}</p></div>}
             
             {activeTab === 'info' && (
-              <div>
-                <h3 style={{ fontFamily: "var(--font-playfair), serif", fontSize: "1.25rem", marginBottom: "1.5rem" }} className="font-bold uppercase">Additional Info</h3>
+              <div style={{ width: "100%", overflowX: "hidden" }}>
+                <h3 style={{ fontFamily: "var(--font-playfair), serif", fontSize: "1.1rem", marginBottom: "1.5rem" }} className="font-bold uppercase">Additional Info</h3>
                 <table style={{ width: "100%", fontSize: "0.85rem" }} className="divide-y divide-zinc-200">
                   <tbody>
                     {product.additionalInfo?.map((i: any, idx: number) => (
                       <tr key={idx}>
-                        <td style={{ padding: "0.6rem 0.5rem", fontWeight: 700 }} className="font-mono text-[10px] tracking-wide text-zinc-400 uppercase">{i.label}</td>
-                        <td style={{ padding: "0.6rem 0.5rem" }} className="text-zinc-600 font-light">{i.value}</td>
+                        <td style={{ padding: "0.6rem 0.5rem 0.6rem 0", fontWeight: 700, width: "35%" }} className="font-mono text-[9px] tracking-wide text-zinc-400 uppercase">{i.label}</td>
+                        <td style={{ padding: "0.6rem 0" }} className="text-zinc-600 font-light">{i.value}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -364,30 +390,30 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
             )}
 
             {activeTab === 'reviews' && (
-              <div>
-                <h3 style={{ fontFamily: "var(--font-playfair), serif", fontSize: "1.25rem", marginBottom: "2rem" }} className="font-bold uppercase">Customer Reviews</h3>
+              <div style={{ width: "100%" }}>
+                <h3 style={{ fontFamily: "var(--font-playfair), serif", fontSize: "1.1rem", marginBottom: "2rem" }} className="font-bold uppercase">Customer Reviews</h3>
                 
                 {reviews.length === 0 ? (
-                  <p className="text-zinc-400 font-mono text-xs uppercase py-4">No validation critiques left for this piece yet.</p>
+                  <p className="text-zinc-400 font-mono text-xs uppercase py-2">No validation critiques left for this piece yet.</p>
                 ) : (
                   reviews.map((rev: any, i: number) => (
-                    <div key={i} style={{ display: "flex", gap: "1rem", marginBottom: "1.5rem" }} className="border-b border-zinc-100 pb-3">
-                      <div style={{ width: "40px", height: "40px", backgroundColor: "#1a1a1a", color: "white", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: "bold" }}>{rev.user?.[0] || "U"}</div>
-                      <div>
-                        <div style={{ display: "flex", gap: "0.25rem", marginBottom: "0.25rem" }}>
+                    <div key={i} style={{ display: "flex", gap: "1rem", marginBottom: "1.5rem" }} className="border-b border-zinc-100 pb-4">
+                      <div style={{ width: "36px", height: "36px", backgroundColor: "#1a1a1a", color: "white", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: "bold", fontSize: "0.8rem", flexShrink: 0 }}>{rev.user?.[0] || "U"}</div>
+                      <div style={{ minWidth: 0, flex: 1 }}>
+                        <div style={{ display: "flex", gap: "0.15rem", marginBottom: "0.25rem" }}>
                           {[1, 2, 3, 4, 5].map((s) => (
-                            <Star key={s} size={13} fill={s <= rev.rating ? "#C9A84C" : "transparent"} color={s <= rev.rating ? "#C9A84C" : "#e5e7eb"} />
+                            <Star key={s} size={11} fill={s <= rev.rating ? "#C9A84C" : "transparent"} color={s <= rev.rating ? "#C9A84C" : "#e5e7eb"} />
                           ))}
                         </div>
                         <p className="text-xs font-bold text-zinc-900 uppercase tracking-wide">{rev.user}</p>
-                        <p style={{ color: "#4b5563" }} className="text-xs mt-1 font-light">{rev.comment}</p>
+                        <p style={{ color: "#4b5563", lineHeight: 1.6 }} className="text-xs mt-1 font-light break-words">{rev.comment}</p>
                       </div>
                     </div>
                   ))
                 )}
                 
-                <div style={{ marginTop: "3rem", padding: "2.5rem", border: "1px solid #f0ebe3", backgroundColor: "white" }}>
-                  <h4 style={{ fontFamily: "var(--font-playfair), serif", fontSize: "1.15rem", marginBottom: "1.5rem" }} className="font-bold uppercase">Add a Review</h4>
+                <div style={{ marginTop: "2.5rem", padding: "1.5rem", border: "1px solid #f0ebe3", backgroundColor: "white", boxSizing: "border-box" }}>
+                  <h4 style={{ fontFamily: "var(--font-playfair), serif", fontSize: "1rem", marginBottom: "1.25rem" }} className="font-bold uppercase">Add a Review</h4>
                   <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
                     <div style={{ display: "flex", gap: "0.25rem" }}>
                       {[1,2,3,4,5].map((s) => (
@@ -400,7 +426,7 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
                         />
                       ))}
                     </div>
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
                       <input value={name} onChange={(e) => setName(e.target.value)} name="name" placeholder="Name" className="form-input" required />
                       <input value={email} onChange={(e) => setEmail(e.target.value)} type="email" name="email" placeholder="Email" className="form-input" required />
                     </div>
@@ -416,10 +442,10 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
       
       {/* RELATED PRODUCTS GRID */}
       {relatedProducts.length > 0 && (
-        <div style={{ paddingTop: "5rem", paddingBottom: "6rem", backgroundColor: "white" }}>
-          <div className="container-custom">
-            <div style={{ marginBottom: "3rem", textAlign: "center" }}>
-              <h2 style={{ fontFamily: "var(--font-playfair), Georgia, serif", fontSize: "clamp(1.75rem, 4vw, 2.5rem)", fontWeight: 700, color: "#1a1a1a", textTransform: "uppercase" }}>Related Products</h2>
+        <div style={{ paddingTop: "4rem", paddingBottom: "5rem", backgroundColor: "white", width: "100%" }}>
+          <div className="container-custom" style={{ paddingLeft: "1.5rem", paddingRight: "1.5rem" }}>
+            <div style={{ marginBottom: "2.5rem", textAlign: "center" }}>
+              <h2 style={{ fontFamily: "var(--font-playfair), Georgia, serif", fontSize: "clamp(1.5rem, 4vw, 2.2rem)", fontWeight: 700, color: "#1a1a1a", textTransform: "uppercase" }}>Related Products</h2>
             </div>
             <div className="pg">
               {relatedProducts.map((p) => {
@@ -437,7 +463,7 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
                           <ShoppingBag size={12} /> Add
                         </button>
                         <Link href={`/shop/${p.slug}`} className="pc-action-btn" style={{ textDecoration: "none" }}>
-                          View Details
+                          Details
                         </Link>
                       </div>
 
@@ -451,14 +477,14 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
                       </button>
                     </div>
 
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", paddingTop: "1rem" }}>
-                      <div style={{ textAlign: "left" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", paddingTop: "1rem", gap: "0.5rem" }}>
+                      <div style={{ textAlign: "left", minWidth: 0, flex: 1 }}>
                         <Link href={`/shop/${p.slug}`} style={{ textDecoration: "none" }}>
-                          <h3 style={{ fontFamily: "var(--font-playfair), Georgia, serif", fontSize: "1.05rem", fontWeight: 700, color: "#1a1a1a", marginBottom: "0.25rem" }}>{p.name}</h3>
+                          <h3 style={{ fontFamily: "var(--font-playfair), Georgia, serif", fontSize: "1rem", fontWeight: 700, color: "#1a1a1a", marginBottom: "0.25rem", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{p.name}</h3>
                         </Link>
-                        <p style={{ fontSize: "0.8rem", color: "#9ca3af", fontWeight: 500 }}>{p.category}</p>
+                        <p style={{ fontSize: "0.75rem", color: "#9ca3af", fontWeight: 500 }}>{p.category}</p>
                       </div>
-                      <p style={{ fontSize: "1rem", fontWeight: 700, color: "#C9A84C", marginLeft: "1rem", fontFamily: "monospace" }}>{formatPrice(p.price)}</p>
+                      <p style={{ fontSize: "0.95rem", fontWeight: 700, color: "#C9A84C", flexShrink: 0, fontFamily: "monospace" }}>{formatPrice(p.price)}</p>
                     </div>
                   </div>
                 );

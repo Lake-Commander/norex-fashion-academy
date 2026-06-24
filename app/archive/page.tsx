@@ -38,7 +38,8 @@ export default function ArchivePage() {
     <main className="min-h-screen bg-background text-foreground transition-colors duration-500 flex flex-col justify-between overflow-x-hidden text-left">
       <Header />
 
-      <section className="relative w-full py-16 border-b border-border/40">
+      {/* ⚡ FIXED: Adjusted from py-16 to explicit pt-32 on mobile and md:pt-40 on desktop to prevent absolute nav content masking */}
+      <section className="relative w-full pt-32 pb-16 md:pt-40 md:pb-24 border-b border-border/40">
         <div className="mx-auto max-w-7xl w-full px-6 md:px-8 space-y-12">
           
           {/* Header */}
