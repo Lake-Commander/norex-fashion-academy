@@ -85,6 +85,7 @@ export default function ShopArea() {
           grid-template-columns: 1fr; 
           gap: 2rem; 
           align-items: start;
+          width: 100%;
         }
         @media(min-width: 1024px) { 
           .shop-layout { 
@@ -126,7 +127,7 @@ export default function ShopArea() {
         }
         .shop-sidebar-container ul li:hover { color: #C9A84C; }
         
-        /* Custom styled Range track matching your image */
+        /* Custom styled Range track */
         .price-slider-track {
           width: 100%;
           height: 5px;
@@ -152,7 +153,7 @@ export default function ShopArea() {
           font-weight: 700;
         }
 
-        .product-grid { display: grid; grid-template-columns: 1fr; gap: 2rem; }
+        .product-grid { display: grid; grid-template-columns: 1fr; gap: 2rem; width: 100%; }
         @media(min-width: 640px) { .product-grid { grid-template-columns: repeat(2, 1fr); } }
         @media(min-width: 1280px) { .product-grid { grid-template-columns: repeat(3, 1fr); } }
 
@@ -165,7 +166,7 @@ export default function ShopArea() {
         .breadcrumb-link { font-size: 0.72rem; color: #9ca3af; letter-spacing: 0.1em; text-transform: uppercase; text-decoration: none; transition: color 0.3s ease; }
         .breadcrumb-link:hover { color: #C9A84C; }
         
-        .sc { display: block; position: relative; }
+        .sc { display: block; position: relative; width: 100%; }
         .sci { transition: transform 0.7s cubic-bezier(0.25, 1, 0.5, 1); }
         .sc:hover .sci { transform: scale(1.03); }
         
@@ -175,6 +176,12 @@ export default function ShopArea() {
           opacity: 0; transition: opacity 0.3s ease; pointer-events: none; z-index: 10;
         }
         .sc:hover .sco { opacity: 1; pointer-events: auto; }
+
+        /* Ensure overlay layout controls function fully on touch viewports */
+        @media (max-width: 1023px) {
+          .sco { opacity: 1; background-color: transparent; pointer-events: auto; align-items: flex-start; justify-content: flex-start; padding: 0.5rem; gap: 0.35rem; }
+          .action-btn { background: rgba(26,26,26,0.9) !important; padding: 0.4rem 0.6rem !important; font-size: 0.55rem !important; }
+        }
 
         .action-btn {
           color: white; font-size: 0.65rem; letter-spacing: 0.12em; text-transform: uppercase;
@@ -191,15 +198,16 @@ export default function ShopArea() {
 
         .shop-whatsapp-btn {
           display: inline-flex; align-items: center; justify-content: center; gap: 0.75rem;
-          background-color: #25D366; color: white; padding: 0.875rem 2.5rem;
+          background-color: #25D366; color: white; padding: 0.875rem 2rem;
           font-size: 0.8rem; font-weight: 600; letter-spacing: 0.15em;
           text-transform: uppercase; text-decoration: none; transition: all 0.3s ease; border-radius: 2px;
-          width: max-content; margin: 0 auto;
+          max-width: 100%; width: 100%; sm:width: auto; box-sizing: border-box;
         }
         .shop-whatsapp-btn:hover { background-color: #20b558; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(37, 211, 102, 0.4); }
 
         @media (max-width: 1023px) {
           .desktop-only-stat { display: none !important; }
+          .shop-sidebar-container { display: none !important; }
         }
         @media (min-width: 1024px) {
           .mobile-only-filter { display: none !important; }
@@ -207,53 +215,58 @@ export default function ShopArea() {
 
         .gender-tab-btn {
           font-size: 0.75rem; font-family: monospace; font-weight: 700;
-          padding: 0.5rem 1.5rem; background: transparent; border: none; cursor: pointer;
+          padding: 0.5rem 1rem; background: transparent; border: none; cursor: pointer;
           color: #9ca3af; transition: all 0.3s; text-transform: uppercase; position: relative;
+          white-space: nowrap;
         }
         .gender-tab-btn.active { color: #1a1a1a; }
         .gender-tab-btn.active::after {
-          content: ''; position: absolute; bottom: -2px; left: 1.5rem; right: 1.5rem; height: 2px; background-color: #C9A84C;
+          content: ''; position: absolute; bottom: -2px; left: 1rem; right: 1rem; height: 2px; background-color: #C9A84C;
         }
       `}</style>
 
       {/* Hero Header Area */}
-      <div style={{ paddingTop: "8rem", paddingBottom: "4rem", borderBottom: "1px solid #f0ebe3", backgroundColor: "#FAF7F4" }}>
-        <div className="container-custom">
+      <div style={{ paddingTop: "8rem", paddingBottom: "4rem", borderBottom: "1px solid #f0ebe3", backgroundColor: "#FAF7F4", width: "100%", overflowX: "hidden" }}>
+        <div className="container-custom" style={{ paddingLeft: "1.5rem", paddingRight: "1.5rem" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "1rem" }}>
             <Link href="/" className="breadcrumb-link">Home</Link>
             <span style={{ color: "#d1d5db" }}>/</span>
             <span style={{ fontSize: "0.72rem", color: "#C9A84C", letterSpacing: "0.1em", textTransform: "uppercase", fontWeight: 600 }}>Shop</span>
           </div>
-          <h1 style={{ fontFamily: "var(--font-playfair), Georgia, serif", fontSize: "clamp(2.5rem, 5vw, 4rem)", fontWeight: 700, color: "#1a1a1a", marginBottom: "1rem", lineHeight: 1.1 }}>Our Collection</h1>
+          <h1 style={{ fontFamily: "var(--font-playfair), Georgia, serif", fontSize: "clamp(2.2rem, 5vw, 4rem)", fontWeight: 700, color: "#1a1a1a", marginBottom: "1rem", lineHeight: 1.1 }}>Our Collection</h1>
           <p style={{ fontSize: "0.9rem", color: "#6b7280", maxWidth: "500px", lineHeight: 1.8 }}>Discover premium ready-to-wear expressions and custom African heritage designs constructed with architectural care.</p>
           
-          {/* Gender Horizon Bar Segment */}
-          <div style={{ display: "flex", gap: "0.5rem", marginTop: "2.5rem", borderBottom: "1px solid #e5e7eb", width: "max-content", paddingBottom: "2px" }}>
-            {[
-              { id: "all", label: "All Collection" },
-              { id: "Men", label: "Men" },
-              { id: "Women", label: "Women" },
-              { id: "Both", label: "Bespoke Unisex" }
-            ].map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => handleGenderChange(tab.id)}
-                className={`gender-tab-btn ${selectedGender === tab.id ? "active" : ""}`}
-              >
-                {tab.label}
-              </button>
-            ))}
+          {/* ⚡ FIXED: Overflow-X handling on modern viewports prevents horizontal layout squishing */}
+          <div style={{ width: "100%", overflowX: "auto", WebkitOverflowScrolling: "touch", marginTop: "2.5rem", borderBottom: "1px solid #e5e7eb" }} className="scrollbar-hide">
+            <div style={{ display: "flex", gap: "0.25rem", paddingBottom: "2px", width: "max-content" }}>
+              {[
+                { id: "all", label: "All Collection" },
+                { id: "Men", label: "Men" },
+                { id: "Women", label: "Women" },
+                { id: "Both", label: "Bespoke Unisex" }
+              ].map((tab) => (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => handleGenderChange(tab.id)}
+                  className={`gender-tab-btn ${selectedGender === tab.id ? "active" : ""}`}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       </div>
 
-      <div className="container-custom" style={{ paddingTop: "4rem", paddingBottom: "6rem" }}>
+      <div className="container-custom" style={{ paddingTop: "4rem", paddingBottom: "6rem", paddingLeft: "1.5rem", paddingRight: "1.5rem" }}>
         
         {/* Mobile Filter Toggle & Sort Header */}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2.5rem", paddingBottom: "1.5rem", borderBottom: "1px solid #f0ebe3" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2.5rem", paddingBottom: "1.5rem", borderBottom: "1px solid #f0ebe3", gap: "1rem", flexWrap: "wrap" }}>
           <button 
+            type="button"
             onClick={() => setIsMobileFilterOpen(true)}
-            style={{ display: "flex", background: "none", border: "none", cursor: "pointer", fontSize: "0.8rem", fontWeight: 600, letterSpacing: "0.15em", textTransform: "uppercase", alignItems: "center", gap: "0.5rem" }}
+            style={{ display: "flex", background: "none", border: "none", cursor: "pointer", fontSize: "0.8rem", fontWeight: 600, letterSpacing: "0.15em", textTransform: "uppercase", alignItems: "center", gap: "0.5rem", padding: 0 }}
             className="mobile-only-filter"
           >
             <Filter size={16} /> Filters
@@ -263,8 +276,8 @@ export default function ShopArea() {
             Showing <span style={{ color: "#1a1a1a", fontWeight: 600 }}>{filteredProducts.length}</span> of {products.length} active design records
           </p>
 
-          <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-            <span style={{ fontSize: "0.85rem", color: "#6b7280" }}>Sort framework:</span>
+          <div style={{ display: "flex", alignItems: "center", gap: "1rem", marginLeft: "auto" }}>
+            <span style={{ fontSize: "0.85rem", color: "#6b7280" }} className="desktop-only-stat">Sort framework:</span>
             <select className="sort-select" value={sortOption} onChange={(e) => setSortOption(e.target.value)}>
               <option value="default">Default Framework</option>
               <option value="low-to-high">Price: Low to High</option>
@@ -274,13 +287,13 @@ export default function ShopArea() {
         </div>
 
         <div className="shop-layout">
-          {/* Wraps the component with a class node matching the scoped overrides */}
+          {/* Desktop Sidebar Layout */}
           <div className="shop-sidebar-container">
             <ShopSidebar isMobileOpen={isMobileFilterOpen} setIsMobileOpen={setIsMobileFilterOpen} />
           </div>
 
           {/* Core Product Grid Display Zone */}
-          <div>
+          <div style={{ width: "100%", overflow: "hidden" }}>
             {loading ? (
               <div className="py-24 text-center flex flex-col items-center justify-center gap-2">
                 <Loader2 className="h-7 w-7 animate-spin text-[#C9A84C]" />
@@ -314,6 +327,7 @@ export default function ShopArea() {
 
                       {/* Interactive Wishlist Button Overlay Frame */}
                       <button 
+                        type="button"
                         onClick={() => toggleWishlist(product)}
                         className="wishlist-btn"
                         style={{ position: "absolute", top: "1rem", right: "1rem", background: "white", border: "1px solid #f0ebe3", borderRadius: "50%", width: "36px", height: "36px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", boxShadow: "0 4px 12px rgba(0,0,0,0.04)" }}
@@ -323,25 +337,25 @@ export default function ShopArea() {
 
                       {/* Interactive Hover Actions Layout Grid */}
                       <div className="sco">
-                        <button className="action-btn" onClick={() => addToCart(product, 1)}>
+                        <button type="button" className="action-btn" onClick={() => addToCart(product, 1)}>
                           <ShoppingBag size={13} /> Add
                         </button>
                         <Link href={`/shop/${product.slug}`} className="action-btn">
-                          View Details
+                          Details
                         </Link>
                       </div>
 
                     </div>
                     
                     {/* Typography Breakdown Row */}
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-                      <div style={{ textAlign: "left" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "0.5rem" }}>
+                      <div style={{ textAlign: "left", minWidth: 0, flex: 1 }}>
                         <Link href={`/shop/${product.slug}`} style={{ textDecoration: "none" }}>
-                          <h3 className="sct" style={{ fontFamily: "var(--font-playfair), Georgia, serif", fontSize: "1.05rem", fontWeight: 700, color: "#1a1a1a", marginBottom: "0.35rem" }}>{product.name}</h3>
+                          <h3 className="sct" style={{ fontFamily: "var(--font-playfair), Georgia, serif", fontSize: "1.05rem", fontWeight: 700, color: "#1a1a1a", marginBottom: "0.35rem", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{product.name}</h3>
                         </Link>
                         <p style={{ fontSize: "0.75rem", color: "#9ca3af", fontStyle: "italic" }}>{product.category} Registry</p>
                       </div>
-                      <p style={{ fontSize: "0.95rem", fontWeight: 700, color: goldColor, flexShrink: 0, marginLeft: "1rem", fontFamily: "monospace" }}>{formatPrice(product.price)}</p>
+                      <p style={{ fontSize: "0.95rem", fontWeight: 700, color: goldColor, flexShrink: 0, fontFamily: "monospace" }}>{formatPrice(product.price)}</p>
                     </div>
                   </div>
                 ))}
@@ -351,17 +365,37 @@ export default function ShopArea() {
         </div>
       </div>
 
+      {/* Mobile Sidebar Backing Drawer Portal Trigger */}
+      {isMobileFilterOpen && (
+        <div style={{ position: "fixed", inset: 0, zIndex: 50, display: "flex" }} className="mobile-only-filter">
+          <div style={{ position: "absolute", inset: 0, backgroundColor: "rgba(0,0,0,0.4)" }} onClick={() => setIsMobileFilterOpen(false)} />
+          <div style={{ position: "relative", width: "280px", maxWidth: "85vw", height: "100%", backgroundColor: "white", padding: "2rem", overflowY: "auto", boxShadow: "4px 0 24px rgba(0,0,0,0.15)", marginLeft: "auto" }}>
+            <button type="button" style={{ position: "absolute", top: "1rem", left: "1rem", border: "none", background: "none", fontSize: "0.7rem", fontFamily: "monospace", textTransform: "uppercase", letterSpacing: "0.1em", cursor: "pointer", color: "#9ca3af" }} onClick={() => setIsMobileFilterOpen(false)}>✕ CLOSE</button>
+            <div style={{ marginTop: "2rem" }}>
+              <ShopSidebar isMobileOpen={isMobileFilterOpen} setIsMobileOpen={setIsMobileFilterOpen} />
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Made-To-Measure WhatsApp Order Actions Section */}
-      <div style={{ backgroundColor: "#FAF7F4", borderTop: "1px solid #f0ebe3", paddingTop: "5rem", paddingBottom: "5rem", textAlign: "center" }}>
+      <div style={{ backgroundColor: "#FAF7F4", borderTop: "1px solid #f0ebe3", paddingTop: "5rem", paddingBottom: "5rem", textAlign: "center", paddingLeft: "1.5rem", paddingRight: "1.5rem", width: "100%", boxSizing: "border-box" }}>
         <p style={{ fontSize: "0.7rem", letterSpacing: "0.25em", textTransform: "uppercase", color: goldColor, fontWeight: 600, marginBottom: "1rem", display: "block" }}>Bespoke Assembly</p>
         <h2 style={{ fontFamily: "var(--font-playfair), Georgia, serif", fontSize: "clamp(1.5rem, 3vw, 2.5rem)", fontWeight: 700, color: "#1a1a1a", marginBottom: "1rem" }}>Made-to-Measure Configurations</h2>
         <p style={{ fontSize: "0.9rem", color: "#6b7280", marginBottom: "2rem", maxWidth: "450px", margin: "0 auto 2rem", lineHeight: 1.8 }}>We offer dedicated structural custom tailoring fittings. Reach out directly via WhatsApp to initiate a custom commission with our consultants.</p>
-        {/*  FIXED: 'justify' parameter switched to 'justifyContent' cross-platform layout typing property */}
-        <a href="https://wa.me/2349043371380" target="_blank" rel="noopener noreferrer" className="shop-whatsapp-btn" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: "0.75rem" }}>
+        
+        <a href="https://wa.me/2349043371380" target="_blank" rel="noopener noreferrer" className="shop-whatsapp-btn">
           <MessageCircle size={18} />
           Consult via WhatsApp
         </a>
       </div>
     </>
+  );
+}
+
+// Quick component abstraction icon alignment safety hook
+function XIcon(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
   );
 }
