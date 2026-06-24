@@ -128,6 +128,8 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
     }
   };
 
+  const goldColor = "#C9A84C";
+
   return (
     <div style={{ minHeight: "100vh", backgroundColor: "white", width: "100%", overflowX: "hidden" }}>
       <style>{`
@@ -205,8 +207,8 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
         .tabs-nav-bar { display: flex; justify-content: flex-start; border-bottom: 1px solid #e5e7eb; gap: 0.5rem; overflow-x: auto; WebkitOverflowScrolling: touch; padding-left: 1.5rem; }
         @media (min-width: 640px) { .tabs-nav-bar { justify-content: center; padding-left: 0; } }
 
-        /* Handle responsive button splitting */
-        .action-split-row { display: flex; gap: 1rem; flexDirection: column; width: 100%; }
+        /* Handle responsive button splitting layout */
+        .action-split-row { display: flex; gap: 1rem; flex-direction: column; width: 100%; }
         @media (min-width: 640px) { .action-split-row { flex-direction: row; } }
 
         .pg { display: grid; grid-template-columns: 1fr; gap: 1.5rem; width: 100%; box-sizing: border-box; }
@@ -217,18 +219,6 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
         .pc-img-frame { position: relative; overflow: hidden; aspect-ratio: 3/4; background-color: #FAF7F4; width: 100%; }
         .pc-img { transition: transform 0.7s ease; }
         .pc:hover .pc-img { transform: scale(1.03); }
-
-        .pc-overlay { position: absolute; inset: 0; background-color: rgba(0,0,0,0.12); display: flex; align-items: flex-end; justify-content: center; padding-bottom: 1rem; gap: 0.5rem; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 10; }
-        .pc:hover .pc-overlay { opacity: 1; pointer-events: auto; }
-        
-        @media(max-width: 1023px) {
-          .pc-overlay { opacity: 1; background-color: transparent; pointer-events: auto; align-items: flex-start; justify-content: flex-start; padding: 0.5rem; }
-          .pc-action-btn { background: rgba(26,26,26,0.9) !important; padding: 0.4rem 0.6rem !important; font-size: 0.55rem !important; }
-        }
-
-        .pc-action-btn { color: white; font-size: 0.65rem; letter-spacing: 0.12em; text-transform: uppercase; border: 1px solid rgba(255,255,255,0.8); padding: 0.5rem 1rem; transition: all 0.2s; font-weight: 700; background: rgba(26,26,26,0.8); border-radius: 1px; display: inline-flex; align-items: center; gap: 0.35rem; cursor: pointer; }
-        .pc-action-btn:hover { background-color: #C9A84C; border-color: #C9A84C; }
-        .pc-wishlist-trigger { position: absolute; top: 0.5rem; right: 0.5rem; background: white; border: 1px solid #f4f4f5; border-radius: 50%; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 20; box-shadow: 0 4px 10px rgba(0,0,0,0.02); }
 
         .form-input { width: 100%; padding: 0.875rem 1rem; border: 1px solid #e5e7eb; border-radius: 2px; font-size: 0.9rem; color: #1a1a1a; outline: none; transition: border-color 0.2s; font-family: inherit; box-sizing: border-box; }
         .form-input:focus { border-color: #C9A84C; }
@@ -297,7 +287,7 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
           <div style={{ textAlign: "left", width: "100%" }}>
             <p style={{ fontSize: "0.65rem", letterSpacing: "0.25em", textTransform: "uppercase", color: "#C9A84C", fontWeight: 600, marginBottom: "0.75rem" }}>{product.category}</p>
             <h1 style={{ fontFamily: "var(--font-playfair), Georgia, serif", fontSize: "clamp(1.8rem, 4vw, 3rem)", fontWeight: 700, color: "#1a1a1a", lineHeight: 1.1, marginBottom: "1rem" }}>{product.name}</h1>
-            <p style={{ fontSize: "1.5rem", fontWeight: 700, color: "#C9A84C", marginBottom: "1.5rem", fontFamily: "monospace" }}>{formatPrice(product.price)}</p>
+            <p style={{ fontSize: "1.5rem", fontWeight: 400, color: "#C9A84C", marginBottom: "1.5rem", fontFamily: "monospace" }}>{formatPrice(product.price)}</p>
             
             <div style={{ height: "1px", backgroundColor: "#f0ebe3", marginBottom: "1.5rem" }} />
             <p style={{ fontSize: "0.9rem", color: "#6b7280", lineHeight: 1.8, marginBottom: "2rem" }}>{product.description}</p>
@@ -472,7 +462,7 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
                       <p style={{ fontSize: "0.95rem", fontWeight: 700, color: "#C9A84C", flexShrink: 0, fontFamily: "monospace" }}>{formatPrice(p.price)}</p>
                     </div>
 
-                    {/* ⚡ NEW: Permanent Action Tray Below Product Info */}
+                    {/* Permanent Grid Action Tray */}
                     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.5rem", marginTop: "1rem" }}>
                       <button 
                         type="button" 
@@ -489,7 +479,7 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
                       </Link>
                     </div>
 
-                    {/* Full-width Wishlist Action Button */}
+                    {/* Permanent Full-width Wishlist Action Button */}
                     <button 
                       type="button"
                       onClick={() => toggleWishlist(getContextPayload(p))}
@@ -498,7 +488,6 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
                       <Heart size={12} fill={isWished ? "#C9A84C" : "transparent"} color="#C9A84C" />
                       <span>{isWished ? "In Registry" : "Save to Registry"}</span>
                     </button>
-
                   </div>
                 );
               })}

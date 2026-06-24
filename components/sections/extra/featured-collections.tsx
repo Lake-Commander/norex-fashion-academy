@@ -78,7 +78,7 @@ export default function FeaturedProducts() {
         <div className="mb-20 text-center">
           <div style={{ borderColor: "rgba(201, 168, 76, 0.2)", backgroundColor: "rgba(201, 168, 76, 0.05)", color: goldColor }} className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border mb-4">
             <Sparkles className="h-3 w-3" />
-            <span className="text-[9px] uppercase tracking-widest font-black font-mono">04 / ATELIER SHOWCASE</span>
+            <span className="text-[9px] uppercase tracking-widest font-black font-mono">03 / ATELIER SHOWCASE</span>
           </div>
           <h2 style={{ fontFamily: "var(--font-playfair), Georgia, serif" }} className="text-4xl md:text-5xl font-bold text-foreground uppercase tracking-tight leading-none">
             Featured Masterpieces

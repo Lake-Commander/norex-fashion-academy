@@ -154,6 +154,29 @@ export default function ShopArea() {
         .sci { transition: transform 0.7s cubic-bezier(0.25, 1, 0.5, 1); }
         .sc:hover .sci { transform: scale(1.03); }
 
+        /* --- Restore Absolute Hover Action Overlay --- */
+        .sco {
+          position: absolute; inset: 0; background-color: rgba(0,0,0,0.15);
+          display: flex; align-items: flex-end; justify-content: center; padding-bottom: 2rem; gap: 0.5rem;
+          opacity: 0; transition: opacity 0.3s ease; pointer-events: none; z-index: 10;
+        }
+        .sc:hover .sco { opacity: 1; pointer-events: auto; }
+
+        /* Mobile action button layout rules toggle persistently below layout threshold */
+        @media (max-width: 1023px) {
+          .sco { display: none !important; }
+        }
+
+        .action-btn {
+          color: white; font-size: 0.65rem; letter-spacing: 0.12em; text-transform: uppercase;
+          border: 1px solid rgba(255,255,255,0.8); padding: 0.5rem 1rem; transition: all 0.3s ease; 
+          font-weight: 600; text-decoration: none; cursor: pointer; background: rgba(26,26,26,0.75); display: inline-flex; align-items: center; gap: 0.4rem; border-radius: 2px;
+        }
+        .action-btn:hover { background-color: #C9A84C; border-color: #C9A84C; }
+
+        .wishlist-btn { transition: transform 0.2s ease; z-index: 20; }
+        .wishlist-btn:hover { transform: scale(1.1); }
+
         .sct { transition: color 0.3s ease; text-decoration: none; }
         .sct:hover { color: #C9A84C !important; }
 
@@ -173,11 +196,13 @@ export default function ShopArea() {
         @media (max-width: 1023px) {
           .desktop-only-stat { display: none !important; }
           .shop-sidebar-container { display: none !important; }
+          .mobile-action-tray { display: flex !important; }
         }
         @media (min-width: 1024px) {
           .mobile-only-filter { display: none !important; }
           .gender-mobile-wrapper { display: none; }
           .gender-desktop-wrapper { display: block; margin-top: 2.5rem; border-bottom: 1px solid #e5e7eb; width: max-content; padding-bottom: 2px; }
+          .mobile-action-tray { display: none !important; }
         }
 
         .gender-tab-btn {
@@ -303,28 +328,48 @@ export default function ShopArea() {
                         {product.category}
                       </div>
 
-                      {/* ✅ FIXED TYPO: "justifyContext" changed back to the fully recognized "justifyContent" schema syntax */}
-                      <div style={{ display: "flex", gap: "0.5rem", width: "100%", padding: "0.75rem 0", boxSizing: "border-box" }}>
-                        <button 
-                          type="button" 
-                          onClick={() => addToCart(product, 1)} 
-                          style={{ flex: 1, backgroundColor: "#1a1a1a", color: "white", border: "none", padding: "0.6rem", fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", cursor: "pointer", borderRadius: "2px" }}
-                        >
-                          + Add Basket
+                      {/* Floating Wishlist Heart Pin Header Node (Desktop Only) */}
+                      <button 
+                        type="button"
+                        onClick={() => toggleWishlist(product)}
+                        className="wishlist-btn hidden lg:flex"
+                        style={{ position: "absolute", top: "1rem", right: "1rem", background: "white", border: "1px solid #f0ebe3", borderRadius: "50%", width: "36px", height: "36px", alignItems: "center", justifyContent: "center", cursor: "pointer", boxShadow: "0 4px 12px rgba(0,0,0,0.04)" }}
+                      >
+                        <Heart size={15} color="#C9A84C" fill={isInWishlist(product._id) ? goldColor : "transparent"} />
+                      </button>
+
+                      {/* 🖥️ Desktop Overlay Interaction Tray */}
+                      <div className="sco">
+                        <button type="button" className="action-btn" onClick={() => addToCart(product, 1)}>
+                          <ShoppingBag size={13} /> Add Basket
                         </button>
-                        <button 
-                          type="button"
-                          onClick={() => toggleWishlist(product)}
-                          style={{ background: "white", border: "1px solid #e5e7eb", width: "36px", height: "36px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", borderRadius: "2px" }}
-                        >
-                          <Heart size={14} color="#C9A84C" fill={isInWishlist(product._id) ? goldColor : "transparent"} />
-                        </button>
+                        <Link href={`/shop/${product.slug}`} className="action-btn">
+                          Details
+                        </Link>
                       </div>
 
                     </div>
+
+                    {/* 📱 Mobile Context Action Tray (Hidden on Desktop) */}
+                    <div className="mobile-action-tray" style={{ display: "none", gap: "0.5rem", width: "100%", padding: "0.25rem 0 1rem 0", boxSizing: "border-box" }}>
+                      <button 
+                        type="button" 
+                        onClick={() => addToCart(product, 1)} 
+                        style={{ flex: 1, backgroundColor: "#1a1a1a", color: "white", border: "none", padding: "0.65rem", fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", cursor: "pointer", borderRadius: "2px" }}
+                      >
+                        + Add Basket
+                      </button>
+                      <button 
+                        type="button"
+                        onClick={() => toggleWishlist(product)}
+                        style={{ background: "white", border: "1px solid #e5e7eb", width: "38px", height: "36px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", borderRadius: "2px" }}
+                      >
+                        <Heart size={14} color="#C9A84C" fill={isInWishlist(product._id) ? goldColor : "transparent"} />
+                      </button>
+                    </div>
                     
                     {/* Typography Breakdown Row */}
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "0.5rem", marginTop: "2.5rem" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "0.5rem" }}>
                       <div style={{ textAlign: "left", minWidth: 0, flex: 1 }}>
                         <Link href={`/shop/${product.slug}`} style={{ textDecoration: "none" }}>
                           <h3 className="sct" style={{ fontFamily: "var(--font-playfair), Georgia, serif", fontSize: "1.05rem", fontWeight: 700, color: "#1a1a1a", marginBottom: "0.35rem", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{product.name}</h3>

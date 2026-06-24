@@ -111,7 +111,7 @@ export default function SignaturePieces() {
         <div className="mb-24 text-left">
           <div style={{ borderColor: "rgba(201, 168, 76, 0.2)", backgroundColor: "rgba(201, 168, 76, 0.05)", color: goldColor }} className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border mb-4">
             <Sparkles className="h-3 w-3 animate-pulse" />
-            <span className="text-[9px] uppercase tracking-widest font-black font-mono">05 // THE SIGNATURES</span>
+            <span className="text-[9px] uppercase tracking-widest font-black font-mono">04 // THE SIGNATURES</span>
           </div>
           <h2 style={{ fontFamily: "var(--font-playfair), Georgia, serif" }} className="text-4xl md:text-5xl font-bold text-white uppercase tracking-tight leading-none">
             Signature Pieces

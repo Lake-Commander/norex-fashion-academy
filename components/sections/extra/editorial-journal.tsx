@@ -39,7 +39,7 @@ export default function LatestEditorialsSection() {
           <div>
             <div style={{ borderColor: "rgba(201, 168, 76, 0.2)", backgroundColor: "rgba(201, 168, 76, 0.05)", color: goldColor }} className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border mb-3">
               <Sparkles className="h-3 w-3" />
-              <span className="text-[8px] uppercase tracking-widest font-black font-mono">07 // THE PRESS RELEASE</span>
+              <span className="text-[8px] uppercase tracking-widest font-black font-mono">09 // THE PRESS RELEASE</span>
             </div>
             <h2 style={{ fontFamily: "var(--font-playfair), Georgia, serif" }} className="text-3xl md:text-4xl font-bold text-zinc-900 uppercase tracking-tight leading-none">
               From The Gazette
