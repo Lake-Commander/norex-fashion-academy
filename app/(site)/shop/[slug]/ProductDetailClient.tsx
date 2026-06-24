@@ -451,41 +451,54 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
               {relatedProducts.map((p) => {
                 const isWished = isInWishlist(p._id || p.id);
                 return (
-                  <div key={p._id || p.id} className="pc">
+                  <div key={p._id || p.id} className="pc" style={{ display: "flex", flexDirection: "column" }}>
                     <div className="pc-img-frame">
                       <div className="look-spinning-badge">
                         Look-{String(p.lookNumber || p.id || 1).padStart(2, "0")}
                       </div>
-                      <Image src={p.images?.[0] || "/placeholder-garment.png"} alt={p.name} fill className="pc-img" style={{ objectFit: "cover" }} sizes="(max-width:640px) 100vw,(max-width:1024px) 50vw,33vw" />
-                      
-                      <div className="pc-overlay">
-                        <button type="button" className="pc-action-btn" onClick={() => addToCart(getContextPayload(p), 1)}>
-                          <ShoppingBag size={12} /> Add
-                        </button>
-                        <Link href={`/shop/${p.slug}`} className="pc-action-btn" style={{ textDecoration: "none" }}>
-                          Details
-                        </Link>
-                      </div>
-
-                      <button 
-                        type="button" 
-                        onClick={() => toggleWishlist(getContextPayload(p))}
-                        className="pc-wishlist-trigger"
-                        title={isWished ? "Remove from registry" : "Save to registry"}
-                      >
-                        <Heart size={14} color="#C9A84C" fill={isWished ? "#C9A84C" : "transparent"} />
-                      </button>
+                      <Link href={`/shop/${p.slug}`} style={{ display: "block", width: "100%", height: "100%" }}>
+                        <Image src={p.images?.[0] || "/placeholder-garment.png"} alt={p.name} fill className="pc-img" style={{ objectFit: "cover" }} sizes="(max-width:640px) 100vw,(max-width:1024px) 50vw,33vw" />
+                      </Link>
                     </div>
 
+                    {/* Typography Breakdown Row */}
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", paddingTop: "1rem", gap: "0.5rem" }}>
                       <div style={{ textAlign: "left", minWidth: 0, flex: 1 }}>
                         <Link href={`/shop/${p.slug}`} style={{ textDecoration: "none" }}>
-                          <h3 style={{ fontFamily: "var(--font-playfair), Georgia, serif", fontSize: "1rem", fontWeight: 700, color: "#1a1a1a", marginBottom: "0.25rem", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{p.name}</h3>
+                          <h3 className="sct" style={{ fontFamily: "var(--font-playfair), Georgia, serif", fontSize: "1rem", fontWeight: 700, color: "#1a1a1a", marginBottom: "0.25rem", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{p.name}</h3>
                         </Link>
                         <p style={{ fontSize: "0.75rem", color: "#9ca3af", fontWeight: 500 }}>{p.category}</p>
                       </div>
                       <p style={{ fontSize: "0.95rem", fontWeight: 700, color: "#C9A84C", flexShrink: 0, fontFamily: "monospace" }}>{formatPrice(p.price)}</p>
                     </div>
+
+                    {/* ⚡ NEW: Permanent Action Tray Below Product Info */}
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.5rem", marginTop: "1rem" }}>
+                      <button 
+                        type="button" 
+                        onClick={() => addToCart(getContextPayload(p), 1)}
+                        style={{ backgroundColor: "#1a1a1a", color: "white", border: "none", padding: "0.75rem", fontSize: "0.68rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "0.35rem", borderRadius: "2px" }}
+                      >
+                        <ShoppingBag size={12} /> Add
+                      </button>
+                      <Link 
+                        href={`/shop/${p.slug}`}
+                        style={{ backgroundColor: "transparent", color: "#1a1a1a", border: "1px solid #1a1a1a", padding: "0.75rem", fontSize: "0.68rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", textDecoration: "none", textAlign: "center", display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "2px" }}
+                      >
+                        Details
+                      </Link>
+                    </div>
+
+                    {/* Full-width Wishlist Action Button */}
+                    <button 
+                      type="button"
+                      onClick={() => toggleWishlist(getContextPayload(p))}
+                      style={{ width: "100%", marginTop: "0.5rem", padding: "0.6rem", background: "#FAF7F4", border: "1px solid #f0ebe3", color: isWished ? "#C9A84C" : "#6b7280", fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", display: "flex", alignItems: "center", justifyContent: "center", gap: "0.4rem", borderRadius: "2px", cursor: "pointer" }}
+                    >
+                      <Heart size={12} fill={isWished ? "#C9A84C" : "transparent"} color="#C9A84C" />
+                      <span>{isWished ? "In Registry" : "Save to Registry"}</span>
+                    </button>
+
                   </div>
                 );
               })}

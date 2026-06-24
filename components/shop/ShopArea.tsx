@@ -150,32 +150,9 @@ export default function ShopArea() {
         .breadcrumb-link { font-size: 0.72rem; color: #9ca3af; letter-spacing: 0.1em; text-transform: uppercase; text-decoration: none; transition: color 0.3s ease; }
         .breadcrumb-link:hover { color: #C9A84C; }
         
-        .sc { display: block; position: relative; width: 100%; }
+        .sc { display: flex; flex-direction: column; position: relative; width: 100%; box-sizing: border-box; }
         .sci { transition: transform 0.7s cubic-bezier(0.25, 1, 0.5, 1); }
         .sc:hover .sci { transform: scale(1.03); }
-        
-        .sco {
-          position: absolute; inset: 0; background-color: rgba(0,0,0,0.12);
-          display: flex; align-items: flex-end; justify-content: center; padding-bottom: 1.5rem; gap: 0.5rem;
-          opacity: 0; transition: opacity 0.3s ease; pointer-events: none; z-index: 10;
-        }
-        .sc:hover .sco { opacity: 1; pointer-events: auto; }
-
-        /* Mobile touch configuration styling overrides */
-        @media (max-width: 1023px) {
-          .sco { opacity: 1; background-color: transparent; pointer-events: auto; align-items: flex-start; justify-content: flex-start; padding: 0.5rem; gap: 0.35rem; }
-          .action-btn { background: rgba(26,26,26,0.9) !important; padding: 0.4rem 0.6rem !important; font-size: 0.55rem !important; }
-        }
-
-        .action-btn {
-          color: white; font-size: 0.65rem; letter-spacing: 0.12em; text-transform: uppercase;
-          border: 1px solid rgba(255,255,255,0.8); padding: 0.5rem 1rem; transition: all 0.3s ease; 
-          font-weight: 600; text-decoration: none; cursor: pointer; background: rgba(26,26,26,0.75); display: inline-flex; align-items: center; gap: 0.4rem; border-radius: 2px;
-        }
-        .action-btn:hover { background-color: #C9A84C; border-color: #C9A84C; }
-
-        .wishlist-btn { transition: transform 0.2s ease; z-index: 20; }
-        .wishlist-btn:hover { transform: scale(1.1); }
 
         .sct { transition: color 0.3s ease; text-decoration: none; }
         .sct:hover { color: #C9A84C !important; }
@@ -226,7 +203,7 @@ export default function ShopArea() {
           <h1 style={{ fontFamily: "var(--font-playfair), Georgia, serif", fontSize: "clamp(2.2rem, 5vw, 4rem)", fontWeight: 700, color: "#1a1a1a", marginBottom: "1rem", lineHeight: 1.1 }}>Our Collection</h1>
           <p style={{ fontSize: "0.9rem", color: "#6b7280", maxWidth: "500px", lineHeight: 1.8 }}>Discover premium ready-to-wear expressions and custom African heritage designs constructed with architectural care.</p>
           
-          {/* 📱 Mobile Dynamic Dropdown Selector */}
+          {/* Mobile Dynamic Dropdown Selector */}
           <div className="gender-mobile-wrapper">
             <div className="relative flex items-center w-full max-w-xs">
               <select 
@@ -242,7 +219,7 @@ export default function ShopArea() {
             </div>
           </div>
 
-          {/* 💻 Desktop Horizon Navigation Link Bar */}
+          {/* Desktop Horizon Navigation Link Bar */}
           <div className="gender-desktop-wrapper">
             <div style={{ display: "flex", gap: "0.25rem" }}>
               {genderOptions.map((tab) => (
@@ -326,27 +303,28 @@ export default function ShopArea() {
                         {product.category}
                       </div>
 
-                      <button 
-                        type="button"
-                        onClick={() => toggleWishlist(product)}
-                        className="wishlist-btn"
-                        style={{ position: "absolute", top: "1rem", right: "1rem", background: "white", border: "1px solid #f0ebe3", borderRadius: "50%", width: "36px", height: "36px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", boxShadow: "0 4px 12px rgba(0,0,0,0.04)" }}
-                      >
-                        <Heart size={15} color="#C9A84C" fill={isInWishlist(product._id) ? goldColor : "transparent"} />
-                      </button>
-
-                      <div className="sco">
-                        <button type="button" className="action-btn" onClick={() => addToCart(product, 1)}>
-                          <ShoppingBag size={13} /> Add
+                      {/* ✅ FIXED TYPO: "justifyContext" changed back to the fully recognized "justifyContent" schema syntax */}
+                      <div style={{ display: "flex", gap: "0.5rem", width: "100%", padding: "0.75rem 0", boxSizing: "border-box" }}>
+                        <button 
+                          type="button" 
+                          onClick={() => addToCart(product, 1)} 
+                          style={{ flex: 1, backgroundColor: "#1a1a1a", color: "white", border: "none", padding: "0.6rem", fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", cursor: "pointer", borderRadius: "2px" }}
+                        >
+                          + Add Basket
                         </button>
-                        <Link href={`/shop/${product.slug}`} className="action-btn">
-                          Details
-                        </Link>
+                        <button 
+                          type="button"
+                          onClick={() => toggleWishlist(product)}
+                          style={{ background: "white", border: "1px solid #e5e7eb", width: "36px", height: "36px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", borderRadius: "2px" }}
+                        >
+                          <Heart size={14} color="#C9A84C" fill={isInWishlist(product._id) ? goldColor : "transparent"} />
+                        </button>
                       </div>
 
                     </div>
                     
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "0.5rem" }}>
+                    {/* Typography Breakdown Row */}
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "0.5rem", marginTop: "2.5rem" }}>
                       <div style={{ textAlign: "left", minWidth: 0, flex: 1 }}>
                         <Link href={`/shop/${product.slug}`} style={{ textDecoration: "none" }}>
                           <h3 className="sct" style={{ fontFamily: "var(--font-playfair), Georgia, serif", fontSize: "1.05rem", fontWeight: 700, color: "#1a1a1a", marginBottom: "0.35rem", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{product.name}</h3>
