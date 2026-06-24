@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import { ShopProvider } from "@/context/ShopContext";
-// ⚡ Import your NextAuth AuthProvider layout component hook
-import AuthProvider from "@/context/AuthProvider"; 
+// Import NextAuth AuthProvider layout component hook
+import AuthProvider from "@/context/AuthProvider";
+import { Analytics } from "@vercel/analytics/next";
 
 const inter = Inter({
   subsets: ["latin"],
