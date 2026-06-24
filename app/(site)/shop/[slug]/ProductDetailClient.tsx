@@ -176,7 +176,6 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
         .roll-thumb-btn:hover { border-color: #C9A84C; }
         .roll-thumb-btn.active { border-color: #1a1a1a; }
 
-        /* Unified responsive action button blocks */
         .btn-whatsapp, .btn-gold-solid, .btn-wishlist {
           display: flex; align-items: center; justify-content: center; gap: 0.75rem; 
           padding: 1rem; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.12em; 
@@ -203,11 +202,9 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
         .tab-btn { background: none; border: none; border-bottom: 2px solid transparent; padding: 0.75rem 1rem; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: #9ca3af; cursor: pointer; transition: all 0.3s; white-space: nowrap; }
         .tab-btn.active { color: #C9A84C; border-bottom-color: #C9A84C; }
 
-        /* Handle responsive tab alignment */
         .tabs-nav-bar { display: flex; justify-content: flex-start; border-bottom: 1px solid #e5e7eb; gap: 0.5rem; overflow-x: auto; WebkitOverflowScrolling: touch; padding-left: 1.5rem; }
         @media (min-width: 640px) { .tabs-nav-bar { justify-content: center; padding-left: 0; } }
 
-        /* Handle responsive button splitting layout */
         .action-split-row { display: flex; gap: 1rem; flex-direction: column; width: 100%; }
         @media (min-width: 640px) { .action-split-row { flex-direction: row; } }
 
@@ -215,10 +212,22 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
         @media(min-width:640px){ .pg { grid-template-columns: repeat(2,1fr); gap: 2rem; } }
         @media(min-width:1024px){ .pg { grid-template-columns: repeat(3,1fr); } }
         
-        .pc { display: block; text-decoration: none; position: relative; background: white; border: 1px solid #f4f4f5; padding: 0.5rem; border-radius: 1px; width: 100%; box-sizing: border-box; }
+        .pc { display: flex; flex-direction: column; position: relative; background: white; border: 1px solid #f4f4f5; padding: 0.5rem; border-radius: 1px; width: 100%; box-sizing: border-box; }
         .pc-img-frame { position: relative; overflow: hidden; aspect-ratio: 3/4; background-color: #FAF7F4; width: 100%; }
         .pc-img { transition: transform 0.7s ease; }
         .pc:hover .pc-img { transform: scale(1.03); }
+
+        /* --- Re-integrated Absolute Hover Overlays for Desktop --- */
+        .pc-overlay { position: absolute; inset: 0; background-color: rgba(0,0,0,0.15); display: flex; align-items: flex-end; justify-content: center; padding-bottom: 2rem; gap: 0.5rem; opacity: 0; transition: opacity 0.3s ease; pointer-events: none; z-index: 10; }
+        .pc:hover .pc-overlay { opacity: 1; pointer-events: auto; }
+        
+        @media (max-width: 1023px) {
+          .pc-overlay { display: none !important; }
+        }
+
+        .pc-action-btn { color: white; font-size: 0.65rem; letter-spacing: 0.12em; text-transform: uppercase; border: 1px solid rgba(255,255,255,0.8); padding: 0.5rem 1rem; transition: all 0.2s; font-weight: 700; background: rgba(26,26,26,0.8); border-radius: 1px; display: inline-flex; align-items: center; gap: 0.35rem; cursor: pointer; }
+        .pc-action-btn:hover { background-color: #C9A84C; border-color: #C9A84C; }
+        .pc-wishlist-trigger { position: absolute; top: 0.5rem; right: 0.5rem; background: white; border: 1px solid #f4f4f5; border-radius: 50%; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 20; box-shadow: 0 4px 10px rgba(0,0,0,0.02); }
 
         .form-input { width: 100%; padding: 0.875rem 1rem; border: 1px solid #e5e7eb; border-radius: 2px; font-size: 0.9rem; color: #1a1a1a; outline: none; transition: border-color 0.2s; font-family: inherit; box-sizing: border-box; }
         .form-input:focus { border-color: #C9A84C; }
@@ -441,7 +450,7 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
               {relatedProducts.map((p) => {
                 const isWished = isInWishlist(p._id || p.id);
                 return (
-                  <div key={p._id || p.id} className="pc" style={{ display: "flex", flexDirection: "column" }}>
+                  <div key={p._id || p.id} className="pc">
                     <div className="pc-img-frame">
                       <div className="look-spinning-badge">
                         Look-{String(p.lookNumber || p.id || 1).padStart(2, "0")}
@@ -449,10 +458,48 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
                       <Link href={`/shop/${p.slug}`} style={{ display: "block", width: "100%", height: "100%" }}>
                         <Image src={p.images?.[0] || "/placeholder-garment.png"} alt={p.name} fill className="pc-img" style={{ objectFit: "cover" }} sizes="(max-width:640px) 100vw,(max-width:1024px) 50vw,33vw" />
                       </Link>
+
+                      {/* Floating Wishlist Button Overlay Pin (Desktop Only) */}
+                      <button 
+                        type="button" 
+                        onClick={() => toggleWishlist(getContextPayload(p))}
+                        className="pc-wishlist-trigger hidden lg:flex"
+                        title={isWished ? "Remove from registry" : "Save to registry"}
+                      >
+                        <Heart size={14} color="#C9A84C" fill={isWished ? "#C9A84C" : "transparent"} />
+                      </button>
+
+                      {/* 🖥️ Desktop Overlay Menu Actions */}
+                      <div className="pc-overlay">
+                        <button type="button" className="pc-action-btn" onClick={() => addToCart(getContextPayload(p), 1)}>
+                          <ShoppingBag size={12} /> Add
+                        </button>
+                        <Link href={`/shop/${p.slug}`} className="pc-action-btn" style={{ textDecoration: "none" }}>
+                          Details
+                        </Link>
+                      </div>
+                    </div>
+
+                    {/* 📱 Mobile Context Action Tray (Hidden on Desktop) */}
+                    <div className="lg:hidden" style={{ display: "flex", gap: "0.5rem", width: "100%", padding: "0.5rem 0", boxSizing: "border-box" }}>
+                      <button 
+                        type="button" 
+                        onClick={() => addToCart(getContextPayload(p), 1)} 
+                        style={{ flex: 1, backgroundColor: "#1a1a1a", color: "white", border: "none", padding: "0.65rem", fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", cursor: "pointer", borderRadius: "2px" }}
+                      >
+                        + Add Basket
+                      </button>
+                      <button 
+                        type="button"
+                        onClick={() => toggleWishlist(getContextPayload(p))}
+                        style={{ background: "white", border: "1px solid #e5e7eb", width: "38px", height: "36px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", borderRadius: "2px" }}
+                      >
+                        <Heart size={14} color="#C9A84C" fill={isWished ? "#C9A84C" : "transparent"} />
+                      </button>
                     </div>
 
                     {/* Typography Breakdown Row */}
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", paddingTop: "1rem", gap: "0.5rem" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", paddingTop: "0.5rem", gap: "0.5rem" }}>
                       <div style={{ textAlign: "left", minWidth: 0, flex: 1 }}>
                         <Link href={`/shop/${p.slug}`} style={{ textDecoration: "none" }}>
                           <h3 className="sct" style={{ fontFamily: "var(--font-playfair), Georgia, serif", fontSize: "1rem", fontWeight: 700, color: "#1a1a1a", marginBottom: "0.25rem", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{p.name}</h3>
@@ -461,33 +508,6 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
                       </div>
                       <p style={{ fontSize: "0.95rem", fontWeight: 700, color: "#C9A84C", flexShrink: 0, fontFamily: "monospace" }}>{formatPrice(p.price)}</p>
                     </div>
-
-                    {/* Permanent Grid Action Tray */}
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.5rem", marginTop: "1rem" }}>
-                      <button 
-                        type="button" 
-                        onClick={() => addToCart(getContextPayload(p), 1)}
-                        style={{ backgroundColor: "#1a1a1a", color: "white", border: "none", padding: "0.75rem", fontSize: "0.68rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "0.35rem", borderRadius: "2px" }}
-                      >
-                        <ShoppingBag size={12} /> Add
-                      </button>
-                      <Link 
-                        href={`/shop/${p.slug}`}
-                        style={{ backgroundColor: "transparent", color: "#1a1a1a", border: "1px solid #1a1a1a", padding: "0.75rem", fontSize: "0.68rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", textDecoration: "none", textAlign: "center", display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "2px" }}
-                      >
-                        Details
-                      </Link>
-                    </div>
-
-                    {/* Permanent Full-width Wishlist Action Button */}
-                    <button 
-                      type="button"
-                      onClick={() => toggleWishlist(getContextPayload(p))}
-                      style={{ width: "100%", marginTop: "0.5rem", padding: "0.6rem", background: "#FAF7F4", border: "1px solid #f0ebe3", color: isWished ? "#C9A84C" : "#6b7280", fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", display: "flex", alignItems: "center", justifyContent: "center", gap: "0.4rem", borderRadius: "2px", cursor: "pointer" }}
-                    >
-                      <Heart size={12} fill={isWished ? "#C9A84C" : "transparent"} color="#C9A84C" />
-                      <span>{isWished ? "In Registry" : "Save to Registry"}</span>
-                    </button>
                   </div>
                 );
               })}
