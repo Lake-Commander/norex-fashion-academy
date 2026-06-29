@@ -106,7 +106,7 @@ export default function ShopArea() {
           box-sizing: border-box;
         }
 
-        /* 📱 Amazon UX side-by-side splitting grid spacing architecture */
+        /* 📱 Amazon UX 2-Column Mobile Scale Matrix with original 3-Column Desktop Grid */
         .product-grid { 
           display: grid; 
           grid-template-columns: repeat(2, 1fr); 
@@ -130,7 +130,7 @@ export default function ShopArea() {
         .breadcrumb-link { font-size: 0.65rem; color: #9ca3af; letter-spacing: 0.05em; text-transform: uppercase; text-decoration: none; }
         @media(min-width: 768px) { .breadcrumb-link { font-size: 0.72rem; } }
         
-        /* 📱 Amazon-Scale Borderless Card Layout Nodes */
+        /* 📱 Amazon Borderless Product Card Concept on Mobile */
         .sc { 
           display: flex; 
           flex-direction: column; 
@@ -326,8 +326,8 @@ export default function ShopArea() {
               <div className="product-grid">
                 {filteredProducts.map((product) => (
                   <div key={product._id} className="sc">
-                    {/* ✅ CRITICAL: Changed aspect-ratio from 3/4 to 1/2 to condense the layout scale significantly */}
-                    <div style={{ position: "relative", overflow: "hidden", backgroundColor: "#FAF7F4", aspectRatio: "1/2", marginBottom: "0.35rem", borderRadius: "4px" }}>
+                    {/* ✅ BACK TO THE PORTRAIT 3/4 ASFECT RATIO AS REQUESTED */}
+                    <div style={{ position: "relative", overflow: "hidden", backgroundColor: "#FAF7F4", aspectRatio: "3/4", marginBottom: "0.35rem", borderRadius: "4px" }}>
                       
                       <Link href={`/shop/${product.slug}`} style={{ display: "block", width: "100%", height: "100%" }}>
                         {product.images?.[0] ? (
