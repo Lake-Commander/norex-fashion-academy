@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { formatPrice, generateWhatsAppLink } from "@/lib/utils";
@@ -182,15 +182,16 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
         .action-split-row { display: flex; gap: 1rem; flex-direction: column; width: 100%; }
         @media (min-width: 640px) { .action-split-row { flex-direction: row; } }
 
-        /* 📱 AMAZON UX GRID FRAMEWORK - Dynamic centering configurations */
-        .product-grid { 
+        /* 📱 ONE PRODUCT PER LINE RELATED PRODUCTS SECTOR CONFIGURATION */
+        .related-product-grid { 
           display: grid; 
-          grid-template-columns: repeat(2, 1fr); 
-          gap: 0.5rem; 
+          grid-template-columns: 1fr; 
+          gap: 1.5rem; 
           width: 100%; 
+          box-sizing: border-box;
         }
-        @media(min-width: 640px) { .product-grid { gap: 1rem; } }
-        @media(min-width: 1200px) { .product-grid { grid-template-columns: repeat(3, 1fr); gap: 1.5rem; } }
+        @media(min-width: 640px) { .related-product-grid { grid-template-columns: repeat(2, 1fr); gap: 1rem; } }
+        @media(min-width: 1200px) { .related-product-grid { grid-template-columns: repeat(3, 1fr); gap: 1.5rem; } }
         
         .sc { 
           display: flex; 
@@ -372,7 +373,7 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
             <button type="button" className={`tab-btn ${activeTab === 'reviews' ? 'active' : ''}`} onClick={() => setActiveTab('reviews')}>Reviews ({reviews.length})</button>
           </div>
 
-          <div style={{ padding: "3rem 1rem", maxWidth: "800px", margin: "0 auto", textAlign: "left", boxSizing: "border-box" }}>
+          <div style={{ padding: "3rem 1.5rem", maxWidth: "800px", margin: "0 auto", textAlign: "left", boxSizing: "border-box" }}>
             {activeTab === 'description' && <div><h3 style={{ fontFamily: "var(--font-playfair), serif", fontSize: "1.1rem", marginBottom: "1rem" }} className="font-bold uppercase">Description</h3><p style={{ color: "#4b5563", lineHeight: 1.7 }} className="text-sm font-light">{product.description}</p></div>}
             
             {activeTab === 'info' && (
@@ -442,7 +443,7 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
         </div>
       </div>
       
-      {/* ✅ SYNCHRONIZED RELATED PRODUCTS SECTOR */}
+      {/* ✅ SECTOR: Related Products Ordered One Node Per Line on Mobile */}
       {relatedProducts.length > 0 && (
         <div style={{ paddingTop: "4rem", paddingBottom: "5rem", backgroundColor: "white", width: "100%" }}>
           <div className="container-custom" style={{ paddingLeft: "0.75rem", paddingRight: "0.75rem" }}>
@@ -453,7 +454,7 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
               </h2>
             </div>
 
-            <div className="product-grid">
+            <div className="related-product-grid">
               {relatedProducts.map((p) => {
                 const isWished = isInWishlist(p._id || p.id);
                 return (
@@ -466,7 +467,7 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
 
                       <Link href={`/shop/${p.slug}`} style={{ display: "block", width: "100%", height: "100%" }}>
                         {p.images?.[0] ? (
-                          <Image src={p.images[0]} alt={p.name} fill className="sci" style={{ objectFit: "cover" }} sizes="(max-width:640px) 50vw, 33vw" />
+                          <Image src={p.images[0]} alt={p.name} fill className="sci" style={{ objectFit: "cover" }} sizes="(max-width:640px) 100vw, 33vw" />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center text-zinc-300"><ImageIcon size={20} /></div>
                         )}
