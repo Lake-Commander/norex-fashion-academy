@@ -82,11 +82,13 @@ export default function ShopArea() {
   return (
     <>
       <style>{`
+        /* --- Hardened Viewport Constraint Layout Wrapper: Stops mobile horizontal zooming glitches --- */
         .shop-layout { 
           display: flex;
           flex-direction: column;
           gap: 1.5rem; 
           width: 100%;
+          max-width: 100vw;
           box-sizing: border-box;
         }
         @media(min-width: 1024px) { 
@@ -101,16 +103,19 @@ export default function ShopArea() {
           flex: 1;
           min-width: 0;
           width: 100%;
+          box-sizing: border-box;
         }
 
-        /* 📱 Amazon-Inspired Clean 2-Column Mobile Layout */
+        /* 📱 Amazon UX 2-Column Mobile Scale Matrix */
         .product-grid { 
           display: grid; 
           grid-template-columns: repeat(2, 1fr); 
           gap: 0.5rem; 
-          width: 100%; 
+          width: 100%;
+          box-sizing: border-box;
         }
-        @media(min-width: 640px) { .product-grid { gap: 1rem; } }
+        @media(min-width: 480px) { .product-grid { gap: 0.75rem; } }
+        @media(min-width: 768px) { .product-grid { gap: 1.5rem; } }
         @media(min-width: 1200px) { .product-grid { grid-template-columns: repeat(3, 1fr); gap: 1.5rem; } }
 
         .sort-select, .gender-select {
@@ -135,7 +140,7 @@ export default function ShopArea() {
           width: 100%; 
           box-sizing: border-box; 
           background: white;
-          padding: 0.5rem;
+          padding: 0.4rem;
           border: 1px solid #f3f4f6;
           border-radius: 4px;
         }
@@ -197,7 +202,7 @@ export default function ShopArea() {
           }
         }
 
-        .gender-mobile-wrapper { display: block; margin-top: 1rem; width: 100%; }
+        .gender-mobile-wrapper { display: block; margin-top: 1rem; width: 100%; box-sizing: border-box; }
         .gender-desktop-wrapper { display: none; }
 
         @media (max-width: 1023px) {
@@ -239,6 +244,7 @@ export default function ShopArea() {
             max-height: 85vh;
             display: flex;
             flex-direction: column;
+            box-sizing: border-box;
           }
           .amazon-bottom-sheet.open {
             transform: translateY(0);
@@ -253,13 +259,14 @@ export default function ShopArea() {
             overflow-y: auto;
             padding: 1.5rem;
             flex: 1;
+            box-sizing: border-box;
           }
         }
       `}</style>
 
       {/* Hero Header Area */}
-      <div style={{ paddingTop: "7rem", paddingBottom: "2rem", backgroundColor: "#FAF7F4", width: "100%", overflowX: "hidden" }}>
-        <div className="container-custom" style={{ paddingLeft: "1rem", paddingRight: "1rem" }}>
+      <div style={{ paddingTop: "7rem", paddingBottom: "2rem", backgroundColor: "#FAF7F4", width: "100%", maxWidth: "100vw", overflowX: "hidden", boxSizing: "border-box" }}>
+        <div className="container-custom" style={{ paddingLeft: "1rem", paddingRight: "1rem", boxSizing: "border-box" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.5rem" }}>
             <Link href="/" className="breadcrumb-link">Home</Link>
             <span style={{ color: "#d1d5db", fontSize: "0.65rem" }}>/</span>
@@ -327,7 +334,7 @@ export default function ShopArea() {
         </div>
       </div>
 
-      <div className="container-custom" style={{ paddingTop: "1.5rem", paddingBottom: "4rem", paddingLeft: "0.75rem", paddingRight: "0.75rem" }}>
+      <div className="container-custom" style={{ paddingTop: "1.5rem", paddingBottom: "4rem", paddingLeft: "0.5rem", paddingRight: "0.5rem", boxSizing: "border-box", maxWidth: "100vw", overflowX: "hidden" }}>
         <div className="shop-layout">
           <div className="shop-sidebar-container">
             <ShopSidebar isMobileOpen={isMobileFilterOpen} setIsMobileOpen={setIsMobileFilterOpen} />
@@ -358,7 +365,10 @@ export default function ShopArea() {
                         )}
                       </Link>
 
-                      {/* Mini floating elements for desktop variant spaces */}
+                      <div style={{ position: "absolute", top: "0.4rem", left: "0.4rem", backgroundColor: "white", padding: "0.15rem 0.5rem", fontSize: "0.5rem", letterSpacing: "0.1em", textTransform: "uppercase", fontWeight: 700, color: goldColor, borderRadius: "1px", pointerEvents: "none", border: "1px solid #f0ebe3" }}>
+                        {product.category}
+                      </div>
+
                       <button 
                         type="button"
                         onClick={() => toggleWishlist(product)}
@@ -378,10 +388,10 @@ export default function ShopArea() {
                     {/* Compact Typography Data Space */}
                     <div style={{ textAlign: "left", display: "flex", flexDirection: "column", gap: "0.15rem", padding: "0 0.25rem" }}>
                       <Link href={`/shop/${product.slug}`} style={{ textDecoration: "none" }}>
-                        <h3 className="sct" style={{ fontSize: "0.85rem", fontWeight: 500, color: "#1a1a1a", margin: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{product.name}</h3>
+                        <h3 className="sct" style={{ fontSize: "0.82rem", fontWeight: 500, color: "#1a1a1a", margin: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{product.name}</h3>
                       </Link>
-                      <p style={{ fontSize: "0.75rem", color: "#6b7280", margin: 0 }}>{product.category}</p>
-                      <p style={{ fontSize: "0.95rem", fontWeight: 700, color: "#1a1a1a", margin: "0.15rem 0 0.35rem 0", fontFamily: "monospace" }}>{formatPrice(product.price)}</p>
+                      <p style={{ fontSize: "0.7rem", color: "#6b7280", margin: 0 }}>{product.category}</p>
+                      <p style={{ fontSize: "0.9rem", fontWeight: 700, color: "#1a1a1a", margin: "0.15rem 0 0.35rem 0", fontFamily: "monospace" }}>{formatPrice(product.price)}</p>
                     </div>
 
                     {/* Persistent Mobile Action Strip */}
@@ -426,10 +436,12 @@ export default function ShopArea() {
         </>
       )}
 
-      {/* Bespoke Footnotes Banner */}
+      {/* Made-To-Measure WhatsApp Call-to-Action Section */}
       <div style={{ backgroundColor: "#FAF7F4", borderTop: "1px solid #f0ebe3", paddingTop: "3rem", paddingBottom: "3rem", textAlign: "center", paddingLeft: "1rem", paddingRight: "1rem", width: "100%", boxSizing: "border-box" }}>
-        <p style={{ fontSize: "0.65rem", letterSpacing: "0.2em", textTransform: "uppercase", color: goldColor, fontWeight: 600, marginBottom: "0.5rem" }}>Bespoke Assembly</p>
+        <p style={{ fontSize: "0.65rem", letterSpacing: "0.25em", textTransform: "uppercase", color: goldColor, fontWeight: 600, marginBottom: "0.5rem" }}>Bespoke Assembly</p>
         <h2 style={{ fontFamily: "var(--font-playfair), Georgia, serif", fontSize: "1.35rem", fontWeight: 700, color: "#1a1a1a", marginBottom: "0.75rem" }}>Made-to-Measure Configurations</h2>
+        <p style={{ fontSize: "0.85rem", color: "#6b7280", marginBottom: "1.5rem", maxWidth: "450px", margin: "0 auto 1.5rem", lineHeight: 1.7 }}>We offer dedicated structural custom tailoring fittings. Reach out directly via WhatsApp to initiate a custom commission with our consultants.</p>
+        
         <a href="https://wa.me/2349043371380" target="_blank" rel="noopener noreferrer" className="shop-whatsapp-btn">
           <MessageCircle size={15} /> Consult via WhatsApp
         </a>
