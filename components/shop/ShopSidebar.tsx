@@ -2,7 +2,6 @@
 
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useMemo, useState, useEffect } from "react";
-import { products } from "@/lib/data/products";
 import { formatPrice } from "@/lib/utils";
 import { X, RotateCcw } from "lucide-react";
 
@@ -29,20 +28,52 @@ export default function ShopSidebar({ isMobileOpen, setIsMobileOpen }: { isMobil
   const searchParams = useSearchParams();
 
   // Dynamic filter lists based on your product data
-  const categories = useMemo(() => Array.from(new Set(products.map((p) => p.category))), []);
-  const colors = useMemo(() => Array.from(new Set(products.flatMap((p) => p.colors))), []);
-  const maxProductPrice = useMemo(() => Math.max(...products.map((p) => p.price)), []);
+  const [products, setProducts] = useState<any[]>([]);
+  const [maxProductPrice, setMaxProductPrice] = useState(100000); 
+  const [localPrice, setLocalPrice] = useState(100000);
 
-  const [localPrice, setLocalPrice] = useState(maxProductPrice);
+  const categories = useMemo(() => {
+    if (!products.length) return [];
+    return Array.from(new Set(products.map((p) => p.category))).filter(Boolean);
+  }, [products]);
 
-  // Sync local price slider with URL param
+  const colors = useMemo(() => {
+    if (!products.length) return [];
+    return Array.from(new Set(products.flatMap((p) => p.colors || []))).filter(Boolean);
+  }, [products]);
+
+  // ⚡ Fetch live catalog items on layout mount to sync item count allocations
+  useEffect(() => {
+    async function fetchSidebarFacets() {
+      try {
+        const res = await fetch("/api/admin/products");
+        const data = await res.json();
+        if (data.success && data.products?.length) {
+          setProducts(data.products);
+          const maxPrice = Math.max(...data.products.map((p: any) => p.price || 0));
+          setMaxProductPrice(maxPrice);
+          
+          // ✅ FIXED: Safely analyze parameters without undefined runtime loops
+          const currentPriceParam = searchParams.get("price");
+          setLocalPrice(currentPriceParam ? Number(currentPriceParam) : maxPrice);
+        }
+      } catch (err) {
+        console.error("Failed synchronizing sidebar catalog facets:", err);
+      }
+    }
+    fetchSidebarFacets();
+  }, [searchParams]);
+
+  // Sync local price slider with search param updates
   useEffect(() => {
     const urlPrice = searchParams.get("price");
-    if (urlPrice) setLocalPrice(Number(urlPrice));
-    else setLocalPrice(maxProductPrice);
-  }, [searchParams, maxProductPrice]);
+    if (urlPrice) {
+      setLocalPrice(Number(urlPrice));
+    } else if (products.length) {
+      setLocalPrice(maxProductPrice);
+    }
+  }, [searchParams, maxProductPrice, products]);
 
-  // Handle URL updates
   const updateFilter = (key: string, value: string) => {
     const params = new URLSearchParams(searchParams.toString());
     if (value && params.get(key) !== value) {
@@ -70,13 +101,12 @@ export default function ShopSidebar({ isMobileOpen, setIsMobileOpen }: { isMobil
         @media(min-width: 1024px) {
           .sidebar {
             position: sticky;
-            top: 8rem;                       /* Syncs with top nav space heights */
-            height: calc(100vh - 10rem);     /* Confines frame context to window viewport boundary */
-            overflow-y: auto;                /* Enables independent internal tracking wheels */
+            top: 8rem;                       
+            height: calc(100vh - 10rem);     
+            overflow-y: auto;                
             padding-right: 1rem;
           }
           
-          /* Clean minimalist custom scrollbar track for the independent desktop panel */
           .sidebar::-webkit-scrollbar { width: 4px; }
           .sidebar::-webkit-scrollbar-track { background: transparent; }
           .sidebar::-webkit-scrollbar-thumb { background: #e4e4e7; border-radius: 2px; }
@@ -103,7 +133,6 @@ export default function ShopSidebar({ isMobileOpen, setIsMobileOpen }: { isMobil
             transform: translateX(0);
           }
           
-          /* 🔥 MOBILE NAV BUFFER: Extends internal padding context to prevent bottom clip truncation */
           .sidebar-content-wrapper {
             padding-bottom: 7.5rem; 
           }
@@ -183,7 +212,7 @@ export default function ShopSidebar({ isMobileOpen, setIsMobileOpen }: { isMobil
           -webkit-appearance: none;
           width: 100%;
           height: 5px;
-          background: #0066ff;
+          background: #e4e4e7;
           border-radius: 4px;
           outline: none;
           margin: 1.25rem 0;
@@ -194,10 +223,10 @@ export default function ShopSidebar({ isMobileOpen, setIsMobileOpen }: { isMobil
           width: 16px;
           height: 16px;
           border-radius: 50%;
-          background: #0066ff;
+          background: #1a1a1a;
           cursor: pointer;
           border: 2px solid white;
-          box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+          box-shadow: 0 2px 5px rgba(0,0,0,0.15);
           transition: transform 0.1s ease;
         }
         .price-slider::-webkit-slider-thumb:hover { transform: scale(1.2); }
@@ -226,7 +255,6 @@ export default function ShopSidebar({ isMobileOpen, setIsMobileOpen }: { isMobil
       `}</style>
 
       <div className={`sidebar ${isMobileOpen ? "mobile-open" : ""}`}>
-        {/* Inner wrapper layer applies mobile padding buffer safely */}
         <div className="sidebar-content-wrapper">
           
           {/* Mobile Close Header */}
@@ -243,6 +271,7 @@ export default function ShopSidebar({ isMobileOpen, setIsMobileOpen }: { isMobil
           <div className="sidebar-widget">
             <h3 className="widget-title">Categories</h3>
             <ul className="filter-list">
+              {/* ✅ FIXED: Corrected JSX structural <li> alignment matching closure models */}
               <li>
                 <button className={`filter-btn ${!searchParams.get("category") ? "active" : ""}`} onClick={() => updateFilter("category", "")}>
                   <span>All Categories</span>
@@ -263,8 +292,27 @@ export default function ShopSidebar({ isMobileOpen, setIsMobileOpen }: { isMobil
             </ul>
           </div>
 
+          {/* Variation Options Matrix Row */}
+          <div className="sidebar-row-box" style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+            <div>
+              <p style={{ fontSize: "0.7rem", letterSpacing: "0.2em", textTransform: "uppercase", fontWeight: 600, color: "#1a1a1a", marginBottom: "0.75rem" }}>Colors</p>
+              <div className="color-options">
+                {Array.from(new Set(products.flatMap(p => p.colors || []))).map((color: any) => (
+                  <button
+                    key={color}
+                    type="button"
+                    title={color}
+                    onClick={() => updateFilter("color", color)}
+                    className={`color-btn ${searchParams.get("color") === color ? "active" : ""}`}
+                    style={{ background: getColorHex(color) }}
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+
           {/* Price Widget */}
-          <div className="sidebar-widget">
+          <div className="sidebar-widget" style={{ marginTop: "1.5rem" }}>
             <h3 className="widget-title">Price Range</h3>
             <input 
               type="range" 
@@ -279,22 +327,6 @@ export default function ShopSidebar({ isMobileOpen, setIsMobileOpen }: { isMobil
             <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.9rem", color: "#71717a", fontWeight: 500, marginTop: "0.5rem" }}>
               <span>{formatPrice(0)}</span>
               <span style={{ color: "#C9A84C", fontWeight: 700 }}>{formatPrice(localPrice)}</span>
-            </div>
-          </div>
-
-          {/* Color Widget */}
-          <div className="sidebar-widget">
-            <h3 className="widget-title">Colors</h3>
-            <div className="color-options">
-              {colors.map((color) => (
-                <button 
-                  key={color} 
-                  title={color}
-                  className={`color-btn ${searchParams.get("color") === color ? "active" : ""}`}
-                  style={{ background: getColorHex(color) }}
-                  onClick={() => updateFilter("color", color)}
-                />
-              ))}
             </div>
           </div>
 
