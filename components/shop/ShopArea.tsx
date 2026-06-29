@@ -82,7 +82,6 @@ export default function ShopArea() {
   return (
     <>
       <style>{`
-        /* --- Viewport Layout Framework Matrix --- */
         .shop-layout { 
           display: flex;
           flex-direction: column;
@@ -94,7 +93,7 @@ export default function ShopArea() {
         @media(min-width: 1024px) { 
           .shop-layout { 
             flex-direction: row;
-            gap: 3.5rem; 
+            gap: 2.5rem; 
             align-items: start;
           } 
         }
@@ -106,21 +105,21 @@ export default function ShopArea() {
           box-sizing: border-box;
         }
 
-        /* 📱 Amazon UX Split Architecture: Micro-Gaps on Mobile, Balanced Desktop Grid */
         .product-grid { 
           display: grid; 
           grid-template-columns: repeat(2, 1fr); 
-          gap: 0.4rem; 
+          gap: 0.25rem; 
           width: 100%;
           box-sizing: border-box;
         }
-        @media(min-width: 640px) { .product-grid { gap: 1rem; } }
-        /* 🖥️ Drastically reduces grid content footprint metrics cleanly across desktop layouts */
-        @media(min-width: 1024px) { .product-grid { grid-template-columns: repeat(3, 1fr); gap: 1.5rem; } }
+        @media(min-width: 480px) { .product-grid { gap: 0.5rem; } }
+        @media(min-width: 640px) { .product-grid { gap: 0.75rem; } }
+        @media(min-width: 1024px) { .product-grid { grid-template-columns: repeat(3, 1fr); gap: 1rem; } }
+        @media(min-width: 1440px) { .product-grid { grid-template-columns: repeat(4, 1fr); gap: 1.25rem; } }
 
         .sort-select, .gender-select {
-          padding: 0.45rem 1.25rem 0.45rem 0.5rem; border: 1px solid #e5e7eb; background: white;
-          color: #1a1a1a; font-size: 0.72rem; font-weight: 500;
+          padding: 0.4rem 1.25rem 0.4rem 0.5rem; border: 1px solid #e5e7eb; background: white;
+          color: #1a1a1a; font-size: 0.7rem; font-weight: 500;
           outline: none; cursor: pointer; border-radius: 4px; 
           appearance: none; font-family: inherit;
         }
@@ -131,7 +130,6 @@ export default function ShopArea() {
         .breadcrumb-link { font-size: 0.65rem; color: #9ca3af; letter-spacing: 0.05em; text-transform: uppercase; text-decoration: none; }
         @media(min-width: 768px) { .breadcrumb-link { font-size: 0.72rem; } }
         
-        /* 📱 Ultra-Compact Borderless Product Card Nodes for Mobile Viewports */
         .sc { 
           display: flex; 
           flex-direction: column; 
@@ -139,7 +137,7 @@ export default function ShopArea() {
           width: 100%; 
           box-sizing: border-box; 
           background: #ffffff;
-          padding: 0.35rem;
+          padding: 0.25rem;
           border: 1px solid #f1f5f9;
           border-radius: 4px;
         }
@@ -149,10 +147,9 @@ export default function ShopArea() {
         .sci { transition: transform 0.5s ease; }
         .sc:hover .sci { transform: scale(1.02); }
 
-        /* --- Hover Action Overlay (Desktop Only) --- */
         .sco {
           position: absolute; inset: 0; background-color: rgba(0,0,0,0.14);
-          display: flex; align-items: flex-end; justify-content: center; padding-bottom: 1.5rem; gap: 0.5rem;
+          display: flex; align-items: flex-end; justify-content: center; padding-bottom: 1rem; gap: 0.35rem;
           opacity: 0; transition: opacity 0.2s ease; pointer-events: none; z-index: 10;
         }
         .sc:hover .sco { opacity: 1; pointer-events: auto; }
@@ -162,8 +159,8 @@ export default function ShopArea() {
         }
 
         .action-btn {
-          color: white; font-size: 0.65rem; letter-spacing: 0.1em; text-transform: uppercase;
-          border: 1px solid rgba(255,255,255,0.8); padding: 0.4rem 0.85rem; background: rgba(26,26,26,0.8);
+          color: white; font-size: 0.6rem; letter-spacing: 0.05em; text-transform: uppercase;
+          border: 1px solid rgba(255,255,255,0.8); padding: 0.35rem 0.65rem; background: rgba(26,26,26,0.8);
           font-weight: 600; text-decoration: none; cursor: pointer; border-radius: 2px;
         }
 
@@ -176,10 +173,9 @@ export default function ShopArea() {
           font-size: 0.75rem; font-weight: 600; text-transform: uppercase; text-decoration: none; border-radius: 4px;
         }
 
-        /* ⚡ Amazon Mobile Sticky Bar Engine Setup */
         .sticky-filter-bar {
           position: sticky;
-          top: 3.9rem; /* Perfectly pins layout stack beneath core global header space dimensions */
+          top: 3.9rem; 
           z-index: 40;
           background: #ffffff;
           border-bottom: 1px solid #e2e8f0;
@@ -193,8 +189,8 @@ export default function ShopArea() {
         @media(min-width: 1024px) {
           .sticky-filter-bar {
             position: static;
-            padding: 0 0 1.5rem 0;
-            margin-bottom: 1.75rem;
+            padding: 0 0 1.25rem 0;
+            margin-bottom: 1.5rem;
             border-bottom: 1px solid #f0ebe3;
           }
         }
@@ -210,7 +206,7 @@ export default function ShopArea() {
         @media (min-width: 1024px) {
           .mobile-only-filter { display: none !important; }
           .gender-mobile-wrapper { display: none; }
-          .gender-desktop-wrapper { display: block; margin-top: 2.5rem; border-bottom: 1px solid #e5e7eb; width: max-content; padding-bottom: 2px; }
+          .gender-desktop-wrapper { display: block; margin-top: 2rem; border-bottom: 1px solid #e5e7eb; width: max-content; padding-bottom: 2px; }
           .mobile-action-tray { display: none !important; }
         }
 
@@ -225,7 +221,6 @@ export default function ShopArea() {
           content: ''; position: absolute; bottom: -3px; left: 1rem; right: 1rem; height: 2px; background-color: #C9A84C;
         }
 
-        /* 📱 Amazon Bottom-Sheet Drawer Engine Overlay Styles (Mobile Only) */
         @media (max-width: 1023px) {
           .amazon-bottom-sheet {
             position: fixed; bottom: 0; left: 0; right: 0; background: white; z-index: 100;
@@ -281,7 +276,7 @@ export default function ShopArea() {
         </div>
       </div>
 
-      {/* ⚡ Sticky Interactivity Action Filter Control Row */}
+      {/* Sticky Header Filter Control Row */}
       <div className="sticky-filter-bar">
         <button 
           type="button"
@@ -335,11 +330,11 @@ export default function ShopArea() {
                         {product.images?.[0] ? (
                           <Image src={product.images[0]} alt={product.name} fill className="sci" style={{ objectFit: "cover" }} sizes="(max-width:640px) 50vw, 33vw" />
                         ) : (
-                          <div className="w-full h-full flex items-center justify-center text-zinc-300"><ImageIcon size={16} /></div>
+                          <div className="w-full h-full flex items-center justify-center text-zinc-300"><ImageIcon size={14} /></div>
                         )}
                       </Link>
 
-                      <div style={{ position: "absolute", top: "0.3rem", left: "0.3rem", backgroundColor: "white", padding: "0.1rem 0.4rem", fontSize: "0.48rem", letterSpacing: "0.05em", textTransform: "uppercase", fontWeight: 700, color: goldColor, borderRadius: "2px", border: "1px solid #f1f5f9" }}>
+                      <div style={{ position: "absolute", top: "0.25rem", left: "0.25rem", backgroundColor: "white", padding: "0.1rem 0.35rem", fontSize: "0.45rem", letterSpacing: "0.05em", textTransform: "uppercase", fontWeight: 700, color: goldColor, borderRadius: "2px", border: "1px solid #f1f5f9" }}>
                         {product.category}
                       </div>
 
@@ -347,41 +342,40 @@ export default function ShopArea() {
                         type="button"
                         onClick={() => toggleWishlist(product)}
                         className="wishlist-btn hidden lg:flex"
-                        style={{ position: "absolute", top: "0.4rem", right: "0.4rem", background: "white", border: "1px solid #f0ebe3", borderRadius: "50%", width: "28px", height: "30px", alignItems: "center", justifyContent: "center", cursor: "pointer" }}
+                        style={{ position: "absolute", top: "0.35rem", right: "0.35rem", background: "white", border: "1px solid #f0ebe3", borderRadius: "50%", width: "28px", height: "26px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}
                       >
-                        <Heart size={12} color="#C9A84C" fill={isInWishlist(product._id) ? goldColor : "transparent"} />
+                        <Heart size={11} color="#C9A84C" fill={isInWishlist(product._id) ? goldColor : "transparent"} />
                       </button>
 
                       <div className="sco">
                         <button type="button" className="action-btn" onClick={() => addToCart(product, 1)}>
-                          <ShoppingBag size={10} /> Add Basket
+                          <ShoppingBag size={9} /> Add
                         </button>
                       </div>
                     </div>
                     
-                    {/* Balanced Typography Metadata Unit */}
-                    <div style={{ textAlign: "left", display: "flex", flexDirection: "column", gap: "0.05rem", padding: "0 0.15rem" }}>
+                    <div style={{ textAlign: "left", display: "flex", flexDirection: "column", gap: "0.02rem", padding: "0 0.1rem" }}>
                       <Link href={`/shop/${product.slug}`} style={{ textDecoration: "none" }}>
-                        <h3 className="sct" style={{ fontSize: "0.78rem", fontWeight: 600, color: "#1a1a1a", margin: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{product.name}</h3>
+                        <h3 className="sct" style={{ fontSize: "0.72rem", fontWeight: 600, color: "#1a1a1a", margin: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{product.name}</h3>
                       </Link>
-                      <p style={{ fontSize: "0.85rem", fontWeight: 700, color: "#334155", margin: "0.1rem 0 0.25rem 0", fontFamily: "monospace" }}>{formatPrice(product.price)}</p>
+                      <p style={{ fontSize: "0.62rem", color: "#6b7280", margin: 0 }}>{product.category}</p>
+                      <p style={{ fontSize: "0.8rem", fontWeight: 700, color: "#334155", margin: "0.1rem 0 0.2rem 0", fontFamily: "monospace" }}>{formatPrice(product.price)}</p>
                     </div>
 
-                    {/* Persisted Action Strip (Hidden on Desktop via layout queries) */}
-                    <div className="mobile-action-tray" style={{ display: "none", gap: "0.3rem", width: "100%", boxSizing: "border-box", marginTop: "auto" }}>
+                    <div className="mobile-action-tray" style={{ display: "none", gap: "0.25rem", width: "100%", boxSizing: "border-box", marginTop: "auto" }}>
                       <button 
                         type="button" 
                         onClick={() => addToCart(product, 1)} 
-                        style={{ flex: 1, backgroundColor: "#ffffff", color: "#1a1a1a", border: "1px solid #cbd5e1", padding: "0.35rem", fontSize: "0.65rem", fontWeight: 600, cursor: "pointer", borderRadius: "4px" }}
+                        style={{ flex: 1, backgroundColor: "#ffffff", color: "#1a1a1a", border: "1px solid #cbd5e1", padding: "0.3rem", fontSize: "0.62rem", fontWeight: 600, cursor: "pointer", borderRadius: "4px" }}
                       >
                         Add +
                       </button>
                       <button 
                         type="button"
                         onClick={() => toggleWishlist(product)}
-                        style={{ background: "#ffffff", border: "1px solid #cbd5e1", width: "28px", height: "28px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", borderRadius: "4px" }}
+                        style={{ background: "#ffffff", border: "1px solid #cbd5e1", width: "26px", height: "26px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", borderRadius: "4px" }}
                       >
-                        <Heart size={12} color="#C9A84C" fill={isInWishlist(product._id) ? goldColor : "transparent"} />
+                        <Heart size={11} color="#C9A84C" fill={isInWishlist(product._id) ? goldColor : "transparent"} />
                       </button>
                     </div>
 
@@ -393,7 +387,7 @@ export default function ShopArea() {
         </div>
       </div>
 
-      {/* 📱 Mobile Drawer sheet layout container engine */}
+      {/* Mobile Bottom Sheet Overlay */}
       {isMobileFilterOpen && (
         <>
           <div className="amazon-backdrop mobile-only-filter" onClick={() => setIsMobileFilterOpen(false)} />
@@ -409,7 +403,7 @@ export default function ShopArea() {
         </>
       )}
 
-      {/* Made-To-Measure WhatsApp Call-to-Action Section */}
+      {/* Made-To-Measure Call-to-Action Section */}
       <div style={{ backgroundColor: "#FAF7F4", borderTop: "1px solid #f0ebe3", paddingTop: "2.5rem", paddingBottom: "2.5rem", textAlign: "center", paddingLeft: "1rem", paddingRight: "1rem", width: "100%", boxSizing: "border-box" }}>
         <p style={{ fontSize: "0.6rem", letterSpacing: "0.15em", textTransform: "uppercase", color: goldColor, fontWeight: 600, marginBottom: "0.35rem" }}>Bespoke Assembly</p>
         <h2 style={{ fontFamily: "var(--font-playfair), Georgia, serif", fontSize: "1.15rem", fontWeight: 700, color: "#1a1a1a", marginBottom: "0.6rem" }}>Made-to-Measure Configurations</h2>
