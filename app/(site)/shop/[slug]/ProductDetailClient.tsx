@@ -1,12 +1,12 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { formatPrice, generateWhatsAppLink } from "@/lib/utils";
 import { useShop } from "@/context/ShopContext";
 import { useTelemetry } from "@/hooks/useTelemetry"; 
-import { ShoppingBag, Heart, MessageCircle, Minus, Plus, Star } from "lucide-react";
+import { ShoppingBag, Heart, MessageCircle, Minus, Plus, Star, ImageIcon } from "lucide-react";
 
 export default function ProductDetailClient({ product, relatedProducts }: { product: any, relatedProducts: any[] }) {
   const { addToCart, toggleWishlist, isInWishlist } = useShop();
@@ -14,17 +14,12 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
   
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState("description");
-  
-  // ⚡ Active Main Display Image Array Index Node Pointer
   const [activeImageIndex, setActiveImageIndex] = useState(0);
-  
-  // Single unified reviews state tracker declaration
   const [reviews, setReviews] = useState(product.reviews || []);
   
-  // Interactive Review State
+  // Interactive Review Form State
   const [rating, setRating] = useState(0);
   const [hoveredStar, setHoveredStar] = useState(0);
-
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [reviewText, setReviewText] = useState("");
@@ -34,25 +29,21 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
   const [selectedColor, setSelectedColor] = useState(product.colors?.[0] || "Default Matrix");
   const [selectedGender, setSelectedGender] = useState(product.gender === "Both" ? "Female" : product.gender);
 
-  // Telemetry Effect: Synchronizes product views directly down to customer history arrays
   useEffect(() => {
     if (product?._id) {
       trackProduct(product._id);
     }
   }, [product?._id, trackProduct]);
 
-  // Update reviews state when product prop changes
   useEffect(() => {
     if (product.reviews) {
       setReviews(product.reviews);
     }
   }, [product._id, product.reviews]);
 
-  // WhatsApp Intent Trigger String Configuration
   const msg = `Hi Norex Atelier, I am interested in ordering the ${product.name} (${formatPrice(product.price)}).\n\nMy Configurations:\n- Size: ${selectedSize}\n- Color Swatch: ${selectedColor}\n- Fit Cut: ${selectedGender === "Both" ? "Unisex" : selectedGender}\n\nPlease verify availability.`;
   const whatsappLink = generateWhatsAppLink("+2349043371380", msg);
 
-  // Normalization Adapter to guarantee absolute runtime alignment with global type constraints
   const getContextPayload = (targetProduct = product) => {
     const isMainProduct = targetProduct._id === product._id || targetProduct.id === product.id;
     return {
@@ -89,7 +80,6 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     if (rating === 0) {
       alert("Please select a star rating");
       return;
@@ -98,9 +88,7 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
     try {
       const res = await fetch("/api/reviews", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           productId: product._id, 
           user: name,
@@ -111,7 +99,6 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
       });
 
       const data = await res.json();
-
       if (data.success) {
         alert("Review submitted!");
         setReviews((prev: any) => [...prev, data.data]);
@@ -154,24 +141,11 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
         }
 
         .image-roll-grid {
-          display: grid;
-          grid-template-columns: repeat(4, 1fr);
-          gap: 0.5rem;
-          margin-top: 0.75rem;
-          width: 100%;
+          display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; margin-top: 0.75rem; width: 100%;
         }
 
         .roll-thumb-btn {
-          position: relative;
-          aspect-ratio: 3/4;
-          overflow: hidden;
-          background-color: #FAF7F4;
-          border: 1px solid #e5e7eb;
-          cursor: pointer;
-          padding: 0;
-          transition: all 0.3s ease;
-          border-radius: 2px;
-          width: 100%;
+          position: relative; aspect-ratio: 3/4; overflow: hidden; background-color: #FAF7F4; border: 1px solid #e5e7eb; cursor: pointer; padding: 0; transition: all 0.3s ease; border-radius: 2px; width: 100%;
         }
         .roll-thumb-btn:hover { border-color: #C9A84C; }
         .roll-thumb-btn.active { border-color: #1a1a1a; }
@@ -208,27 +182,55 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
         .action-split-row { display: flex; gap: 1rem; flex-direction: column; width: 100%; }
         @media (min-width: 640px) { .action-split-row { flex-direction: row; } }
 
-        .pg { display: grid; grid-template-columns: 1fr; gap: 1.5rem; width: 100%; box-sizing: border-box; }
-        @media(min-width:640px){ .pg { grid-template-columns: repeat(2,1fr); gap: 2rem; } }
-        @media(min-width:1024px){ .pg { grid-template-columns: repeat(3,1fr); } }
+        /* 📱 AMAZON UX GRID FRAMEWORK - Dynamic centering configurations */
+        .product-grid { 
+          display: grid; 
+          grid-template-columns: repeat(2, 1fr); 
+          gap: 0.5rem; 
+          width: 100%; 
+        }
+        @media(min-width: 640px) { .product-grid { gap: 1rem; } }
+        @media(min-width: 1200px) { .product-grid { grid-template-columns: repeat(3, 1fr); gap: 1.5rem; } }
         
-        .pc { display: flex; flex-direction: column; position: relative; background: white; border: 1px solid #f4f4f5; padding: 0.5rem; border-radius: 1px; width: 100%; box-sizing: border-box; }
-        .pc-img-frame { position: relative; overflow: hidden; aspect-ratio: 3/4; background-color: #FAF7F4; width: 100%; }
-        .pc-img { transition: transform 0.7s ease; }
-        .pc:hover .pc-img { transform: scale(1.03); }
+        .sc { 
+          display: flex; 
+          flex-direction: column; 
+          position: relative; 
+          width: 100%; 
+          box-sizing: border-box; 
+          background: white;
+          padding: 0.5rem;
+          border: 1px solid #f3f4f6;
+          border-radius: 4px;
+        }
+        @media(min-width: 1024px) {
+          .sc { border: none; padding: 0; background: transparent; }
+        }
+        .sci { transition: transform 0.7s cubic-bezier(0.25, 1, 0.5, 1); }
+        .sc:hover .sci { transform: scale(1.02); }
 
-        /* --- Desktop Hover Overlay Layer --- */
-        .pc-overlay { position: absolute; inset: 0; background-color: rgba(0,0,0,0.15); display: flex; align-items: flex-end; justify-content: center; padding-bottom: 2rem; gap: 0.5rem; opacity: 0; transition: opacity 0.3s ease; pointer-events: none; z-index: 10; }
-        .pc:hover .pc-overlay { opacity: 1; pointer-events: auto; }
+        .sco {
+          position: absolute; inset: 0; background-color: rgba(0,0,0,0.15);
+          display: flex; align-items: flex-end; justify-content: center; padding-bottom: 1.5rem; gap: 0.5rem;
+          opacity: 0; transition: opacity 0.3s ease; pointer-events: none; z-index: 10;
+        }
+        .sc:hover .sco { opacity: 1; pointer-events: auto; }
         
-        /* ⚡ FIX: Strict media override keeps the layout clean on viewport size mutations */
         @media (max-width: 1023px) {
-          .pc-overlay { display: none !important; }
+          .sco { display: none !important; }
+          .mobile-action-tray { display: flex !important; }
         }
 
-        .pc-action-btn { color: white; font-size: 0.65rem; letter-spacing: 0.12em; text-transform: uppercase; border: 1px solid rgba(255,255,255,0.8); padding: 0.5rem 1rem; transition: all 0.2s; font-weight: 700; background: rgba(26,26,26,0.8); border-radius: 1px; display: inline-flex; align-items: center; gap: 0.35rem; cursor: pointer; }
-        .pc-action-btn:hover { background-color: #C9A84C; border-color: #C9A84C; }
-        .pc-wishlist-trigger { position: absolute; top: 0.5rem; right: 0.5rem; background: white; border: 1px solid #f4f4f5; border-radius: 50%; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 20; box-shadow: 0 4px 10px rgba(0,0,0,0.02); }
+        .action-btn {
+          color: white; font-size: 0.65rem; letter-spacing: 0.12em; text-transform: uppercase;
+          border: 1px solid rgba(255,255,255,0.8); padding: 0.5rem 1rem; transition: all 0.3s ease; 
+          font-weight: 600; text-decoration: none; cursor: pointer; background: rgba(26,26,26,0.75); display: inline-flex; align-items: center; gap: 0.4rem; border-radius: 2px;
+        }
+        .action-btn:hover { background-color: #C9A84C; border-color: #C9A84C; }
+        .wishlist-btn { transition: transform 0.2s ease; z-index: 20; }
+        .wishlist-btn:hover { transform: scale(1.1); }
+        .sct { transition: color 0.3s ease; text-decoration: none; }
+        .sct:hover { color: #C9A84C !important; }
 
         .form-input { width: 100%; padding: 0.875rem 1rem; border: 1px solid #e5e7eb; border-radius: 2px; font-size: 0.9rem; color: #1a1a1a; outline: none; transition: border-color 0.2s; font-family: inherit; box-sizing: border-box; }
         .form-input:focus { border-color: #C9A84C; }
@@ -241,7 +243,7 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
       
       {/* Breadcrumbs Row */}
       <div style={{ paddingTop: "8rem", paddingBottom: "1.5rem", borderBottom: "1px solid #f0ebe3", backgroundColor: "#FAF7F4", width: "100%" }}>
-        <div className="container-custom" style={{ paddingLeft: "1.5rem", paddingRight: "1.5rem" }}>
+        <div className="container-custom" style={{ paddingLeft: "1rem", paddingRight: "1rem" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flexWrap: "wrap", justifyContent: "flex-start" }}>
             <Link href="/" className="breadcrumb-link">Home</Link>
             <span style={{ color: "#d1d5db", fontSize: "0.7rem" }}>/</span>
@@ -252,7 +254,7 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
         </div>
       </div>
 
-      <div className="container-custom" style={{ paddingTop: "3rem", paddingBottom: "4rem", paddingLeft: "1.5rem", paddingRight: "1.5rem" }}>
+      <div className="container-custom" style={{ paddingTop: "3rem", paddingBottom: "4rem", paddingLeft: "1rem", paddingRight: "1rem" }}>
         <div className="pdg">
           
           {/* Left Media Stage */}
@@ -370,7 +372,7 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
             <button type="button" className={`tab-btn ${activeTab === 'reviews' ? 'active' : ''}`} onClick={() => setActiveTab('reviews')}>Reviews ({reviews.length})</button>
           </div>
 
-          <div style={{ padding: "3rem 1.5rem", maxWidth: "800px", margin: "0 auto", textAlign: "left", boxSizing: "border-box" }}>
+          <div style={{ padding: "3rem 1rem", maxWidth: "800px", margin: "0 auto", textAlign: "left", boxSizing: "border-box" }}>
             {activeTab === 'description' && <div><h3 style={{ fontFamily: "var(--font-playfair), serif", fontSize: "1.1rem", marginBottom: "1rem" }} className="font-bold uppercase">Description</h3><p style={{ color: "#4b5563", lineHeight: 1.7 }} className="text-sm font-light">{product.description}</p></div>}
             
             {activeTab === 'info' && (
@@ -440,79 +442,87 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
         </div>
       </div>
       
-      {/* RELATED PRODUCTS GRID */}
+      {/* ✅ SYNCHRONIZED RELATED PRODUCTS SECTOR */}
       {relatedProducts.length > 0 && (
         <div style={{ paddingTop: "4rem", paddingBottom: "5rem", backgroundColor: "white", width: "100%" }}>
-          <div className="container-custom" style={{ paddingLeft: "1.5rem", paddingRight: "1.5rem" }}>
+          <div className="container-custom" style={{ paddingLeft: "0.75rem", paddingRight: "0.75rem" }}>
+            
             <div style={{ marginBottom: "2.5rem", textAlign: "center" }}>
-              <h2 style={{ fontFamily: "var(--font-playfair), Georgia, serif", fontSize: "clamp(1.5rem, 4vw, 2.2rem)", fontWeight: 700, color: "#1a1a1a", textTransform: "uppercase" }}>Related Products</h2>
+              <h2 style={{ fontFamily: "var(--font-playfair), Georgia, serif", fontSize: "clamp(1.35rem, 4vw, 2.2rem)", fontWeight: 700, color: "#1a1a1a", textTransform: "uppercase", margin: 0 }}>
+                Related Products
+              </h2>
             </div>
-            <div className="pg">
+
+            <div className="product-grid">
               {relatedProducts.map((p) => {
                 const isWished = isInWishlist(p._id || p.id);
                 return (
-                  <div key={p._id || p.id} className="pc">
-                    <div className="pc-img-frame">
+                  <div key={p._id || p.id} className="sc">
+                    <div style={{ position: "relative", overflow: "hidden", backgroundColor: "#FAF7F4", aspectRatio: "3/4", marginBottom: "0.5rem", borderRadius: "4px" }}>
+                      
                       <div className="look-spinning-badge">
                         Look-{String(p.lookNumber || p.id || 1).padStart(2, "0")}
                       </div>
+
                       <Link href={`/shop/${p.slug}`} style={{ display: "block", width: "100%", height: "100%" }}>
-                        <Image src={p.images?.[0] || "/placeholder-garment.png"} alt={p.name} fill className="pc-img" style={{ objectFit: "cover" }} sizes="(max-width:640px) 100vw,(max-width:1024px) 50vw,33vw" />
+                        {p.images?.[0] ? (
+                          <Image src={p.images[0]} alt={p.name} fill className="sci" style={{ objectFit: "cover" }} sizes="(max-width:640px) 50vw, 33vw" />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-zinc-300"><ImageIcon size={20} /></div>
+                        )}
                       </Link>
 
-                      {/* Floating Wishlist Button Overlay Pin (Desktop Only) */}
+                      {/* Desktop Wishlist Button */}
                       <button 
                         type="button" 
                         onClick={() => toggleWishlist(getContextPayload(p))}
-                        className="pc-wishlist-trigger hidden lg:flex"
+                        className="wishlist-btn hidden lg:flex"
+                        style={{ position: "absolute", top: "0.4rem", right: "0.4rem", background: "white", border: "1px solid #f0ebe3", borderRadius: "50%", width: "30px", height: "30px", alignItems: "center", justifyContent: "center", cursor: "pointer", zIndex: 20 }}
                         title={isWished ? "Remove from registry" : "Save to registry"}
                       >
-                        <Heart size={14} color="#C9A84C" fill={isWished ? "#C9A84C" : "transparent"} />
+                        <Heart size={13} color="#C9A84C" fill={isWished ? "#C9A84C" : "transparent"} />
                       </button>
 
-                      {/* 🖥️ Desktop Overlay Menu Actions */}
-                      <div className="pc-overlay">
-                        <button type="button" className="pc-action-btn" onClick={() => addToCart(getContextPayload(p), 1)}>
-                          <ShoppingBag size={12} /> Add
+                      {/* Desktop Overlay Actions */}
+                      <div className="sco">
+                        <button type="button" className="action-btn" onClick={() => addToCart(getContextPayload(p), 1)}>
+                          <ShoppingBag size={11} /> Add Basket
                         </button>
-                        <Link href={`/shop/${p.slug}`} className="pc-action-btn" style={{ textDecoration: "none" }}>
-                          Details
-                        </Link>
                       </div>
                     </div>
 
-                    {/* 📱 Mobile Context Action Tray (Hidden on Desktop via explicit lg:hidden container rule) */}
-                    <div className="flex lg:hidden" style={{ gap: "0.5rem", width: "100%", padding: "0.5rem 0", boxSizing: "border-box" }}>
+                    {/* Meta Typography Data Frame */}
+                    <div style={{ textAlign: "left", display: "flex", flexDirection: "column", gap: "0.15rem", padding: "0 0.25rem" }}>
+                      <Link href={`/shop/${p.slug}`} style={{ textDecoration: "none" }}>
+                        <h3 className="sct" style={{ fontSize: "0.85rem", fontWeight: 500, color: "#1a1a1a", margin: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{p.name}</h3>
+                      </Link>
+                      <p style={{ fontSize: "0.75rem", color: "#6b7280", margin: 0 }}>{p.category}</p>
+                      <p style={{ fontSize: "0.95rem", fontWeight: 700, color: "#1a1a1a", margin: "0.15rem 0 0.35rem 0", fontFamily: "monospace" }}>{formatPrice(p.price)}</p>
+                    </div>
+
+                    {/* Mobile Persistent Interaction Strip */}
+                    <div className="mobile-action-tray" style={{ display: "none", gap: "0.35rem", width: "100%", boxSizing: "border-box", marginTop: "auto" }}>
                       <button 
                         type="button" 
                         onClick={() => addToCart(getContextPayload(p), 1)} 
-                        style={{ flex: 1, backgroundColor: "#1a1a1a", color: "white", border: "none", padding: "0.65rem", fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", cursor: "pointer", borderRadius: "2px" }}
+                        style={{ flex: 1, backgroundColor: "#FAF7F4", color: "#1a1a1a", border: "1px solid #d1d5db", padding: "0.45rem", fontSize: "0.68rem", fontWeight: 600, cursor: "pointer", borderRadius: "4px" }}
                       >
-                        + Add Basket
+                        Add
                       </button>
                       <button 
                         type="button"
                         onClick={() => toggleWishlist(getContextPayload(p))}
-                        style={{ background: "white", border: "1px solid #e5e7eb", width: "38px", height: "36px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", borderRadius: "2px" }}
+                        style={{ background: "white", border: "1px solid #d1d5db", width: "32px", height: "32px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", borderRadius: "4px" }}
                       >
-                        <Heart size={14} color="#C9A84C" fill={isWished ? "#C9A84C" : "transparent"} />
+                        <Heart size={13} color="#C9A84C" fill={isWished ? goldColor : "transparent"} />
                       </button>
                     </div>
 
-                    {/* Typography Breakdown Row */}
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", paddingTop: "0.5rem", gap: "0.5rem" }}>
-                      <div style={{ textAlign: "left", minWidth: 0, flex: 1 }}>
-                        <Link href={`/shop/${p.slug}`} style={{ textDecoration: "none" }}>
-                          <h3 className="sct" style={{ fontFamily: "var(--font-playfair), Georgia, serif", fontSize: "1rem", fontWeight: 700, color: "#1a1a1a", marginBottom: "0.25rem", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{p.name}</h3>
-                        </Link>
-                        <p style={{ fontSize: "0.75rem", color: "#9ca3af", fontWeight: 500 }}>{p.category}</p>
-                      </div>
-                      <p style={{ fontSize: "0.95rem", fontWeight: 700, color: "#C9A84C", flexShrink: 0, fontFamily: "monospace" }}>{formatPrice(p.price)}</p>
-                    </div>
                   </div>
                 );
               })}
             </div>
+
           </div>
         </div>
       )}
