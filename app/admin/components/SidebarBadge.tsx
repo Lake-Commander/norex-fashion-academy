@@ -207,6 +207,12 @@ export default function AdminSidebar() {
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             Upload Product
           </Link>
+          
+          {/* ⚡ NEW: Product Reviews Link */}
+          <Link href="/admin/reviews" className="sidebar-link">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+            Product Reviews
+          </Link>
 
           {/* Academy Program CMS Section Links */}
           <div className="sidebar-group-title" style={{ marginTop: "0.75rem" }}>Academy Management</div>

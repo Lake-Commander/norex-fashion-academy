@@ -32,7 +32,7 @@ export default function PaystackCheckoutButton({ shippingDetails }: { shippingDe
     setProcessing(true);
 
     try {
-      // 2. ⚡ FIX: Dynamically import Paystack Pop inside the browser execution layer
+      // 2. FIX: Dynamically import Paystack Pop inside the browser execution layer
       // This shields the Next.js server-side prerender engine from top-level window errors.
       const { default: PaystackPop } = await import("@paystack/inline-js");
 
