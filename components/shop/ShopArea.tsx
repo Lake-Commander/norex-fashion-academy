@@ -87,19 +87,26 @@ export default function ShopArea() {
   return (
     <>
       <style>{`
-        /* --- Grid Layout Framework --- */
+        /* --- Flex Layout Architecture: Responds live to sidebar width changes --- */
         .shop-layout { 
-          display: grid; 
-          grid-template-columns: 1fr; 
+          display: flex;
+          flex-direction: column;
           gap: 2rem; 
-          align-items: start;
           width: 100%;
+          box-sizing: border-box;
         }
         @media(min-width: 1024px) { 
           .shop-layout { 
-            grid-template-columns: 240px 1fr; 
-            gap: 4rem; 
+            flex-direction: row;
+            gap: 3.5rem; 
+            align-items: start;
           } 
+        }
+
+        .shop-main-pane {
+          flex: 1;
+          min-width: 0; /* Prevents long titles from blowing out the flex track */
+          width: 100%;
         }
 
         /* --- Elegant Sidebar Refinement Overrides --- */
@@ -135,9 +142,16 @@ export default function ShopArea() {
         }
         .shop-sidebar-container ul li:hover { color: #C9A84C; }
 
-        .product-grid { display: grid; grid-template-columns: 1fr; gap: 2rem; width: 100%; }
-        @media(min-width: 640px) { .product-grid { grid-template-columns: repeat(2, 1fr); } }
-        @media(min-width: 1280px) { .product-grid { grid-template-columns: repeat(3, 1fr); } }
+        /* 📱 2-COLUMN MOBILE ADVANCED GRID SYSTEM */
+        .product-grid { 
+          display: grid; 
+          grid-template-columns: repeat(2, 1fr); 
+          gap: 1rem; 
+          width: 100%; 
+        }
+        @media(min-width: 640px) { .product-grid { gap: 1.5rem; } }
+        @media(min-width: 768px) { .product-grid { grid-template-columns: repeat(2, 1fr); gap: 2rem; } }
+        @media(min-width: 1200px) { .product-grid { grid-template-columns: repeat(3, 1fr); } }
 
         .sort-select, .gender-select {
           padding: 0.5rem 2rem 0.5rem 1rem; border: 1px solid #e5e7eb; background: white;
@@ -293,12 +307,13 @@ export default function ShopArea() {
         </div>
 
         <div className="shop-layout">
+          {/* Sidebar Container wraps the panel setup cleanly */}
           <div className="shop-sidebar-container">
             <ShopSidebar isMobileOpen={isMobileFilterOpen} setIsMobileOpen={setIsMobileFilterOpen} />
           </div>
 
-          {/* Core Product Grid Display Zone */}
-          <div style={{ width: "100%", overflow: "hidden" }}>
+          {/* Core Product Grid Display Zone inside main expanding flexpane */}
+          <div className="shop-main-pane">
             {loading ? (
               <div className="py-24 text-center flex flex-col items-center justify-center gap-2">
                 <Loader2 className="h-7 w-7 animate-spin text-[#C9A84C]" />
@@ -314,17 +329,17 @@ export default function ShopArea() {
               <div className="product-grid">
                 {filteredProducts.map((product) => (
                   <div key={product._id} className="sc">
-                    <div style={{ position: "relative", overflow: "hidden", backgroundColor: "#FAF7F4", aspectRatio: "3/4", marginBottom: "1.25rem", borderRadius: "2px" }}>
+                    <div style={{ position: "relative", overflow: "hidden", backgroundColor: "#FAF7F4", aspectRatio: "3/4", marginBottom: "1rem", borderRadius: "2px" }}>
                       
                       <Link href={`/shop/${product.slug}`} style={{ display: "block", width: "100%", height: "100%" }}>
                         {product.images?.[0] ? (
-                          <Image src={product.images[0]} alt={product.name} fill className="sci" style={{ objectFit: "cover" }} sizes="(max-width:640px) 100vw,(max-width:1024px) 50vw,33vw" />
+                          <Image src={product.images[0]} alt={product.name} fill className="sci" style={{ objectFit: "cover" }} sizes="(max-width:640px) 50vw,(max-width:1024px) 50vw,33vw" />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center text-zinc-300"><ImageIcon size={24} /></div>
                         )}
                       </Link>
 
-                      <div style={{ position: "absolute", top: "1rem", left: "1rem", backgroundColor: "white", padding: "0.3rem 0.875rem", fontSize: "0.6rem", letterSpacing: "0.15em", textTransform: "uppercase", fontWeight: 700, color: goldColor, borderRadius: "1px", pointerEvents: "none", border: "1px solid #f0ebe3" }}>
+                      <div style={{ position: "absolute", top: "0.5rem", left: "0.5rem", backgroundColor: "white", padding: "0.2rem 0.6rem", fontSize: "0.55rem", letterSpacing: "0.12em", textTransform: "uppercase", fontWeight: 700, color: goldColor, borderRadius: "1px", pointerEvents: "none", border: "1px solid #f0ebe3" }}>
                         {product.category}
                       </div>
 
@@ -333,15 +348,15 @@ export default function ShopArea() {
                         type="button"
                         onClick={() => toggleWishlist(product)}
                         className="wishlist-btn hidden lg:flex"
-                        style={{ position: "absolute", top: "1rem", right: "1rem", background: "white", border: "1px solid #f0ebe3", borderRadius: "50%", width: "36px", height: "36px", alignItems: "center", justifyContent: "center", cursor: "pointer", boxShadow: "0 4px 12px rgba(0,0,0,0.04)" }}
+                        style={{ position: "absolute", top: "0.5rem", right: "0.5rem", background: "white", border: "1px solid #f0ebe3", borderRadius: "50%", width: "32px", height: "36px", alignItems: "center", justifyContent: "center", cursor: "pointer", boxShadow: "0 4px 12px rgba(0,0,0,0.04)" }}
                       >
-                        <Heart size={15} color="#C9A84C" fill={isInWishlist(product._id) ? goldColor : "transparent"} />
+                        <Heart size={14} color="#C9A84C" fill={isInWishlist(product._id) ? goldColor : "transparent"} />
                       </button>
 
                       {/* 🖥️ Desktop Overlay Interaction Tray */}
                       <div className="sco">
                         <button type="button" className="action-btn" onClick={() => addToCart(product, 1)}>
-                          <ShoppingBag size={13} /> Add Basket
+                          <ShoppingBag size={12} /> Add Basket
                         </button>
                         <Link href={`/shop/${product.slug}`} className="action-btn">
                           Details
@@ -351,32 +366,32 @@ export default function ShopArea() {
                     </div>
 
                     {/* 📱 Mobile Context Action Tray (Hidden on Desktop) */}
-                    <div className="mobile-action-tray" style={{ display: "none", gap: "0.5rem", width: "100%", padding: "0.25rem 0 1rem 0", boxSizing: "border-box" }}>
+                    <div className="mobile-action-tray" style={{ display: "none", gap: "0.4rem", width: "100%", padding: "0 0 0.75rem 0", boxSizing: "border-box" }}>
                       <button 
                         type="button" 
                         onClick={() => addToCart(product, 1)} 
-                        style={{ flex: 1, backgroundColor: "#1a1a1a", color: "white", border: "none", padding: "0.65rem", fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", cursor: "pointer", borderRadius: "2px" }}
+                        style={{ flex: 1, backgroundColor: "#1a1a1a", color: "white", border: "none", padding: "0.5rem", fontSize: "0.58rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", cursor: "pointer", borderRadius: "2px" }}
                       >
-                        + Add Basket
+                        + Basket
                       </button>
                       <button 
                         type="button"
                         onClick={() => toggleWishlist(product)}
-                        style={{ background: "white", border: "1px solid #e5e7eb", width: "38px", height: "36px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", borderRadius: "2px" }}
+                        style={{ background: "white", border: "1px solid #e5e7eb", width: "32px", height: "32px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", borderRadius: "2px" }}
                       >
-                        <Heart size={14} color="#C9A84C" fill={isInWishlist(product._id) ? goldColor : "transparent"} />
+                        <Heart size={13} color="#C9A84C" fill={isInWishlist(product._id) ? goldColor : "transparent"} />
                       </button>
                     </div>
                     
                     {/* Typography Breakdown Row */}
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "0.5rem" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "0.4rem" }}>
                       <div style={{ textAlign: "left", minWidth: 0, flex: 1 }}>
                         <Link href={`/shop/${product.slug}`} style={{ textDecoration: "none" }}>
-                          <h3 className="sct" style={{ fontFamily: "var(--font-playfair), Georgia, serif", fontSize: "1.05rem", fontWeight: 700, color: "#1a1a1a", marginBottom: "0.35rem", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{product.name}</h3>
+                          <h3 className="sct" style={{ fontFamily: "var(--font-playfair), Georgia, serif", fontSize: "0.95rem", fontWeight: 700, color: "#1a1a1a", marginBottom: "0.2rem", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{product.name}</h3>
                         </Link>
-                        <p style={{ fontSize: "0.75rem", color: "#9ca3af", fontStyle: "italic" }}>{product.category} Registry</p>
+                        <p style={{ fontSize: "0.7rem", color: "#9ca3af", fontStyle: "italic" }}>{product.category}</p>
                       </div>
-                      <p style={{ fontSize: "0.95rem", fontWeight: 700, color: goldColor, flexShrink: 0, fontFamily: "monospace" }}>{formatPrice(product.price)}</p>
+                      <p style={{ fontSize: "0.85rem", fontWeight: 700, color: goldColor, flexShrink: 0, fontFamily: "monospace" }}>{formatPrice(product.price)}</p>
                     </div>
                   </div>
                 ))}
