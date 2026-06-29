@@ -29,8 +29,8 @@ export default function ShopArea() {
   // Gender Option Master Array
   const genderOptions = [
     { id: "all", label: "All Collection" },
-    { id: "Men", label: "Men" },
-    { id: "Women", label: "Women" },
+    { id: "Male", label: "Men" },
+    { id: "Female", label: "Women" },
     { id: "Both", label: "Bespoke Unisex" }
   ];
 

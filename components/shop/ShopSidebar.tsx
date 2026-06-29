@@ -1,25 +1,58 @@
 "use client";
 
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState, useEffect, useRef } from "react";
 import { formatPrice } from "@/lib/utils";
-import { X, RotateCcw } from "lucide-react";
+import { X, RotateCcw, ChevronLeft, ChevronRight } from "lucide-react"; //Not in use, wanted to include a sliding panel icon for the sidebar collapse toggle, but it was too small to be effective. Will revisit later.
 
+// ✅ ENHANCED: Case-insensitive semantic matching engine for arbitrary luxury colors
 const getColorHex = (colorName: string) => {
-  const map: Record<string, string> = {
-    "Crimson": "#990000",
-    "Midnight Black": "#111111",
-    "Ivory": "#FFFFF0",
-    "Pearl White": "#F8F8FF",
-    "Wine": "#722F37",
-    "Forest Green": "#228B22",
-    "Navy": "#000080",
-    "Charcoal": "#36454F",
-    "Burgundy": "#800020",
-    "Multi-print": "linear-gradient(to right, #C9A84C, #722F37)",
-    "Noir Black": "#0a0a0a",
+  if (!colorName) return "#ccc";
+  
+  const normalized = colorName.trim().toLowerCase();
+  
+  // 1. Direct Premium/Luxury Color Map Alignment
+  const exactMap: Record<string, string> = {
+    "crimson": "#990000",
+    "midnight black": "#111111",
+    "ivory": "#FFFFF0",
+    "pearl white": "#F8F8FF",
+    "wine": "#722F37",
+    "forest green": "#228B22",
+    "navy": "#000080",
+    "charcoal": "#36454F",
+    "burgundy": "#800020",
+    "multi-print": "linear-gradient(to right, #C9A84C, #722F37)",
+    "noir black": "#0a0a0a",
+    "black": "#111111",
+    "white": "#ffffff",
+    "gold": "#C9A84C",
+    "silver": "#C0C0C0",
+    "nude": "#E3C1B4",
+    "beige": "#F5F5DC",
   };
-  return map[colorName] || "#ccc";
+  
+  if (exactMap[normalized]) return exactMap[normalized];
+
+  // 2. Base Keyword Fallback Extraction (Handles "Emerald Green", "Sapphire Blue", etc.)
+  if (normalized.includes("black") || normalized.includes("noir")) return "#111111";
+  if (normalized.includes("white") || normalized.includes("ivory")) return "#F8F8FF";
+  if (normalized.includes("green") || normalized.includes("emerald")) return "#046307"; 
+  if (normalized.includes("blue") || normalized.includes("sapphire")) return "#0f4c81";  
+  if (normalized.includes("red") || normalized.includes("wine")) return "#a91b2e";      
+  if (normalized.includes("gold") || normalized.includes("yellow")) return "#D4AF37";
+  if (normalized.includes("pink") || normalized.includes("rose")) return "#FFB6C1";
+  if (normalized.includes("purple") || normalized.includes("plum")) return "#4A0E4E";
+  if (normalized.includes("brown") || normalized.includes("tan") || normalized.includes("nude")) return "#8B5A2B";
+  if (normalized.includes("grey") || normalized.includes("gray") || normalized.includes("charcoal")) return "#555555";
+
+  // 3. Mathematical HSL String Hash Fallback for completely custom terms
+  let hash = 0;
+  for (let i = 0; i < normalized.length; i++) {
+    hash = normalized.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  const h = Math.abs(hash % 360);
+  return `hsl(${h}, 55%, 65%)`; 
 };
 
 export default function ShopSidebar({ isMobileOpen, setIsMobileOpen }: { isMobileOpen: boolean, setIsMobileOpen: (v: boolean) => void }) {
@@ -27,10 +60,14 @@ export default function ShopSidebar({ isMobileOpen, setIsMobileOpen }: { isMobil
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  // Dynamic filter lists based on your product data
   const [products, setProducts] = useState<any[]>([]);
   const [maxProductPrice, setMaxProductPrice] = useState(100000); 
   const [localPrice, setLocalPrice] = useState(100000);
+  
+  // ⚡ Interactive Layout States
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [sidebarWidth, setSidebarWidth] = useState(260); // Base desk state width in px
+  const isDragging = useRef(false);
 
   const categories = useMemo(() => {
     if (!products.length) return [];
@@ -42,7 +79,6 @@ export default function ShopSidebar({ isMobileOpen, setIsMobileOpen }: { isMobil
     return Array.from(new Set(products.flatMap((p) => p.colors || []))).filter(Boolean);
   }, [products]);
 
-  // ⚡ Fetch live catalog items on layout mount to sync item count allocations
   useEffect(() => {
     async function fetchSidebarFacets() {
       try {
@@ -53,7 +89,6 @@ export default function ShopSidebar({ isMobileOpen, setIsMobileOpen }: { isMobil
           const maxPrice = Math.max(...data.products.map((p: any) => p.price || 0));
           setMaxProductPrice(maxPrice);
           
-          // ✅ FIXED: Safely analyze parameters without undefined runtime loops
           const currentPriceParam = searchParams.get("price");
           setLocalPrice(currentPriceParam ? Number(currentPriceParam) : maxPrice);
         }
@@ -64,7 +99,6 @@ export default function ShopSidebar({ isMobileOpen, setIsMobileOpen }: { isMobil
     fetchSidebarFacets();
   }, [searchParams]);
 
-  // Sync local price slider with search param updates
   useEffect(() => {
     const urlPrice = searchParams.get("price");
     if (urlPrice) {
@@ -73,6 +107,28 @@ export default function ShopSidebar({ isMobileOpen, setIsMobileOpen }: { isMobil
       setLocalPrice(maxProductPrice);
     }
   }, [searchParams, maxProductPrice, products]);
+
+  // 📐 Resizing Track Handle Event Listeners
+  const startResize = (e: React.MouseEvent) => {
+    e.preventDefault();
+    isDragging.current = true;
+    document.addEventListener("mousemove", resize);
+    document.addEventListener("mouseup", stopResize);
+  };
+
+  const resize = (e: MouseEvent) => {
+    if (!isDragging.current) return;
+    // Keep sidebar widths securely configured between 200px and 380px spaces
+    if (e.clientX > 200 && e.clientX < 380) {
+      setSidebarWidth(e.clientX);
+    }
+  };
+
+  const stopResize = () => {
+    isDragging.current = false;
+    document.removeEventListener("mousemove", resize);
+    document.removeEventListener("mouseup", stopResize);
+  };
 
   const updateFilter = (key: string, value: string) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -95,37 +151,85 @@ export default function ShopSidebar({ isMobileOpen, setIsMobileOpen }: { isMobil
         /* --- Premium Styled Sidebar Widgets --- */
         .sidebar {
           background: transparent;
+          position: relative;
+          transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        /* 🖥️ PC INDEPENDENT ROLLER SCROLL CONFIGURATION */
+        /* 🖥️ DESKTOP DRAG & COLLAPSE PANEL CONTROLS */
         @media(min-width: 1024px) {
           .sidebar {
             position: sticky;
             top: 8rem;                       
             height: calc(100vh - 10rem);     
             overflow-y: auto;                
-            padding-right: 1rem;
+            padding-right: 1.25rem;
           }
           
+          .sidebar.collapsed {
+            width: 45px !important;
+            padding: 0 !important;
+            overflow: hidden;
+          }
+
+          .sidebar.collapsed .sidebar-content-wrapper {
+            display: none !important;
+          }
+
           .sidebar::-webkit-scrollbar { width: 4px; }
           .sidebar::-webkit-scrollbar-track { background: transparent; }
           .sidebar::-webkit-scrollbar-thumb { background: #e4e4e7; border-radius: 2px; }
           .sidebar::-webkit-scrollbar-thumb:hover { background: #C9A84C; }
+
+          .resize-handle {
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            width: 5px;
+            cursor: col-resize;
+            background: transparent;
+            transition: background 0.2s;
+            z-index: 30;
+          }
+          .resize-handle:hover, .resize-handle:active {
+            background: rgba(201, 168, 76, 0.3);
+          }
+
+          .collapse-toggle-notch {
+            position: absolute;
+            top: 0;
+            right: -12px;
+            width: 24px;
+            height: 24px;
+            background: white;
+            border: 1px solid #e4e4e7;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 40;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+            color: #1a1a1a;
+          }
+          .collapse-toggle-notch:hover {
+            color: #C9A84C;
+            border-color: #C9A84C;
+          }
         }
 
-        /* 📱 RESPONSIVE MOBILE ACCORDION OVERLAYS */
         @media(max-width: 1023px) {
+          .resize-handle, .collapse-toggle-notch { display: none !important; }
           .sidebar {
             position: fixed; 
             inset: 0 auto 0 0; 
-            width: 320px; 
+            width: 320px !important; 
             max-width: 85vw;
             background: white; 
             z-index: 50; 
             padding: 2.5rem 2rem;
             box-shadow: 25px 0 50px rgba(0,0,0,0.1);
             transform: translateX(-100%);
-            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
             overflow-y: auto; 
             height: 100vh;
           }
@@ -145,8 +249,8 @@ export default function ShopSidebar({ isMobileOpen, setIsMobileOpen }: { isMobil
 
         .widget-title {
           font-family: var(--font-playfair), Georgia, serif;
-          font-size: 1.35rem;
-          font-weight: 400;
+          font-size: 1.2rem;
+          font-weight: 700;
           color: #1a1a1a;
           margin-bottom: 1.25rem;
           letter-spacing: 0.01em;
@@ -157,10 +261,6 @@ export default function ShopSidebar({ isMobileOpen, setIsMobileOpen }: { isMobil
           list-style: none;
           padding: 0;
           margin: 0;
-        }
-
-        .filter-list li {
-          margin-bottom: 0.25rem;
         }
 
         .filter-btn {
@@ -184,7 +284,6 @@ export default function ShopSidebar({ isMobileOpen, setIsMobileOpen }: { isMobil
         .filter-count {
           font-size: 0.9rem;
           color: #71717a;
-          font-family: var(--font-sans), sans-serif;
           margin-left: auto;
           font-weight: 400;
         }
@@ -229,7 +328,6 @@ export default function ShopSidebar({ isMobileOpen, setIsMobileOpen }: { isMobil
           box-shadow: 0 2px 5px rgba(0,0,0,0.15);
           transition: transform 0.1s ease;
         }
-        .price-slider::-webkit-slider-thumb:hover { transform: scale(1.2); }
 
         .btn-reset {
           width: 100%;
@@ -254,7 +352,23 @@ export default function ShopSidebar({ isMobileOpen, setIsMobileOpen }: { isMobil
         .btn-reset:hover { background-color: #e4e4e7; }
       `}</style>
 
-      <div className={`sidebar ${isMobileOpen ? "mobile-open" : ""}`}>
+      <div 
+        className={`sidebar ${isMobileOpen ? "mobile-open" : ""} ${isCollapsed ? "collapsed" : ""}`}
+        style={{ width: isCollapsed ? "45px" : `${sidebarWidth}px` }}
+      >
+        {/* Toggle Collapse Control Notch Button */}
+        <button 
+          type="button" 
+          className="collapse-toggle-notch"
+          onClick={() => setIsCollapsed(!isCollapsed)}
+          title={isCollapsed ? "Expand Filters" : "Collapse Filters"}
+        >
+          {isCollapsed ? <ChevronRight size={12} /> : <ChevronLeft size={12} />}
+        </button>
+
+        {/* Resizer Node Line Bar */}
+        {!isCollapsed && <div className="resize-handle" onMouseDown={startResize} />}
+
         <div className="sidebar-content-wrapper">
           
           {/* Mobile Close Header */}
@@ -271,7 +385,6 @@ export default function ShopSidebar({ isMobileOpen, setIsMobileOpen }: { isMobil
           <div className="sidebar-widget">
             <h3 className="widget-title">Categories</h3>
             <ul className="filter-list">
-              {/* ✅ FIXED: Corrected JSX structural <li> alignment matching closure models */}
               <li>
                 <button className={`filter-btn ${!searchParams.get("category") ? "active" : ""}`} onClick={() => updateFilter("category", "")}>
                   <span>All Categories</span>
@@ -292,27 +405,25 @@ export default function ShopSidebar({ isMobileOpen, setIsMobileOpen }: { isMobil
             </ul>
           </div>
 
-          {/* Variation Options Matrix Row */}
-          <div className="sidebar-row-box" style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
-            <div>
-              <p style={{ fontSize: "0.7rem", letterSpacing: "0.2em", textTransform: "uppercase", fontWeight: 600, color: "#1a1a1a", marginBottom: "0.75rem" }}>Colors</p>
-              <div className="color-options">
-                {Array.from(new Set(products.flatMap(p => p.colors || []))).map((color: any) => (
-                  <button
-                    key={color}
-                    type="button"
-                    title={color}
-                    onClick={() => updateFilter("color", color)}
-                    className={`color-btn ${searchParams.get("color") === color ? "active" : ""}`}
-                    style={{ background: getColorHex(color) }}
-                  />
-                ))}
-              </div>
+          {/* Colors Widget */}
+          <div className="sidebar-widget">
+            <h3 className="widget-title">Colors</h3>
+            <div className="color-options">
+              {colors.map((color) => (
+                <button 
+                  key={color} 
+                  title={color}
+                  type="button"
+                  className={`color-btn ${searchParams.get("color") === color ? "active" : ""}`}
+                  style={{ background: getColorHex(color) }}
+                  onClick={() => updateFilter("color", color)}
+                />
+              ))}
             </div>
           </div>
 
           {/* Price Widget */}
-          <div className="sidebar-widget" style={{ marginTop: "1.5rem" }}>
+          <div className="sidebar-widget">
             <h3 className="widget-title">Price Range</h3>
             <input 
               type="range" 
