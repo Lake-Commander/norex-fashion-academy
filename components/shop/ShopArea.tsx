@@ -326,7 +326,8 @@ export default function ShopArea() {
               <div className="product-grid">
                 {filteredProducts.map((product) => (
                   <div key={product._id} className="sc">
-                    <div style={{ position: "relative", overflow: "hidden", backgroundColor: "#FAF7F4", aspectRatio: "3/4", marginBottom: "0.35rem", borderRadius: "4px" }}>
+                    {/* ✅ CRITICAL: Changed aspect-ratio from 3/4 to 1/2 to condense the layout scale significantly */}
+                    <div style={{ position: "relative", overflow: "hidden", backgroundColor: "#FAF7F4", aspectRatio: "1/2", marginBottom: "0.35rem", borderRadius: "4px" }}>
                       
                       <Link href={`/shop/${product.slug}`} style={{ display: "block", width: "100%", height: "100%" }}>
                         {product.images?.[0] ? (
@@ -406,7 +407,7 @@ export default function ShopArea() {
         </>
       )}
 
-      {/* Bespoke Footnotes Banner */}
+      {/* Made-To-Measure WhatsApp Call-to-Action Section */}
       <div style={{ backgroundColor: "#FAF7F4", borderTop: "1px solid #f0ebe3", paddingTop: "2.5rem", paddingBottom: "2.5rem", textAlign: "center", paddingLeft: "1rem", paddingRight: "1rem", width: "100%", boxSizing: "border-box" }}>
         <p style={{ fontSize: "0.6rem", letterSpacing: "0.15em", textTransform: "uppercase", color: goldColor, fontWeight: 600, marginBottom: "0.35rem" }}>Bespoke Assembly</p>
         <h2 style={{ fontFamily: "var(--font-playfair), Georgia, serif", fontSize: "1.15rem", fontWeight: 700, color: "#1a1a1a", marginBottom: "0.6rem" }}>Made-to-Measure Configurations</h2>
