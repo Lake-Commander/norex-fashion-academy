@@ -82,10 +82,11 @@ export default function ShopArea() {
   return (
     <>
       <style>{`
+        /* --- Viewport Stability Hardening --- */
         .shop-layout { 
           display: flex;
           flex-direction: column;
-          gap: 1rem; 
+          gap: 0.75rem; 
           width: 100%;
           max-width: 100vw;
           box-sizing: border-box;
@@ -105,17 +106,16 @@ export default function ShopArea() {
           box-sizing: border-box;
         }
 
+        /* 📱 DENSE MICRO-MATRIX GRID ARCHITECTURE: Scaled flat to display 2 small nodes on mobile */
         .product-grid { 
           display: grid; 
           grid-template-columns: repeat(2, 1fr); 
-          gap: 0.25rem; 
+          gap: 0.35rem; 
           width: 100%;
           box-sizing: border-box;
         }
-        @media(min-width: 480px) { .product-grid { gap: 0.5rem; } }
-        @media(min-width: 640px) { .product-grid { gap: 0.75rem; } }
-        @media(min-width: 1024px) { .product-grid { grid-template-columns: repeat(3, 1fr); gap: 1rem; } }
-        @media(min-width: 1440px) { .product-grid { grid-template-columns: repeat(4, 1fr); gap: 1.25rem; } }
+        @media(min-width: 640px) { .product-grid { gap: 1rem; } }
+        @media(min-width: 1024px) { .product-grid { grid-template-columns: repeat(3, 1fr); gap: 1.5rem; } }
 
         .sort-select, .gender-select {
           padding: 0.4rem 1.25rem 0.4rem 0.5rem; border: 1px solid #e5e7eb; background: white;
@@ -130,6 +130,7 @@ export default function ShopArea() {
         .breadcrumb-link { font-size: 0.65rem; color: #9ca3af; letter-spacing: 0.05em; text-transform: uppercase; text-decoration: none; }
         @media(min-width: 768px) { .breadcrumb-link { font-size: 0.72rem; } }
         
+        /* 📱 Aggressively Reduced Card Frame Scale for Mobile */
         .sc { 
           display: flex; 
           flex-direction: column; 
@@ -137,20 +138,21 @@ export default function ShopArea() {
           width: 100%; 
           box-sizing: border-box; 
           background: #ffffff;
-          padding: 0.25rem;
+          padding: 0.15rem; /* Reduced padding space */
           border: 1px solid #f1f5f9;
-          border-radius: 4px;
+          border-radius: 3px;
         }
         @media(min-width: 1024px) {
-          .sc { border: none; padding: 0; background: transparent; }
+          .sc { border: none; padding: 0; background: transparent; border-radius: 0; }
         }
         .sci { transition: transform 0.5s ease; }
         .sc:hover .sci { transform: scale(1.02); }
 
+        /* 🖥️ RESTORED: Desktop Hover Overlay Pipeline Matrix Setup */
         .sco {
-          position: absolute; inset: 0; background-color: rgba(0,0,0,0.14);
-          display: flex; align-items: flex-end; justify-content: center; padding-bottom: 1rem; gap: 0.35rem;
-          opacity: 0; transition: opacity 0.2s ease; pointer-events: none; z-index: 10;
+          position: absolute; inset: 0; background-color: rgba(0,0,0,0.15);
+          display: flex; align-items: flex-end; justify-content: center; padding-bottom: 2rem; gap: 0.5rem;
+          opacity: 0; transition: opacity 0.3s ease; pointer-events: none; z-index: 10;
         }
         .sc:hover .sco { opacity: 1; pointer-events: auto; }
 
@@ -158,11 +160,13 @@ export default function ShopArea() {
           .sco { display: none !important; }
         }
 
+        /* 🖥️ Desktop UI Action CTA Blocks */
         .action-btn {
-          color: white; font-size: 0.6rem; letter-spacing: 0.05em; text-transform: uppercase;
-          border: 1px solid rgba(255,255,255,0.8); padding: 0.35rem 0.65rem; background: rgba(26,26,26,0.8);
-          font-weight: 600; text-decoration: none; cursor: pointer; border-radius: 2px;
+          color: white; font-size: 0.65rem; letter-spacing: 0.12em; text-transform: uppercase;
+          border: 1px solid rgba(255,255,255,0.8); padding: 0.5rem 1rem; transition: all 0.3s ease; 
+          font-weight: 600; text-decoration: none; cursor: pointer; background: rgba(26,26,26,0.75); display: inline-flex; align-items: center; gap: 0.4rem; border-radius: 2px;
         }
+        .action-btn:hover { background-color: #C9A84C; border-color: #C9A84C; }
 
         .sct { transition: color 0.2s ease; text-decoration: none; }
         .sct:hover { color: #C9A84C !important; }
@@ -173,6 +177,7 @@ export default function ShopArea() {
           font-size: 0.75rem; font-weight: 600; text-transform: uppercase; text-decoration: none; border-radius: 4px;
         }
 
+        /* ⚡ Amazon Pin Bar */
         .sticky-filter-bar {
           position: sticky;
           top: 3.9rem; 
@@ -221,6 +226,7 @@ export default function ShopArea() {
           content: ''; position: absolute; bottom: -3px; left: 1rem; right: 1rem; height: 2px; background-color: #C9A84C;
         }
 
+        /* 📱 Bottom-Sheet Drawer Overlay Configuration */
         @media (max-width: 1023px) {
           .amazon-bottom-sheet {
             position: fixed; bottom: 0; left: 0; right: 0; background: white; z-index: 100;
@@ -303,7 +309,7 @@ export default function ShopArea() {
         </div>
       </div>
 
-      <div className="container-custom" style={{ paddingTop: "0.75rem", paddingBottom: "3rem", paddingLeft: "0.4rem", paddingRight: "0.4rem", boxSizing: "border-box", maxWidth: "100vw", overflowX: "hidden" }}>
+      <div className="container-custom" style={{ paddingTop: "0.5rem", paddingBottom: "3rem", paddingLeft: "0.35rem", paddingRight: "0.35rem", boxSizing: "border-box", maxWidth: "100vw", overflowX: "hidden" }}>
         <div className="shop-layout">
           <div className="shop-sidebar-container">
             <ShopSidebar isMobileOpen={isMobileFilterOpen} setIsMobileOpen={setIsMobileFilterOpen} />
@@ -324,7 +330,7 @@ export default function ShopArea() {
               <div className="product-grid">
                 {filteredProducts.map((product) => (
                   <div key={product._id} className="sc">
-                    <div style={{ position: "relative", overflow: "hidden", backgroundColor: "#FAF7F4", aspectRatio: "3/4", marginBottom: "0.35rem", borderRadius: "4px" }}>
+                    <div style={{ position: "relative", overflow: "hidden", backgroundColor: "#FAF7F4", aspectRatio: "3/4", marginBottom: "0.3rem", borderRadius: "3px" }}>
                       
                       <Link href={`/shop/${product.slug}`} style={{ display: "block", width: "100%", height: "100%" }}>
                         {product.images?.[0] ? (
@@ -338,22 +344,28 @@ export default function ShopArea() {
                         {product.category}
                       </div>
 
+                      {/* 🖥️ Wishlist Button (Always Functional on Desktop layouts) */}
                       <button 
                         type="button"
                         onClick={() => toggleWishlist(product)}
                         className="wishlist-btn hidden lg:flex"
-                        style={{ position: "absolute", top: "0.35rem", right: "0.35rem", background: "white", border: "1px solid #f0ebe3", borderRadius: "50%", width: "28px", height: "26px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}
+                        style={{ position: "absolute", top: "0.35rem", right: "0.35rem", background: "white", border: "1px solid #f0ebe3", borderRadius: "50%", width: "26px", height: "26px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", zIndex: 20 }}
                       >
                         <Heart size={11} color="#C9A84C" fill={isInWishlist(product._id) ? goldColor : "transparent"} />
                       </button>
 
+                      {/* 🖥️ RESTORED: Desktop Overlay Menu Block Layout (Pops up cleanly on Hover) */}
                       <div className="sco">
                         <button type="button" className="action-btn" onClick={() => addToCart(product, 1)}>
-                          <ShoppingBag size={9} /> Add
+                          <ShoppingBag size={10} /> Add Basket
                         </button>
+                        <Link href={`/shop/${product.slug}`} className="action-btn">
+                          Details
+                        </Link>
                       </div>
                     </div>
                     
+                    {/* Balanced Micro Data Segment */}
                     <div style={{ textAlign: "left", display: "flex", flexDirection: "column", gap: "0.02rem", padding: "0 0.1rem" }}>
                       <Link href={`/shop/${product.slug}`} style={{ textDecoration: "none" }}>
                         <h3 className="sct" style={{ fontSize: "0.72rem", fontWeight: 600, color: "#1a1a1a", margin: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{product.name}</h3>
@@ -362,6 +374,7 @@ export default function ShopArea() {
                       <p style={{ fontSize: "0.8rem", fontWeight: 700, color: "#334155", margin: "0.1rem 0 0.2rem 0", fontFamily: "monospace" }}>{formatPrice(product.price)}</p>
                     </div>
 
+                    {/* 📱 Mobile Action Tray Strip */}
                     <div className="mobile-action-tray" style={{ display: "none", gap: "0.25rem", width: "100%", boxSizing: "border-box", marginTop: "auto" }}>
                       <button 
                         type="button" 
@@ -387,7 +400,7 @@ export default function ShopArea() {
         </div>
       </div>
 
-      {/* Mobile Bottom Sheet Overlay */}
+      {/* 📱 Amazon UX Bottom Sheet Drawer Control */}
       {isMobileFilterOpen && (
         <>
           <div className="amazon-backdrop mobile-only-filter" onClick={() => setIsMobileFilterOpen(false)} />
@@ -403,7 +416,7 @@ export default function ShopArea() {
         </>
       )}
 
-      {/* Made-To-Measure Call-to-Action Section */}
+      {/* Made-To-Measure WhatsApp Call-to-Action Section */}
       <div style={{ backgroundColor: "#FAF7F4", borderTop: "1px solid #f0ebe3", paddingTop: "2.5rem", paddingBottom: "2.5rem", textAlign: "center", paddingLeft: "1rem", paddingRight: "1rem", width: "100%", boxSizing: "border-box" }}>
         <p style={{ fontSize: "0.6rem", letterSpacing: "0.15em", textTransform: "uppercase", color: goldColor, fontWeight: 600, marginBottom: "0.35rem" }}>Bespoke Assembly</p>
         <h2 style={{ fontFamily: "var(--font-playfair), Georgia, serif", fontSize: "1.15rem", fontWeight: 700, color: "#1a1a1a", marginBottom: "0.6rem" }}>Made-to-Measure Configurations</h2>
