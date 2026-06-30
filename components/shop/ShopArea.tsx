@@ -82,7 +82,7 @@ export default function ShopArea() {
   return (
     <>
       <style>{`
-        /* --- Anti-Zoom Global Guard --- */
+        /* --- Viewport Stability Hardening --- */
         .shop-layout { 
           display: flex;
           flex-direction: column;
@@ -109,7 +109,7 @@ export default function ShopArea() {
         /* 📱 UNBREAKABLE TWIN-COLUMN ARCHITECTURE */
         .product-grid { 
           display: grid; 
-          grid-template-columns: repeat(2, minmax(0, 1fr)); /* ✅ Core Fix: Forces mathematically identical sizing limits */
+          grid-template-columns: repeat(2, minmax(0, 1fr)); 
           gap: 0.5rem; 
           width: 100%;
           box-sizing: border-box;
@@ -136,7 +136,7 @@ export default function ShopArea() {
           flex-direction: column; 
           position: relative; 
           width: 100%; 
-          min-width: 0; /* ✅ Prevents layout blowouts from tracking nested strings */
+          min-width: 0; 
           box-sizing: border-box; 
           background: #ffffff;
           padding: 0.25rem;
@@ -176,7 +176,7 @@ export default function ShopArea() {
           font-size: 0.75rem; font-weight: 600; text-transform: uppercase; text-decoration: none; border-radius: 4px;
         }
 
-        /* ⚡ Amazon Sticky Header Filter Panel */
+        /* ⚡ Amazon Mobile Sticky Header Filter Panel */
         .sticky-filter-bar {
           position: sticky;
           top: 3.9rem; 
@@ -343,12 +343,12 @@ export default function ShopArea() {
                         {product.category}
                       </div>
 
-                      {/* Desktop Wishlist Button */}
+                      {/* ✅ SYNCHRONIZED: Wishlist Heart Pin Button (Desktop Only via explicit hidden lg:flex visibility rule) */}
                       <button 
                         type="button"
                         onClick={() => toggleWishlist(product)}
                         className="wishlist-btn hidden lg:flex"
-                        style={{ position: "absolute", top: "0.35rem", right: "0.35rem", background: "white", border: "1px solid #f0ebe3", borderRadius: "50%", width: "26px", height: "26px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", zIndex: 20 }}
+                        style={{ position: "absolute", top: "0.35rem", right: "0.35rem", background: "white", border: "1px solid #f0ebe3", borderRadius: "50%", width: "26px", height: "26px", alignItems: "center", justifyContent: "center", cursor: "pointer", zIndex: 20 }}
                       >
                         <Heart size={11} color="#C9A84C" fill={isInWishlist(product._id) ? goldColor : "transparent"} />
                       </button>
@@ -399,7 +399,7 @@ export default function ShopArea() {
         </div>
       </div>
 
-      {/* Mobile Bottom-Sheet Drawer Ref Refinement */}
+      {/* Mobile Bottom-Sheet Drawer Overlay */}
       {isMobileFilterOpen && (
         <>
           <div className="amazon-backdrop mobile-only-filter" onClick={() => setIsMobileFilterOpen(false)} />
