@@ -82,13 +82,13 @@ export default function ShopArea() {
   return (
     <>
       <style>{`
-        /* --- Viewport Stability Hardening --- */
+        /* --- Anti-Zoom Global Guard --- */
         .shop-layout { 
           display: flex;
           flex-direction: column;
-          gap: 0.75rem; 
+          gap: 1rem; 
           width: 100%;
-          max-width: 100vw;
+          max-width: 100%;
           box-sizing: border-box;
         }
         @media(min-width: 1024px) { 
@@ -106,11 +106,11 @@ export default function ShopArea() {
           box-sizing: border-box;
         }
 
-        /* 📱 DENSE MICRO-MATRIX GRID ARCHITECTURE: Scaled flat to display 2 small nodes on mobile */
+        /* 📱 UNBREAKABLE TWIN-COLUMN ARCHITECTURE */
         .product-grid { 
           display: grid; 
-          grid-template-columns: repeat(2, 1fr); 
-          gap: 0.35rem; 
+          grid-template-columns: repeat(2, minmax(0, 1fr)); /* ✅ Core Fix: Forces mathematically identical sizing limits */
+          gap: 0.5rem; 
           width: 100%;
           box-sizing: border-box;
         }
@@ -130,17 +130,18 @@ export default function ShopArea() {
         .breadcrumb-link { font-size: 0.65rem; color: #9ca3af; letter-spacing: 0.05em; text-transform: uppercase; text-decoration: none; }
         @media(min-width: 768px) { .breadcrumb-link { font-size: 0.72rem; } }
         
-        /* 📱 Aggressively Reduced Card Frame Scale for Mobile */
+        /* 📱 Streamlined Card Configurations */
         .sc { 
           display: flex; 
           flex-direction: column; 
           position: relative; 
           width: 100%; 
+          min-width: 0; /* ✅ Prevents layout blowouts from tracking nested strings */
           box-sizing: border-box; 
           background: #ffffff;
-          padding: 0.15rem; /* Reduced padding space */
+          padding: 0.25rem;
           border: 1px solid #f1f5f9;
-          border-radius: 3px;
+          border-radius: 4px;
         }
         @media(min-width: 1024px) {
           .sc { border: none; padding: 0; background: transparent; border-radius: 0; }
@@ -148,9 +149,8 @@ export default function ShopArea() {
         .sci { transition: transform 0.5s ease; }
         .sc:hover .sci { transform: scale(1.02); }
 
-        /* 🖥️ RESTORED: Desktop Hover Overlay Pipeline Matrix Setup */
         .sco {
-          position: absolute; inset: 0; background-color: rgba(0,0,0,0.15);
+          position: absolute; inset: 0; background-color: rgba(0,0,0,0.14);
           display: flex; align-items: flex-end; justify-content: center; padding-bottom: 2rem; gap: 0.5rem;
           opacity: 0; transition: opacity 0.3s ease; pointer-events: none; z-index: 10;
         }
@@ -160,7 +160,6 @@ export default function ShopArea() {
           .sco { display: none !important; }
         }
 
-        /* 🖥️ Desktop UI Action CTA Blocks */
         .action-btn {
           color: white; font-size: 0.65rem; letter-spacing: 0.12em; text-transform: uppercase;
           border: 1px solid rgba(255,255,255,0.8); padding: 0.5rem 1rem; transition: all 0.3s ease; 
@@ -177,7 +176,7 @@ export default function ShopArea() {
           font-size: 0.75rem; font-weight: 600; text-transform: uppercase; text-decoration: none; border-radius: 4px;
         }
 
-        /* ⚡ Amazon Pin Bar */
+        /* ⚡ Amazon Sticky Header Filter Panel */
         .sticky-filter-bar {
           position: sticky;
           top: 3.9rem; 
@@ -226,7 +225,7 @@ export default function ShopArea() {
           content: ''; position: absolute; bottom: -3px; left: 1rem; right: 1rem; height: 2px; background-color: #C9A84C;
         }
 
-        /* 📱 Bottom-Sheet Drawer Overlay Configuration */
+        /* 📱 Bottom-Sheet App Drawer Wrapper */
         @media (max-width: 1023px) {
           .amazon-bottom-sheet {
             position: fixed; bottom: 0; left: 0; right: 0; background: white; z-index: 100;
@@ -309,7 +308,7 @@ export default function ShopArea() {
         </div>
       </div>
 
-      <div className="container-custom" style={{ paddingTop: "0.5rem", paddingBottom: "3rem", paddingLeft: "0.35rem", paddingRight: "0.35rem", boxSizing: "border-box", maxWidth: "100vw", overflowX: "hidden" }}>
+      <div className="container-custom" style={{ paddingTop: "0.5rem", paddingBottom: "3rem", paddingLeft: "0.35rem", paddingRight: "0.35rem", boxSizing: "border-box", maxWidth: "100%", overflowX: "hidden" }}>
         <div className="shop-layout">
           <div className="shop-sidebar-container">
             <ShopSidebar isMobileOpen={isMobileFilterOpen} setIsMobileOpen={setIsMobileFilterOpen} />
@@ -330,11 +329,11 @@ export default function ShopArea() {
               <div className="product-grid">
                 {filteredProducts.map((product) => (
                   <div key={product._id} className="sc">
-                    <div style={{ position: "relative", overflow: "hidden", backgroundColor: "#FAF7F4", aspectRatio: "3/4", marginBottom: "0.3rem", borderRadius: "3px" }}>
+                    <div style={{ position: "relative", overflow: "hidden", backgroundColor: "#FAF7F4", aspectRatio: "3/4", marginBottom: "0.35rem", borderRadius: "4px" }}>
                       
                       <Link href={`/shop/${product.slug}`} style={{ display: "block", width: "100%", height: "100%" }}>
                         {product.images?.[0] ? (
-                          <Image src={product.images[0]} alt={product.name} fill className="sci" style={{ objectFit: "cover" }} sizes="(max-width:640px) 50vw, 33vw" />
+                          <Image src={product.images[0]} alt={product.name} fill className="sci" style={{ objectFit: "cover" }} sizes="(max-width:1024px) 50vw, 33vw" />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center text-zinc-300"><ImageIcon size={14} /></div>
                         )}
@@ -344,7 +343,7 @@ export default function ShopArea() {
                         {product.category}
                       </div>
 
-                      {/* 🖥️ Wishlist Button (Always Functional on Desktop layouts) */}
+                      {/* Desktop Wishlist Button */}
                       <button 
                         type="button"
                         onClick={() => toggleWishlist(product)}
@@ -354,7 +353,7 @@ export default function ShopArea() {
                         <Heart size={11} color="#C9A84C" fill={isInWishlist(product._id) ? goldColor : "transparent"} />
                       </button>
 
-                      {/* 🖥️ RESTORED: Desktop Overlay Menu Block Layout (Pops up cleanly on Hover) */}
+                      {/* Desktop Hover Action Overlay Menu */}
                       <div className="sco">
                         <button type="button" className="action-btn" onClick={() => addToCart(product, 1)}>
                           <ShoppingBag size={10} /> Add Basket
@@ -365,7 +364,7 @@ export default function ShopArea() {
                       </div>
                     </div>
                     
-                    {/* Balanced Micro Data Segment */}
+                    {/* Data Block Segments */}
                     <div style={{ textAlign: "left", display: "flex", flexDirection: "column", gap: "0.02rem", padding: "0 0.1rem" }}>
                       <Link href={`/shop/${product.slug}`} style={{ textDecoration: "none" }}>
                         <h3 className="sct" style={{ fontSize: "0.72rem", fontWeight: 600, color: "#1a1a1a", margin: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{product.name}</h3>
@@ -374,7 +373,7 @@ export default function ShopArea() {
                       <p style={{ fontSize: "0.8rem", fontWeight: 700, color: "#334155", margin: "0.1rem 0 0.2rem 0", fontFamily: "monospace" }}>{formatPrice(product.price)}</p>
                     </div>
 
-                    {/* 📱 Mobile Action Tray Strip */}
+                    {/* Mobile Strip Action Bar */}
                     <div className="mobile-action-tray" style={{ display: "none", gap: "0.25rem", width: "100%", boxSizing: "border-box", marginTop: "auto" }}>
                       <button 
                         type="button" 
@@ -400,7 +399,7 @@ export default function ShopArea() {
         </div>
       </div>
 
-      {/* 📱 Amazon UX Bottom Sheet Drawer Control */}
+      {/* Mobile Bottom-Sheet Drawer Ref Refinement */}
       {isMobileFilterOpen && (
         <>
           <div className="amazon-backdrop mobile-only-filter" onClick={() => setIsMobileFilterOpen(false)} />
@@ -416,7 +415,7 @@ export default function ShopArea() {
         </>
       )}
 
-      {/* Made-To-Measure WhatsApp Call-to-Action Section */}
+      {/* Made-To-Measure Bottom Call Action Block */}
       <div style={{ backgroundColor: "#FAF7F4", borderTop: "1px solid #f0ebe3", paddingTop: "2.5rem", paddingBottom: "2.5rem", textAlign: "center", paddingLeft: "1rem", paddingRight: "1rem", width: "100%", boxSizing: "border-box" }}>
         <p style={{ fontSize: "0.6rem", letterSpacing: "0.15em", textTransform: "uppercase", color: goldColor, fontWeight: 600, marginBottom: "0.35rem" }}>Bespoke Assembly</p>
         <h2 style={{ fontFamily: "var(--font-playfair), Georgia, serif", fontSize: "1.15rem", fontWeight: 700, color: "#1a1a1a", marginBottom: "0.6rem" }}>Made-to-Measure Configurations</h2>
