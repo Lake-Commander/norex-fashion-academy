@@ -288,6 +288,7 @@ export default function MultiProductUploadPage() {
                         <option value="Work Wear">Work Wear</option>
                         <option value="Traditional">Traditional Wear</option>
                         <option value="Bespoke">Bespoke Tailoring</option>
+                        <option value="Children">Children Wear</option>
                       </select>
                     </div>
 
