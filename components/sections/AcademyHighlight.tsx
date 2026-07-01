@@ -54,7 +54,7 @@ export default function FeaturedCourses() {
   const goldColor = "#C9A84C";
 
   return (
-    <div className="bg-background px-6 py-24 md:px-8 border-b border-border/25 relative">
+    <div className="bg-background px-4 py-14 md:px-8 md:py-20 border-b border-border/25 relative">
       <style>{`
         .course-feature-card {
           cursor: pointer; background-color: white; border: 1px solid #f0ebe3;
@@ -76,7 +76,7 @@ export default function FeaturedCourses() {
       <div className="mx-auto max-w-7xl">
         
         {/* Section Title */}
-        <div className="mb-20 text-center">
+        <div className="mb-8 text-center md:mb-12">
           <div style={{ borderColor: "rgba(201, 168, 76, 0.2)", backgroundColor: "rgba(201, 168, 76, 0.05)", color: goldColor }} className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border mb-4">
             <Sparkles className="h-3 w-3" />
             <span className="text-[9px] uppercase tracking-widest font-black font-mono">05 / ACADEMY EDUCATION SPOKE</span>
@@ -100,7 +100,7 @@ export default function FeaturedCourses() {
           </div>
         ) : (
           /* Asymmetric Offset grid layout matrix matching lookbook rules */
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+          <div className="grid grid-cols-2 gap-3 items-start md:gap-6 lg:grid-cols-3 lg:gap-8">
             {courses.map((course, idx) => {
               const offsetClass = styleOffsets[idx % styleOffsets.length]
               
@@ -113,7 +113,7 @@ export default function FeaturedCourses() {
                   className={`course-feature-card ${offsetClass}`}
                 >
                   {/* Image Canvas Container */}
-                  <div className="relative aspect-[3/4] overflow-hidden rounded-sm mb-6 bg-[#FAF7F4] border border-gray-100">
+                  <div className="relative aspect-[3/4] overflow-hidden rounded-sm mb-3 bg-[#FAF7F4] border border-gray-100 md:mb-4">
                     {course.image ? (
                       <img 
                         src={course.image} 
@@ -138,21 +138,21 @@ export default function FeaturedCourses() {
                   </div>
 
                   {/* Outside Card Structural Metadata details text summary */}
-                  <div className="space-y-4 px-1 pb-1 text-left">
-                    <p className="text-xs text-muted-foreground leading-relaxed font-light line-clamp-2">
+                  <div className="space-y-2 px-1 pb-1 text-left md:space-y-3">
+                    <p className="text-[11px] text-muted-foreground leading-relaxed font-light">
                       {course.description}
                     </p>
 
-                    <div className="flex justify-between items-center pt-3 border-t border-zinc-100">
-                      <div className="text-[10px] font-mono text-zinc-400 font-bold uppercase">
+                    <div className="flex justify-between items-center pt-2 border-t border-zinc-100 md:pt-3">
+                      <div className="text-[9px] font-mono text-zinc-400 font-bold uppercase">
                         Duration // {course.duration}
                       </div>
-                      <span style={{ color: goldColor }} className="text-sm font-bold font-mono">
+                      <span style={{ color: goldColor }} className="text-xs font-bold font-mono">
                         {formatPrice(course.price)}
                       </span>
                     </div>
 
-                    <div style={{ color: goldColor }} className="flex items-center gap-1 text-[9px] font-mono font-bold uppercase tracking-wider pt-1">
+                    <div style={{ color: goldColor }} className="flex items-center gap-1 text-[8px] font-mono font-bold uppercase tracking-wider pt-1 md:text-[9px]">
                       <span>Review Program Syllabus</span>
                       <ArrowRight className="h-3 w-3" />
                     </div>

@@ -33,20 +33,19 @@ export default function FeaturedCollection() {
   const goldColor = "#C9A84C";
 
   return (
-    <section style={{ backgroundColor: "white", paddingTop: "5rem", paddingBottom: "5rem" }}>
+    <section className="bg-white py-12 md:py-20">
       <style>{`
         .pc-img { transition: transform 0.7s ease; } 
         .pc:hover .pc-img { transform: scale(1.05); } 
         .pc-ov { opacity: 0; transition: opacity 0.3s; } 
         .pc:hover .pc-ov { opacity: 1; } 
-        .pg { display: grid; grid-template-columns: 1fr; gap: 2rem; } 
-        @media(min-width:640px){ .pg { grid-template-columns: repeat(2,1fr); } } 
-        @media(min-width:1024px){ .pg { grid-template-columns: repeat(3,1fr); } }
+        .pg { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; } 
+        @media(min-width:768px){ .pg { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.25rem; } }
       `}</style>
       
       <div className="container-custom">
         {/* Section Header */}
-        <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", marginBottom: "3rem", flexWrap: "wrap", gap: "1rem" }}>
+        <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", marginBottom: "1.5rem", flexWrap: "wrap", gap: "1rem" }}>
           <div style={{ textAlign: "left" }}>
             <p className="tag" style={{ marginBottom: "0.75rem", display: "block", color: goldColor, fontFamily: "monospace", fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.15em" }}>
               Norex Fashion
@@ -105,14 +104,14 @@ export default function FeaturedCollection() {
                 </div>
 
                 {/* Info Text Breakdown */}
-                <div style={{ paddingTop: "1rem", display: "flex", justifyContent: "space-between", alignItems: "flex-start", textAlign: "left" }}>
+                <div style={{ paddingTop: "0.75rem", display: "flex", justifyContent: "space-between", alignItems: "flex-start", textAlign: "left", gap: "0.75rem" }}>
                   <div>
-                    <h3 style={{ fontFamily: "var(--font-playfair), Georgia, serif", fontSize: "1.1rem", fontWeight: 600, color: "#1a1a1a", marginBottom: "0.25rem" }}>
+                    <h3 style={{ fontFamily: "var(--font-playfair), Georgia, serif", fontSize: "0.95rem", fontWeight: 600, color: "#1a1a1a", marginBottom: "0.2rem" }}>
                       {product.name}
                     </h3>
-                    <p style={{ fontSize: "0.8rem", color: "#9ca3af" }}>{product.category}</p>
+                    <p style={{ fontSize: "0.75rem", color: "#9ca3af" }}>{product.category}</p>
                   </div>
-                  <p style={{ fontSize: "1rem", fontWeight: 700, color: goldColor, whiteSpace: "nowrap", marginLeft: "1rem", fontFamily: "monospace" }}>
+                  <p style={{ fontSize: "0.9rem", fontWeight: 700, color: goldColor, whiteSpace: "nowrap", marginLeft: "0.5rem", fontFamily: "monospace" }}>
                     {formatPrice(product.price)}
                   </p>
                 </div>
