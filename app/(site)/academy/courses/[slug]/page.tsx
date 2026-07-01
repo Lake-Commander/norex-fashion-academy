@@ -2,10 +2,11 @@ import { notFound } from "next/navigation";
 import connectDB from "@/lib/mongodb";
 import Course from "@/lib/models/CourseModel";
 import Link from "next/link";
+import Image from "next/image";
 import { Clock, CheckCircle, ChevronRight } from "lucide-react";
 import { formatPrice } from "@/lib/utils";
 
-// ⚡ Dynamic Client Hydration Node: Safely bridges server-side layouts to user profile tracking arrays
+// Dynamic Client Hydration Node: Safely bridges server-side layouts to user profile tracking arrays
 import CourseTelemetryTracker from "@/components/academy/CourseTelemetryTracker"; 
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
@@ -28,7 +29,7 @@ export default async function DynamicCourseDetailPage({ params }: { params: Prom
 
   return (
     <div className="bg-white min-h-screen text-zinc-800 font-sans">
-      {/* ⚡ Fire background context telemetry payload safely from inside Server Component rendering streams */}
+      {/*  Fire background context telemetry payload safely from inside Server Component rendering streams */}
       <CourseTelemetryTracker id={course._id} />
 
       <style>{`
@@ -40,17 +41,34 @@ export default async function DynamicCourseDetailPage({ params }: { params: Prom
         .btn-apply-gold:hover { background-color: #C9A84C; transform: translateY(-2px); }
       `}</style>
 
-      <div style={{ paddingTop: "9rem", paddingBottom: "4.5rem", background: "linear-gradient(135deg, #121212 0%, #211A1D 100%)" }}>
-        <div className="container-custom text-left">
-          <div className="flex flex-wrap items-center gap-2 text-[10px] font-mono font-bold text-zinc-500 uppercase tracking-widest mb-3">
+      {/* 🖼️ Premium Dynamic Banner with Responsive Cloudinary Background Image */}
+      <div style={{ position: "relative", paddingTop: "10rem", paddingBottom: "5.5rem", width: "100%", overflow: "hidden" }}>
+        {course.image ? (
+          <Image 
+            src={course.image} 
+            alt={`${course.title} Banner`}
+            fill
+            priority
+            style={{ objectFit: "cover" }}
+            sizes="100vw"
+          />
+        ) : (
+          <div style={{ position: "absolute", inset: 0, background: "linear-gradient(135deg, #121212 0%, #211A1D 100%)" }} />
+        )}
+        
+        {/* Dark Vignette Mask Overlay to maintain strict WCAG text legibility rules */}
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(18,18,18,0.85) 0%, rgba(20,20,20,0.7) 100%)", zIndex: 10 }} />
+
+        <div className="container-custom text-left" style={{ position: "relative", zIndex: 20 }}>
+          <div className="flex flex-wrap items-center gap-2 text-[10px] font-mono font-bold text-zinc-400 uppercase tracking-widest mb-3">
             <Link href="/academy" className="hover:text-white text-decoration-none text-current">Academy</Link><ChevronRight size={10} />
             <Link href="/academy/courses" className="hover:text-white text-decoration-none text-current">Programs</Link><ChevronRight size={10} />
             <span className="text-[#C9A84C]">{course.title}</span>
           </div>
 
           <div className="flex flex-wrap items-center gap-4 mb-4">
-            <span style={{ color: levelColor, borderColor: levelColor }} className="text-[10px] font-mono uppercase tracking-wider font-bold px-3 py-1 border rounded-sm bg-black/40">{course.level} Course</span>
-            <span className="text-zinc-400 text-xs font-mono font-bold uppercase tracking-wider inline-flex items-center gap-1"><Clock size={14} /> Duration: {course.duration}</span>
+            <span style={{ color: levelColor, borderColor: levelColor }} className="text-[10px] font-mono uppercase tracking-wider font-bold px-3 py-1 border rounded-sm bg-black/60">{course.level} Course</span>
+            <span className="text-zinc-300 text-xs font-mono font-bold uppercase tracking-wider inline-flex items-center gap-1"><Clock size={14} /> Duration: {course.duration}</span>
           </div>
 
           <h1 style={{ fontFamily: "var(--font-playfair), serif", fontSize: "clamp(2rem, 4.5vw, 3.25rem)", fontWeight: 700, lineHeight: 1.1 }} className="text-white uppercase tracking-tight max-w-4xl">{course.title}</h1>
