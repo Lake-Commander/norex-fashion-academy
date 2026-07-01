@@ -92,71 +92,71 @@ export default function PromotionalBanner({
   if (!visible) return null;
 
   return (
-    <section className="border-b border-[#efe7da] bg-[#0c0c0c] text-white">
-      <div className="mx-auto flex max-w-7xl flex-col gap-6 px-6 py-6 md:px-8 lg:flex-row lg:items-center lg:justify-between lg:py-8">
-        <div className="max-w-2xl space-y-3">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/75 px-4 py-6 backdrop-blur-sm sm:px-6">
+      <div className="relative w-full max-w-2xl rounded-[24px] border border-[#C9A84C]/25 bg-[#0f0f0f] p-5 shadow-[0_20px_80px_rgba(0,0,0,0.45)] sm:p-7 lg:p-8">
+        <button
+          type="button"
+          onClick={dismissBanner}
+          className="absolute right-3 top-3 rounded-full border border-white/10 p-2 text-zinc-400 transition hover:border-[#C9A84C]/40 hover:text-[#C9A84C]"
+          aria-label="Dismiss promotional banner"
+        >
+          <X className="h-4 w-4" />
+        </button>
+
+        <div className="space-y-5">
           <div className="inline-flex items-center gap-2 rounded-full border border-[#C9A84C]/30 bg-[#C9A84C]/10 px-3 py-1 text-[9px] font-black uppercase tracking-[0.3em] text-[#C9A84C]">
             <Sparkles className="h-3 w-3" />
             <span>{eyebrow}</span>
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-3 text-center sm:text-left">
             <h2 className="text-2xl font-semibold tracking-tight text-white sm:text-3xl" style={{ fontFamily: 'var(--font-playfair), Georgia, serif' }}>
               {title}
             </h2>
-            <p className="max-w-xl text-sm leading-relaxed text-zinc-300">
+            <p className="mx-auto max-w-xl text-sm leading-relaxed text-zinc-300 sm:mx-0">
               {description}
             </p>
             <p className="text-sm font-medium text-[#C9A84C]">{offerLabel}</p>
           </div>
-        </div>
 
-        <div className="w-full max-w-xl space-y-3">
-          {status === 'success' ? (
-            <div className="rounded-sm border border-[#C9A84C]/30 bg-[#C9A84C]/10 p-4">
-              <div className="flex items-center gap-2 text-sm font-semibold text-[#C9A84C]">
-                <Check className="h-4 w-4" />
-                <span>{successTitle}</span>
+          <div className="space-y-3">
+            {status === 'success' ? (
+              <div className="rounded-sm border border-[#C9A84C]/30 bg-[#C9A84C]/10 p-4 text-center sm:text-left">
+                <div className="flex items-center justify-center gap-2 text-sm font-semibold text-[#C9A84C] sm:justify-start">
+                  <Check className="h-4 w-4" />
+                  <span>{successTitle}</span>
+                </div>
+                <p className="mt-2 text-sm text-zinc-300">{successDescription}</p>
+                <div className="mt-3 inline-flex items-center gap-2 rounded-sm border border-[#C9A84C]/20 bg-black/40 px-3 py-2 text-sm font-semibold text-[#C9A84C]">
+                  <span className="font-mono uppercase tracking-[0.25em]">{promoCode}</span>
+                </div>
               </div>
-              <p className="mt-2 text-sm text-zinc-300">{successDescription}</p>
-              <div className="mt-3 inline-flex items-center gap-2 rounded-sm border border-[#C9A84C]/20 bg-black/40 px-3 py-2 text-sm font-semibold text-[#C9A84C]">
-                <span className="font-mono uppercase tracking-[0.25em]">{promoCode}</span>
-              </div>
-            </div>
-          ) : (
-            <form onSubmit={handleSubmit} className="flex flex-col gap-3 sm:flex-row">
-              <input
-                type="email"
-                value={email}
-                onChange={(event) => {
-                  setEmail(event.target.value);
-                  if (error) setError('');
-                }}
-                placeholder={inputPlaceholder}
-                className="w-full rounded-sm border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-zinc-500 focus:border-[#C9A84C] focus:outline-none"
-              />
-              <button
-                type="submit"
-                disabled={status === 'loading'}
-                className="inline-flex items-center justify-center rounded-sm bg-[#C9A84C] px-5 py-3 text-xs font-semibold uppercase tracking-[0.25em] text-white transition hover:bg-[#b58f3e] disabled:cursor-not-allowed disabled:opacity-70"
-              >
-                {status === 'loading' ? <Loader2 className="h-4 w-4 animate-spin" /> : <><span>{buttonText}</span><ArrowRight className="ml-2 h-4 w-4" /></>}
-              </button>
-            </form>
-          )}
+            ) : (
+              <form onSubmit={handleSubmit} className="flex flex-col gap-3 sm:flex-row">
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(event) => {
+                    setEmail(event.target.value);
+                    if (error) setError('');
+                  }}
+                  placeholder={inputPlaceholder}
+                  className="w-full rounded-sm border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-zinc-500 focus:border-[#C9A84C] focus:outline-none"
+                />
+                <button
+                  type="submit"
+                  disabled={status === 'loading'}
+                  className="inline-flex items-center justify-center rounded-sm bg-[#C9A84C] px-5 py-3 text-xs font-semibold uppercase tracking-[0.25em] text-white transition hover:bg-[#b58f3e] disabled:cursor-not-allowed disabled:opacity-70"
+                >
+                  {status === 'loading' ? <Loader2 className="h-4 w-4 animate-spin" /> : <><span>{buttonText}</span><ArrowRight className="ml-2 h-4 w-4" /></>}
+                </button>
+              </form>
+            )}
 
-          {error ? <p className="text-sm text-red-400">{error}</p> : null}
+            {error ? <p className="text-sm text-red-400">{error}</p> : null}
+          </div>
         </div>
-
-        <button
-          type="button"
-          onClick={dismissBanner}
-          className="self-start rounded-full border border-white/10 p-2 text-zinc-400 transition hover:border-[#C9A84C]/40 hover:text-[#C9A84C]"
-          aria-label="Dismiss promotional banner"
-        >
-          <X className="h-4 w-4" />
-        </button>
       </div>
-    </section>
+    </div>
   );
 }
