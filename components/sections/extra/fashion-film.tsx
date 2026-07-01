@@ -210,7 +210,7 @@ export default function FashionFilm() {
             </div>
 
             <Link
-              href="/editorial"
+              href="/lookbook"
               onClick={playClick}
               style={{ color: goldColor, borderTop: "1px solid #f0ebe3" }}
               className="inline-flex items-center justify-between gap-2 text-[10px] font-bold uppercase tracking-widest hover:text-[#1a1a1a] transition-colors pt-5 mt-6 text-decoration-none w-full font-mono"
