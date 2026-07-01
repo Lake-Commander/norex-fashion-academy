@@ -127,7 +127,7 @@ export default function DynamicRunwayShowcase() {
               <Sparkles className="h-3 w-3" />
               <span>NOREX LIVE RUNWAY BROADCAST</span>
             </div>
-            <h1 style={{ fontFamily: "var(--font-playfair), serif" }} className="text-3xl sm:text-5xl md:text-6xl font-black uppercase tracking-tight leading-none">Spring Couture Runway</h1>
+            <h1 style={{ fontFamily: "var(--font-playfair), serif" }} className="text-3xl sm:text-5xl md:text-6xl font-black uppercase tracking-tight leading-none">Couture Runway</h1>
           </div>
 
           <button type="button" onClick={handleToggleAmbient} className={`px-5 py-3 border rounded-full text-[10px] font-bold uppercase tracking-widest flex items-center gap-2 backdrop-blur-md transition-all cursor-pointer select-none ${ambientPlaying ? "bg-[#C9A84C] border-[#C9A84C] text-white font-black" : "bg-white/5 border-white/20 text-white"}`}>
