@@ -23,6 +23,7 @@ import CreativeDirector from "@/components/sections/extra/creative-director";
 import Sustainability from "@/components/sections/extra/sustainability";
 import GlobalPresence from "@/components/sections/extra/global-presence";
 import Newsletter from "@/components/sections/extra/newsletter";
+import PromotionalBanner from "@/components/sections/extra/PromotionalBanner";
 import StyleOracle from "@/components/style-oracle";
 
 export default function HomePage() {
@@ -31,6 +32,8 @@ export default function HomePage() {
   return (
     <main className="min-h-screen bg-background text-foreground transition-colors duration-500 pb-0">
       
+      <PromotionalBanner />
+
       {/* 01. Immersive Hero Entrance */}
       <HeroSection />
 
