@@ -53,9 +53,9 @@ export default function DynamicRunwayShowcase() {
     if (typeof window !== "undefined") {
       const initPlayer = () => {
         youtubePlayerRef.current = new (window as any).YT.Player("youtube-bg-player-runway", {
-          videoId: "oPtfQAFIk-4",
+          videoId: "6BbI6VZOx9Q",
           playerVars: {
-            autoplay: 1, mute: 1, loop: 1, playlist: "oPtfQAFIk-4",
+            autoplay: 1, mute: 1, loop: 1, playlist: "6BbI6VZOx9Q",
             controls: 0, showinfo: 0, rel: 0, modestbranding: 1,
             iv_load_policy: 3, disablekb: 1, playsinline: 1
           },
