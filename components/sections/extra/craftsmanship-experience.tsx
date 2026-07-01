@@ -23,21 +23,21 @@ export default function CraftsmanshipExperience() {
     {
       title: 'Bespoke Draping & Architecture',
       tag: '01 / Anatomical Drafting',
-      image: '/runway/bts-02.avif',
+      image: '/product-4.jpg',
       story: 'Every single luxury bridal corset and custom evening dress silhouette undergoes deep canvas adjustments. Our master tailors trace contours explicitly to structural lines, balancing natural posture configurations with majestic drapes.',
       details: ['Hand-drawn anatomical drafts', 'Custom built-in inner bodices', 'Reinforced double-face seam settings']
     },
     {
       title: 'Premium Textile Provenance',
       tag: '02 / Luxury Material Selection',
-      image: '/runway/bts-06.avif',
+      image: '/product-3.png',
       story: 'We source exclusively from certified mills and hand-loomed heritage cooperatives. Across our luminous silk charmeuse, double-plied crepes, and authentic West African textiles, we prioritize thread length for uncompromised longevity.',
       details: ['100% Premium fluid silk charmeuse', 'Hand-woven heritage cotton prints', 'Double-plied clean crepe structures']
     },
     {
       title: 'Artisanal Hand-Finished Accents',
       tag: '03 / Hardware & Closures',
-      image: '/runway/bts-13.avif',
+      image: '/machinesew.png',
       story: 'The final layers declare our standard guidelines. From hand-sewn internal bound silk tapes that highlight our construction pipelines to custom crystal beadwork patterns, every single edge passes meticulous quality gates.',
       details: ['Meticulous hand-placed beadwork', 'Contrasting silk internal bound seams', 'Exposed premium zipper rail panels']
     }
