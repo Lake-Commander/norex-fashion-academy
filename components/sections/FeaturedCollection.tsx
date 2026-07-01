@@ -17,8 +17,8 @@ export default function FeaturedCollection() {
         const data = await res.json();
         
         if (data.success && data.products) {
-          // Isolate products marked as new arrival drops and take the top 3
-          const arrivals = data.products.filter((p: any) => p.isNewArrival).slice(0, 3);
+          // Isolate products marked as new arrival drops and take the top 4
+          const arrivals = data.products.filter((p: any) => p.isNewArrival).slice(0, 4);
           setProducts(arrivals);
         }
       } catch (err) {
