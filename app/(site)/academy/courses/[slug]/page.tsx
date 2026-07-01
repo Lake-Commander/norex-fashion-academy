@@ -41,7 +41,7 @@ export default async function DynamicCourseDetailPage({ params }: { params: Prom
         .btn-apply-gold:hover { background-color: #C9A84C; transform: translateY(-2px); }
       `}</style>
 
-      {/* 🖼️ Premium Dynamic Banner with Responsive Cloudinary Background Image */}
+      {/*  Premium Dynamic Banner with Responsive Cloudinary Background Image */}
       <div style={{ position: "relative", paddingTop: "10rem", paddingBottom: "5.5rem", width: "100%", overflow: "hidden" }}>
         {course.image ? (
           <Image 
