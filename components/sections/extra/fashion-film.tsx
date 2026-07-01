@@ -115,7 +115,7 @@ export default function FashionFilm() {
           {/* Left Video Preview Box */}
           <div style={{ borderColor: "#e5e7eb" }} className="lg:col-span-8 group relative rounded-sm border overflow-hidden bg-gray-50 shadow-sm flex items-center justify-center min-h-[360px] md:min-h-[460px]">
             <img 
-              src={featuredFilm?.coverImage || "/runway/hero-banner-2.avif"} 
+              src={featuredFilm?.coverImage || "/product-1.png"} 
               alt="Fashion Film Trailer Poster" 
               className="absolute inset-0 w-full h-full object-cover scale-[1.01] group-hover:scale-100 transition-transform duration-[1000ms] brightness-50 grayscale contrast-[1.02]"
             />
