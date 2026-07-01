@@ -41,7 +41,7 @@ export default function FeaturedCollection() {
         .pc:hover .pc-ov { opacity: 1; } 
         .pg { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; } 
         @media (min-width: 768px) { 
-          .pg { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem; } 
+          .pg { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1.25rem; } 
         }
       `}</style>
       
