@@ -40,7 +40,9 @@ export default function FeaturedCollection() {
         .pc-ov { opacity: 0; transition: opacity 0.3s; } 
         .pc:hover .pc-ov { opacity: 1; } 
         .pg { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; } 
-        @media(min-width:768px){ .pg { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.25rem; } }
+        @media (min-width: 768px) { 
+          .pg { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem; } 
+        }
       `}</style>
       
       <div className="container-custom">
