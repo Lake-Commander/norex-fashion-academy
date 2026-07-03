@@ -5,6 +5,7 @@ import { ShopProvider } from "@/context/ShopContext";
 // Import NextAuth AuthProvider layout component hook
 import AuthProvider from "@/context/AuthProvider";
 import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -48,6 +49,7 @@ export default function RootLayout({
           </ShopProvider>
         </AuthProvider>
         <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   ); 
