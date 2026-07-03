@@ -112,7 +112,7 @@ export default function FeaturedProducts() {
                   className={`product-feature-card ${offsetClass}`}
                 >
                   {/* Image Container */}
-                  <div className="relative aspect-[3/4] overflow-hidden rounded-sm mb-6 bg-[#FAF7F4] border border-gray-100">
+                  <div className="relative aspect-3/4 overflow-hidden rounded-sm mb-6 bg-[#FAF7F4] border border-gray-100">
                     {product.images?.[0] ? (
                       <img 
                         src={product.images[0]} 
@@ -125,7 +125,7 @@ export default function FeaturedProducts() {
                       </div>
                     )}
                     
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/10 to-transparent" />
+                    <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/10 to-transparent" />
                     
                     {/* Floating Meta tags inside card */}
                     <div className="absolute bottom-6 left-6 right-6 text-white space-y-2 text-left">

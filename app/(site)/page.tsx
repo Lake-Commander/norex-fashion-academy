@@ -162,19 +162,19 @@ export default function HomePage() {
           <h2 className="mb-4 text-[clamp(1.75rem,4vw,3rem)] font-bold text-[#1a1a1a]" style={{ fontFamily: "var(--font-playfair), Georgia, serif" }}>
             Ready to Begin Your Journey?
           </h2>
-          <p className="max-w-[450px] mx-auto mb-10 text-[0.95rem] leading-[1.8] text-[#6b7280]">
+          <p className="max-w-112.5 mx-auto mb-10 text-[0.95rem] leading-[1.8] text-[#6b7280]">
             Whether you are looking for your next custom piece or ready to launch your creative career — our atelier channels are open for you.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 items-center justify-center">
             <Link 
               href="/contact" 
-              className="inline-flex items-center justify-center min-w-[220px] px-10 py-3.5 bg-[#C9A84C] border-2 border-[#C9A84C] text-white text-[0.8rem] font-semibold tracking-[0.15em] uppercase no-underline transition-all duration-300 rounded-sm hover:bg-[#B49542] hover:border-[#B49542] hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(201,168,76,0.4)]"
+              className="inline-flex items-center justify-center min-w-55 px-10 py-3.5 bg-[#C9A84C] border-2 border-[#C9A84C] text-white text-[0.8rem] font-semibold tracking-[0.15em] uppercase no-underline transition-all duration-300 rounded-sm hover:bg-[#B49542] hover:border-[#B49542] hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(201,168,76,0.4)]"
             >
               Contact Us
             </Link>
             <Link 
               href="/shop" 
-              className="inline-flex items-center justify-center min-w-[220px] px-10 py-3.5 border-2 border-[#C9A84C] text-[#C9A84C] bg-transparent text-[0.8rem] font-semibold tracking-[0.15em] uppercase no-underline transition-all duration-300 rounded-sm hover:bg-[#C9A84C] hover:text-white hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(201,168,76,0.2)]"
+              className="inline-flex items-center justify-center min-w-55 px-10 py-3.5 border-2 border-[#C9A84C] text-[#C9A84C] bg-transparent text-[0.8rem] font-semibold tracking-[0.15em] uppercase no-underline transition-all duration-300 rounded-sm hover:bg-[#C9A84C] hover:text-white hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(201,168,76,0.2)]"
             >
               Browse Shop
             </Link>

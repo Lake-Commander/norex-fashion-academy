@@ -34,8 +34,8 @@ export default function FeaturedCourses() {
         const data = await res.json()
         
         if (data.success && data.courses) {
-          // Isolate courses toggled for the homepage spotlight, maximum of 3 for the grid layout
-          const featuredItems = data.courses.filter((c: CourseItem) => c.featured).slice(0, 3)
+          // Isolate courses toggled for the homepage spotlight, maximum of 4 for the grid layout
+          const featuredItems = data.courses.filter((c: CourseItem) => c.featured).slice(0, 4)
           setCourses(featuredItems)
         }
       } catch (err) {
@@ -100,7 +100,7 @@ export default function FeaturedCourses() {
           </div>
         ) : (
           /* Asymmetric Offset grid layout matrix matching lookbook rules */
-          <div className="grid grid-cols-2 gap-3 items-start md:gap-6 lg:grid-cols-3 lg:gap-8">
+          <div className="grid grid-cols-2 gap-3 items-start md:gap-6 lg:grid-cols-4 lg:gap-8">
             {courses.map((course, idx) => {
               const offsetClass = styleOffsets[idx % styleOffsets.length]
               
@@ -113,7 +113,7 @@ export default function FeaturedCourses() {
                   className={`course-feature-card ${offsetClass}`}
                 >
                   {/* Image Canvas Container */}
-                  <div className="relative aspect-[3/4] overflow-hidden rounded-sm mb-3 bg-[#FAF7F4] border border-gray-100 md:mb-4">
+                  <div className="relative aspect-3/4 overflow-hidden rounded-sm mb-3 bg-[#FAF7F4] border border-gray-100 md:mb-4">
                     {course.image ? (
                       <img 
                         src={course.image} 
@@ -126,7 +126,7 @@ export default function FeaturedCourses() {
                       </div>
                     )}
                     
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/10 to-transparent" />
+                    <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/10 to-transparent" />
                     
                     {/* Floating Meta titles inside card overlay */}
                     <div className="absolute bottom-6 left-6 right-6 text-white space-y-2 text-left">

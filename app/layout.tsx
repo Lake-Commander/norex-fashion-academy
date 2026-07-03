@@ -23,8 +23,8 @@ export const metadata: Metadata = {
     default: "Norex Fashion | Design & Academy",
     template: "%s | Norex Fashion",
   },
-  description: "Norex Fashion — Premium ready-to-wear fashion collections and a world-class fashion design academy in Warri, Nigeria.",
-  keywords: ["fashion", "couture", "Warri", "Nigeria", "fashion academy", "ready-to-wear", "fashion design"],
+  description: "Norex Fashion - Premium ready-to-wear fashion collections and a world-class fashion design academy in Warri, Nigeria.",
+  keywords: ["fashion", "couture", "Warri", "Lagos", "Nigeria", "fashion academy", "ready-to-wear", "fashion design"],
   openGraph: {
     title: "Norex Fashion | Design & Academy",
     description: "Premium ready-to-wear fashion and world-class fashion education in Warri, Nigeria.",
@@ -47,6 +47,7 @@ export default function RootLayout({
             {children}
           </ShopProvider>
         </AuthProvider>
+        <Analytics />
       </body>
     </html>
   ); 
