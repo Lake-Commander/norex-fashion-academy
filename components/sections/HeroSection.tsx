@@ -7,7 +7,7 @@ import { ArrowRight, ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
 const slides = [
   {
     type: "video",
-    mediaSrc: "/hero1.mp4",
+    mediaSrc: "/hero3.jpeg",
     season: "NOREX ATELIER // DELTA, WARRI, NIGERIA · EST. 2016",
     titlePrefix: "WHERE FASHION MEETS",
     desc: "Discover premium ready-to-wear collections and world-class fashion education engineered beyond transient trends. Step into the future of luxury tailoring.",
@@ -16,7 +16,7 @@ const slides = [
   },
   {
     type: "image",
-    mediaSrc: "/hero2.jpeg", // Replace with your target fallback image asset path
+    mediaSrc: "/hero2.jpeg",
     season: "NOREX ACADEMY // PROFESSIONAL MATRICULATION PATTERNS",
     titlePrefix: "CULTIVATING ARCHITECTURAL",
     desc: "Meticulously curated training workflows balancing classical lines with sophisticated silhouettes. Experience structural garment assembly guides.",

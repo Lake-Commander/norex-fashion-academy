@@ -23,6 +23,8 @@ async function connectDB() {
     const opts = {
       bufferCommands: false,
       serverSelectionTimeoutMS: 10000, // Terminate frozen requests early instead of hanging
+      connectTimeoutMS: 10000,
+      tls: true,
     };
 
     cached.promise = mongoose.connect(MONGODB_URI!, opts).then((mongooseInstance) => {
@@ -34,6 +36,9 @@ async function connectDB() {
     cached.conn = await cached.promise;
   } catch (e) {
     cached.promise = null;
+    // Log the underlying error to aid debugging (network, DNS, Atlas state)
+    // eslint-disable-next-line no-console
+    console.error("MongoDB connection error:", e);
     throw e;
   }
 
