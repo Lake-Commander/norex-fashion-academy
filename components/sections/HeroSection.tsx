@@ -4,9 +4,10 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { ArrowRight, ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
 
+//type is either image or video
 const slides = [
   {
-    type: "video",
+    type: "image", 
     mediaSrc: "/hero3.jpeg",
     season: "NOREX ATELIER // DELTA, WARRI, NIGERIA · EST. 2016",
     titlePrefix: "WHERE FASHION MEETS",
