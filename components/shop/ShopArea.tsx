@@ -106,6 +106,18 @@ export default function ShopArea() {
             gap: 2.5rem; 
             align-items: start;
           } 
+
+          .shop-sidebar-container {
+            position: sticky;
+            top: 6rem;
+            align-self: flex-start;
+            max-height: calc(100vh - 7rem);
+            overflow-y: auto;
+          }
+
+          .shop-sidebar-container::-webkit-scrollbar { width: 4px; }
+          .shop-sidebar-container::-webkit-scrollbar-track { background: transparent; }
+          .shop-sidebar-container::-webkit-scrollbar-thumb { background: #e4e4e7; border-radius: 2px; }
         }
 
         .shop-main-pane {

@@ -149,10 +149,9 @@ export default function ShopSidebar({ isMobileOpen, setIsMobileOpen }: { isMobil
         /* 🖥️ PC DRAG & COLLAPSE PANEL MATRIX */
         @media(min-width: 1024px) {
           .sidebar {
-            position: sticky;
-            top: 8rem;                       
-            height: calc(100vh - 10rem);     
-            overflow-y: auto;                
+            position: relative;
+            height: auto;
+            overflow: visible;
             padding-right: 1.25rem;
           }
           
@@ -165,11 +164,6 @@ export default function ShopSidebar({ isMobileOpen, setIsMobileOpen }: { isMobil
           .sidebar.collapsed .sidebar-content-wrapper {
             display: none !important;
           }
-
-          .sidebar::-webkit-scrollbar { width: 4px; }
-          .sidebar::-webkit-scrollbar-track { background: transparent; }
-          .sidebar::-webkit-scrollbar-thumb { background: #e4e4e7; border-radius: 2px; }
-          .sidebar::-webkit-scrollbar-thumb:hover { background: #C9A84C; }
 
           .resize-handle {
             position: absolute;
