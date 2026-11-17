@@ -67,7 +67,7 @@ export default function CoursesHub() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           
           {/* LEFT INTERACTIVE EDX SIDEBAR LOOKUP (3 Columns) */}
-          <div className="lg:col-span-3 space-y-6 text-left bg-zinc-50/60 p-4 border border-zinc-200 rounded-sm">
+          <div className="lg:col-span-3 lg:sticky lg:top-24 lg:self-start space-y-6 text-left bg-zinc-50/60 p-4 border border-zinc-200 rounded-sm">
             <div className="flex items-center gap-2 border-b border-zinc-200 pb-2.5 mb-2">
               <Sliders className="h-4 w-4 text-[#C9A84C]" />
               <span className="text-xs font-mono font-bold tracking-wider uppercase text-zinc-900">Find a Course</span>

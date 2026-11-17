@@ -6,6 +6,7 @@ import connectDB from "@/lib/mongodb";
 import Application from "@/lib/models/ApplicationModel";
 import Order from "@/lib/models/OrderModel";
 import Payment from "@/lib/models/PaymentModel";
+import Product from "@/lib/models/ProductModel";
 import mongoose from "mongoose";
 
 export async function GET() {
@@ -24,6 +25,10 @@ export async function GET() {
       Order.find({ customerEmail: userEmail }).sort({ createdAt: -1 }),
       Payment.find({ studentEmail: userEmail }).sort({ createdAt: -1 })
     ]);
+    const wishlistIds = (userProfile?.wishlist || []).filter((id: string) => mongoose.Types.ObjectId.isValid(id));
+    const wishlistProducts = wishlistIds.length
+      ? await Product.find({ _id: { $in: wishlistIds } }).lean()
+      : [];
 
     return NextResponse.json({
       success: true,
@@ -38,7 +43,9 @@ export async function GET() {
         readHistory: userProfile?.readHistory || [],
         watchHistory: userProfile?.watchHistory || [],
         recentlyViewedProducts: userProfile?.recentlyViewedProducts || [],
-        recentlyViewedCourses: userProfile?.recentlyViewedCourses || []
+        recentlyViewedCourses: userProfile?.recentlyViewedCourses || [],
+        cart: userProfile?.cart || [],
+        wishlist: wishlistProducts
       },
       applications,
       orders,

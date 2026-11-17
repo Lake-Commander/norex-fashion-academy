@@ -1,6 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect, useRef } from "react";
+import { useSession } from "next-auth/react";
 import { Product } from "@/types";
 import { sounds } from "@/lib/sound-utils";
 
@@ -61,10 +62,11 @@ export function ShopProvider({ children }: { children: React.ReactNode }) {
   const [isCartOpen, setCartOpen] = useState<boolean>(false);
   const [isWishlistOpen, setWishlistOpen] = useState<boolean>(false);
   const [isOracleOpen, setOracleOpen] = useState<boolean>(false);
+  const { status } = useSession();
 
   /* --- Infrastructure Tracking Refs --- */
   // Used to skip running database sync requests during the component's initial mounting layout pass
-  const isFirstRender = useRef(true);
+  const hasHydrated = useRef(false);
 
   /* ==========================================
      SYNCHRONIZATION SIDE-EFFECTS (EFFECTS LOOP)
@@ -73,11 +75,31 @@ export function ShopProvider({ children }: { children: React.ReactNode }) {
   // Hook 1: Initial Hydration on Mount
   // Safely loads cached data strings from browser LocalStorage to restore user state upon page reload
   useEffect(() => {
-    const savedCart = localStorage.getItem("norex_cart");
-    const savedWishlist = localStorage.getItem("norex_wishlist");
-    if (savedCart) setCart(JSON.parse(savedCart));
-    if (savedWishlist) setWishlist(JSON.parse(savedWishlist));
-  }, []);
+    if (status === "loading" || hasHydrated.current) return;
+
+    async function hydrateShopState() {
+      if (status === "authenticated") {
+        try {
+          const response = await fetch("/api/user/dashboard", { cache: "no-store" });
+          const data = await response.json();
+          if (!response.ok || !data.success) throw new Error(data.error || "Could not load your saved items.");
+          setCart(data.profile.cart || []);
+          setWishlist(data.profile.wishlist || []);
+        } catch (error) {
+          console.error("Could not load saved account items:", error);
+          return;
+        }
+      } else {
+        const savedCart = localStorage.getItem("norex_cart");
+        const savedWishlist = localStorage.getItem("norex_wishlist");
+        if (savedCart) setCart(JSON.parse(savedCart));
+        if (savedWishlist) setWishlist(JSON.parse(savedWishlist));
+      }
+      hasHydrated.current = true;
+    }
+
+    hydrateShopState();
+  }, [status]);
 
   // Hook 2: State Persistence & Database Sync
   // Monitored by [cart, wishlist] modifications. Writes changes to localStorage and debounces a sync fetch down to MongoDB
@@ -85,11 +107,7 @@ export function ShopProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem("norex_cart", JSON.stringify(cart));
     localStorage.setItem("norex_wishlist", JSON.stringify(wishlist));
 
-    // Guard: Prevents clean database entries from being overwritten by blank states on mount
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
-      return;
-    }
+    if (!hasHydrated.current || status !== "authenticated") return;
 
     // Normalizes wishlist array map objects to contain clean product ID strings
     const sanitizedWishlistIds = wishlist.map((item: any) => item.id || item._id);
@@ -110,13 +128,13 @@ export function ShopProvider({ children }: { children: React.ReactNode }) {
       }
     };
 
-    // Debounce loop (800ms) to throttle rapid input mutations (e.g., clicking item quantities repeatedly)
+    // Debounce rapid changes before saving the signed-in user's account state.
     const debounceTimeout = setTimeout(() => {
       syncDatabaseLedger();
     }, 800);
 
     return () => clearTimeout(debounceTimeout);
-  }, [cart, wishlist]);
+  }, [cart, wishlist, status]);
 
   // Hook 3: Global HTML Theme Node Painter
   // Injects/clears the active visual theme class strings straight onto the browser DOM document root element

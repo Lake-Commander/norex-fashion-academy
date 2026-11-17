@@ -96,7 +96,7 @@ export default function EnhancedEcosystemDashboard() {
     return (
       <div className="min-h-screen bg-[#FCFAF7] flex flex-col items-center justify-center gap-2">
         <Loader2 className="h-6 w-6 animate-spin text-[#C9A84C]" />
-        <p className="text-xs font-mono uppercase tracking-widest text-zinc-400">Syncing Profile Ecosystem...</p>
+        <p className="text-xs font-mono uppercase tracking-widest text-zinc-400">Loading your account...</p>
       </div>
     );
   }
@@ -182,7 +182,7 @@ export default function EnhancedEcosystemDashboard() {
 
         {/* Dynamic Welcome Heading */}
         <div className="px-1 py-1">
-          <h2 className="text-xl md:text-2xl font-bold tracking-tight text-zinc-900">Welcome, {name || "Client"}</h2>
+          <h2 className="text-xl md:text-2xl font-bold tracking-tight text-zinc-900">Welcome back, {name || "there"}</h2>
           <p className="text-[10px] font-mono uppercase tracking-wider text-zinc-400 mt-1">Account: {profile.email}</p>
         </div>
 
@@ -196,15 +196,15 @@ export default function EnhancedEcosystemDashboard() {
                 <h3 className="text-xs font-mono font-black uppercase tracking-wider text-zinc-400 flex items-center gap-1.5"><ShieldCheck size={13} /> Account Summary</h3>
                 <div className="space-y-2.5 pt-1">
                   <div className="flex justify-between text-xs border-b pb-2">
-                    <span className="text-zinc-400">Total Store Orders</span>
+                    <span className="text-zinc-400">Orders</span>
                     <span className="font-bold font-mono text-zinc-900">{orders.length}</span>
                   </div>
                   <div className="flex justify-between text-xs border-b pb-2">
-                    <span className="text-zinc-400">Academy Submissions</span>
+                    <span className="text-zinc-400">Course applications</span>
                     <span className="font-bold font-mono text-zinc-900">{applications.length}</span>
                   </div>
                   <div className="flex justify-between text-xs">
-                    <span className="text-zinc-400">Items inside Wishlist</span>
+                    <span className="text-zinc-400">Saved items</span>
                     <span className="font-bold font-mono text-zinc-900">{wishlist.length} saved</span>
                   </div>
                 </div>
@@ -212,7 +212,7 @@ export default function EnhancedEcosystemDashboard() {
 
               {/* Shopping Bag Summary Badge */}
               <div className="kapella-card space-y-4">
-                <h3 className="text-xs font-mono font-black uppercase tracking-wider text-zinc-400 flex items-center gap-1.5"><ShoppingBag size={13} /> Bag Utilization</h3>
+                <h3 className="text-xs font-mono font-black uppercase tracking-wider text-zinc-400 flex items-center gap-1.5"><ShoppingBag size={13} /> Shopping bag</h3>
                 <div className="space-y-2">
                   <p className="text-2xl font-black font-mono text-zinc-900">{cart.length} / 10 Pieces</p>
                   <div className="w-full h-1.5 bg-zinc-100 rounded-full overflow-hidden">
@@ -227,14 +227,14 @@ export default function EnhancedEcosystemDashboard() {
                 <div className="space-y-1">
                   <div style={{ borderColor: "rgba(201,168,76,0.3)", backgroundColor: "rgba(201,168,76,0.1)", color: "#C9A84C" }} className="inline-flex items-center gap-1.5 px-2.5 py-0.5 border rounded-full text-[8px] font-mono tracking-widest uppercase font-bold">
                     <Sparkles className="h-2.5 w-2.5 animate-pulse" />
-                    <span>Profile Registered</span>
+                    <span>Account ready</span>
                   </div>
                   <h3 style={{ fontFamily: "var(--font-playfair), serif" }} className="text-lg uppercase tracking-tight text-white font-bold pt-1">Your account</h3>
                 </div>
                 <p className="text-xs text-zinc-300 font-light leading-relaxed font-serif italic pt-2">
-                  Your custom measurement metrics, active wishlists, and order invoice ledgers are securely synchronized.
+                  Keep track of your saved styles, shopping bag, orders, and course applications in one place.
                 </p>
-                <button type="button" onClick={() => handleTabSwitch("commerce")} className="text-[10px] font-mono tracking-widest uppercase font-bold text-[#C9A84C] text-left inline-flex items-center gap-1 hover:text-white transition-colors cursor-pointer border-none bg-transparent pt-3">Manage Orders <ArrowRight size={12} /></button>
+                <button type="button" onClick={() => handleTabSwitch("commerce")} className="text-[10px] font-mono tracking-widest uppercase font-bold text-[#C9A84C] text-left inline-flex items-center gap-1 hover:text-white transition-colors cursor-pointer border-none bg-transparent pt-3">View your orders <ArrowRight size={12} /></button>
               </div>
 
             </div>
@@ -242,7 +242,7 @@ export default function EnhancedEcosystemDashboard() {
             {/* Layout Grid: Wishlist Snapshot split pane */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="kapella-card space-y-4">
-                <h3 className="text-xs font-mono font-black uppercase tracking-wider text-zinc-400 border-b pb-2 flex items-center gap-1.5"><Heart size={13} className="text-[#C9A84C] fill-current" /> Pinned Showroom Selections</h3>
+                <h3 className="text-xs font-mono font-black uppercase tracking-wider text-zinc-400 border-b pb-2 flex items-center gap-1.5"><Heart size={13} className="text-[#C9A84C] fill-current" /> Saved items</h3>
                 {wishlist.length === 0 ? (
                   <p className="text-xs font-mono uppercase text-zinc-400 text-center py-6">No showroom pieces pinned.</p>
                 ) : (
@@ -258,7 +258,7 @@ export default function EnhancedEcosystemDashboard() {
               </div>
 
               <div className="kapella-card space-y-4">
-                <h3 className="text-xs font-mono font-black uppercase tracking-wider text-zinc-400 border-b pb-2 flex items-center gap-1.5"><ShoppingBag size={13} /> Active Bag Breakdown</h3>
+                <h3 className="text-xs font-mono font-black uppercase tracking-wider text-zinc-400 border-b pb-2 flex items-center gap-1.5"><ShoppingBag size={13} /> Your shopping bag</h3>
                 {cart.length === 0 ? (
                   <p className="text-xs font-mono uppercase text-zinc-400 text-center py-6">Your shopping bag is clear.</p>
                 ) : (
@@ -281,23 +281,23 @@ export default function EnhancedEcosystemDashboard() {
         {activeTab === "commerce" && (
           <div className="kapella-card space-y-6 animate-fade-in">
             <div className="border-b pb-4">
-              <span className="text-[10px] font-mono tracking-[0.2em] text-[#C9A84C] font-bold uppercase block">TRANSACTION HISTORY</span>
-              <h2 style={{ fontFamily: "var(--font-playfair), serif" }} className="text-2xl font-bold uppercase text-zinc-900 mt-0.5">Storefront Invoices Ledger</h2>
+              <span className="text-[10px] font-mono tracking-[0.2em] text-[#C9A84C] font-bold uppercase block">YOUR ORDERS</span>
+              <h2 style={{ fontFamily: "var(--font-playfair), serif" }} className="text-2xl font-bold uppercase text-zinc-900 mt-0.5">Order history</h2>
             </div>
             {orders.length === 0 ? (
               <p className="text-center py-12 border border-dashed border-zinc-200 font-mono text-xs uppercase text-zinc-400 rounded-sm">No historical storefront orders processed.</p>
             ) : (
               <div className="border border-zinc-200 rounded-sm overflow-hidden bg-white">
                 <div className="p-4 bg-zinc-50 border-b border-zinc-200 flex justify-between text-[10px] font-mono font-black text-zinc-400 uppercase tracking-wider">
-                  <span>Tracking Token</span>
-                  <span>Value & Status</span>
+                  <span>Order</span>
+                  <span>Total & status</span>
                 </div>
                 <div className="divide-y divide-zinc-100 px-4">
                   {orders.map((o: any) => (
                     <div key={o._id} className="spec-table-row">
                       <div className="text-left pr-2">
                         <h4 className="text-xs font-bold text-zinc-900 uppercase tracking-wide">Order #{o._id.substring(16).toUpperCase()}</h4>
-                        <p className="text-[9px] font-mono text-zinc-400 mt-0.5 uppercase font-medium">Channel: {o.paymentGateway || "WhatsApp Outbound Link"}</p>
+                        <p className="text-[9px] font-mono text-zinc-400 mt-0.5 uppercase font-medium">{o.paymentGateway || "Order placed online"}</p>
                       </div>
                       <div className="text-right whitespace-nowrap">
                         <p className="text-xs font-black font-mono text-zinc-900">{formatPrice(o.totalAmount || o.price || 0)}</p>
@@ -315,8 +315,8 @@ export default function EnhancedEcosystemDashboard() {
         {activeTab === "academy" && (
           <div className="kapella-card space-y-6 animate-fade-in">
             <div className="border-b pb-4">
-              <span className="text-[10px] font-mono tracking-[0.2em] text-[#C9A84C] font-bold uppercase block">ADMISSIONS WORKFLOW TRACKING</span>
-              <h2 style={{ fontFamily: "var(--font-playfair), serif" }} className="text-2xl font-bold uppercase text-zinc-900 mt-0.5">Academy Application Profiles</h2>
+              <span className="text-[10px] font-mono tracking-[0.2em] text-[#C9A84C] font-bold uppercase block">YOUR LEARNING</span>
+              <h2 style={{ fontFamily: "var(--font-playfair), serif" }} className="text-2xl font-bold uppercase text-zinc-900 mt-0.5">Course applications</h2>
             </div>
 
             {applications.length === 0 ? (
@@ -324,15 +324,15 @@ export default function EnhancedEcosystemDashboard() {
             ) : (
               <div className="border border-zinc-200 rounded-sm overflow-hidden bg-white">
                 <div className="p-4 bg-zinc-50/50 border-b border-zinc-200 grid grid-cols-12 text-[10px] font-mono font-black text-zinc-400 uppercase tracking-wider">
-                  <div className="col-span-8 text-left">Registered Syllabus Target</div>
-                  <div className="col-span-4 text-right">Review Status</div>
+                  <div className="col-span-8 text-left">Course</div>
+                  <div className="col-span-4 text-right">Status</div>
                 </div>
                 <div className="divide-y divide-zinc-100 p-4">
                   {applications.map((app: any) => (
                     <div key={app._id} className="grid grid-cols-12 py-3.5 items-center">
                       <div className="col-span-8 text-left pr-2">
                         <h4 className="text-xs font-bold text-zinc-900 uppercase tracking-wide">{app.course}</h4>
-                        <p className="text-[9px] font-mono text-zinc-400 mt-0.5 uppercase font-medium">Ledger Index: #{app._id.toUpperCase().substring(14)}</p>
+                        <p className="text-[9px] font-mono text-zinc-400 mt-0.5 uppercase font-medium">Application #{app._id.toUpperCase().substring(14)}</p>
                       </div>
                       <div className="col-span-4 text-right">
                         <span className={`template-badge border ${

@@ -161,7 +161,7 @@ export default function HeroSection() {
           
           <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[#C9A84C]/30 bg-[#C9A84C]/5 text-[#C9A84C] transition-all duration-700 ${isTransitioning ? 'opacity-0 -translate-y-4' : 'opacity-100 translate-y-0'}`}>
             <Sparkles className="h-3 w-3 animate-pulse text-[#C9A84C] shrink-0" />
-            <span className="text-[8px] sm:text-[9.5px] uppercase tracking-[0.2em] font-black font-mono">{slide.season}</span>
+            <span className="text-[7px] sm:text-[8.5px] uppercase tracking-[0.12em] sm:tracking-[0.18em] font-black font-mono leading-tight text-center">{slide.season}</span>
           </div>
 
           <h1 

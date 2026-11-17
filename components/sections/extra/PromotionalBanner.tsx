@@ -93,7 +93,7 @@ export default function PromotionalBanner({
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/75 px-4 py-6 backdrop-blur-sm sm:px-6">
-      <div className="relative w-full max-w-2xl rounded-[24px] border border-[#C9A84C]/25 bg-[#0f0f0f] p-5 shadow-[0_20px_80px_rgba(0,0,0,0.45)] sm:p-7 lg:p-8">
+      <div className="relative max-h-[calc(100vh-3rem)] w-full max-w-2xl overflow-y-auto rounded-[24px] border border-[#C9A84C]/25 bg-[#0f0f0f] p-5 shadow-[0_20px_80px_rgba(0,0,0,0.45)] sm:p-7 lg:p-8">
         <button
           type="button"
           onClick={dismissBanner}
@@ -110,7 +110,7 @@ export default function PromotionalBanner({
           </div>
 
           <div className="space-y-3 text-center sm:text-left">
-            <h2 className="text-2xl font-semibold tracking-tight text-white sm:text-3xl" style={{ fontFamily: 'var(--font-playfair), Georgia, serif' }}>
+            <h2 className="text-xl font-semibold leading-tight tracking-tight text-white sm:text-3xl" style={{ fontFamily: 'var(--font-playfair), Georgia, serif' }}>
               {title}
             </h2>
             <p className="mx-auto max-w-xl text-sm leading-relaxed text-zinc-300 sm:mx-0">

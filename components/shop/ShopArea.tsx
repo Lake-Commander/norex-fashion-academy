@@ -201,7 +201,10 @@ export default function ShopArea() {
         }
         @media(min-width: 1024px) {
           .sticky-filter-bar {
-            position: static;
+            position: sticky;
+            top: 5.5rem;
+            z-index: 40;
+            background: #ffffff;
             padding: 0 0 1.25rem 0;
             margin-bottom: 1.5rem;
             border-bottom: 1px solid #f0ebe3;
