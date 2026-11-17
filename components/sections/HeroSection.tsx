@@ -93,7 +93,7 @@ export default function HeroSection() {
         .word-mask { 
           display: inline-block; 
           position: relative;
-          overflow: hidden; 
+          overflow: visible;
           vertical-align: bottom; 
           height: 1.2em; 
           min-width: 180px;
@@ -156,8 +156,8 @@ export default function HeroSection() {
         SERIES_DROP_AW26
       </div>
 
-      <div className="w-full max-w-7xl mx-auto px-6 md:px-8 z-20 flex flex-col justify-end pt-28 pb-8 md:pt-32 md:pb-10 min-h-[95vh] md:min-h-screen relative">
-        <div className="max-w-3xl space-y-5 md:space-y-6 text-left mt-auto">
+      <div className="w-full max-w-7xl mx-auto px-6 md:px-8 z-20 flex flex-col justify-end pt-32 pb-12 min-h-[95vh] md:min-h-screen relative">
+        <div className="max-w-3xl space-y-6 md:space-y-7 text-left mt-auto">
           
           <div className={`inline-flex max-w-full items-center gap-2 px-3 py-1 rounded-full border border-[#C9A84C]/30 bg-[#C9A84C]/5 text-[#C9A84C] transition-all duration-700 ${isTransitioning ? 'opacity-0 -translate-y-4' : 'opacity-100 translate-y-0'}`}>
             <Sparkles className="h-3 w-3 animate-pulse text-[#C9A84C] shrink-0" />
@@ -165,7 +165,7 @@ export default function HeroSection() {
           </div>
 
           <h1 
-            className={`text-[clamp(2.5rem,6vw,5.5rem)] font-black tracking-tight text-white leading-[1.05] uppercase transition-all duration-700 ${isTransitioning ? 'opacity-0 translate-y-4' : 'opacity-100 translate-y-0'}`}
+            className={`text-4xl sm:text-5xl md:text-7xl font-black tracking-tight text-white leading-[1.1] uppercase transition-all duration-700 ${isTransitioning ? 'opacity-0 translate-y-4' : 'opacity-100 translate-y-0'}`}
             style={{ fontFamily: "var(--font-playfair), Georgia, serif" }}
           >
             {slide.titlePrefix} <br />
@@ -176,7 +176,7 @@ export default function HeroSection() {
             </span>
           </h1>
 
-          <p className={`text-sm md:text-base text-zinc-300 leading-relaxed font-light max-w-lg transition-all duration-700 delay-100 ${isTransitioning ? 'opacity-0 translate-y-4' : 'opacity-100 translate-y-0'}`}>
+          <p className={`text-sm md:text-base text-zinc-300 leading-relaxed font-light max-w-xl transition-all duration-700 delay-100 ${isTransitioning ? 'opacity-0 translate-y-4' : 'opacity-100 translate-y-0'}`}>
             {slide.desc}
           </p>
 
@@ -205,7 +205,7 @@ export default function HeroSection() {
           ))}
         </div>
 
-        <div className="flex flex-row items-center justify-between border-t border-white/10 pt-5 mt-12 md:mt-16">
+        <div className="flex flex-row items-center justify-between border-t border-white/10 pt-6 mt-16 md:mt-24">
           <div className="text-xs font-mono text-white/50 tracking-widest flex items-center gap-2">
             <span className="font-bold text-[#C9A84C]">0{currentSlide + 1}</span>
             <span className="text-white/20">/</span>
