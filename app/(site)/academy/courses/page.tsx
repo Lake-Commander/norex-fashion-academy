@@ -3,11 +3,12 @@
 import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { formatPrice } from "@/lib/utils";
-import { Clock, ArrowRight, Loader2, Filter, Layers, Sliders } from "lucide-react";
+import { Clock, ArrowRight, Loader2, Sliders } from "lucide-react";
 
-export default function edXCoursesHub() {
+export default function CoursesHub() {
   const [courses, setCourses] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
   
   // Advanced Filter Configurations States
   const [selectedLevel, setSelectedLevel] = useState<string>("All");
@@ -35,13 +36,19 @@ export default function edXCoursesHub() {
     if (selectedLevel !== "All") {
       result = result.filter((c) => c.level === selectedLevel);
     }
+    if (searchQuery.trim()) {
+      const query = searchQuery.trim().toLowerCase();
+      result = result.filter((c) =>
+        [c.title, c.description, c.level]
+          .filter(Boolean)
+          .some((value) => String(value).toLowerCase().includes(query))
+      );
+    }
     if (sortOrder === "low-to-high") result.sort((a, b) => a.price - b.price);
     else if (sortOrder === "high-to-low") result.sort((a, b) => b.price - a.price);
 
     return result;
-  }, [courses, selectedLevel, sortOrder]);
-
-  const goldColor = "#C9A84C";
+  }, [courses, selectedLevel, sortOrder, searchQuery]);
 
   return (
     <div className="bg-white min-h-screen text-zinc-800">
@@ -49,10 +56,10 @@ export default function edXCoursesHub() {
       <div style={{ paddingTop: "8.5rem", paddingBottom: "3.5rem", backgroundColor: "#FCFAF7", borderBottom: "1px solid #e4e4e7" }}>
         <div className="container-custom text-left">
           <div className="flex gap-2 items-center text-[10px] font-mono font-bold text-zinc-400 uppercase tracking-widest mb-2">
-            <Link href="/academy" className="hover:text-[#C9A84C] text-decoration-none text-current">Academy</Link><span>/</span><span className="text-[#C9A84C]">Programs Registry</span>
+            <Link href="/academy" className="hover:text-[#C9A84C] text-decoration-none text-current">Academy</Link><span>/</span><span className="text-[#C9A84C]">Courses</span>
           </div>
-          <h1 style={{ fontFamily: "var(--font-playfair), serif" }} className="text-3xl md:text-4xl font-bold uppercase text-zinc-900 tracking-tight">Academic Syllabus Curriculums</h1>
-          <p className="text-sm text-zinc-500 font-light mt-1 max-w-xl">Browse our professionally cataloged technical tracks, each calibrated directly to meet international pattern grading expectations.</p>
+          <h1 style={{ fontFamily: "var(--font-playfair), serif" }} className="text-3xl md:text-4xl font-bold uppercase text-zinc-900 tracking-tight">Explore Our Courses</h1>
+          <p className="text-sm text-zinc-500 font-light mt-1 max-w-xl">Learn fashion design with practical courses for every skill level.</p>
         </div>
       </div>
 
@@ -63,12 +70,20 @@ export default function edXCoursesHub() {
           <div className="lg:col-span-3 space-y-6 text-left bg-zinc-50/60 p-4 border border-zinc-200 rounded-sm">
             <div className="flex items-center gap-2 border-b border-zinc-200 pb-2.5 mb-2">
               <Sliders className="h-4 w-4 text-[#C9A84C]" />
-              <span className="text-xs font-mono font-bold tracking-wider uppercase text-zinc-900">Filter Workspace</span>
+              <span className="text-xs font-mono font-bold tracking-wider uppercase text-zinc-900">Find a Course</span>
             </div>
+            <input
+              type="search"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search courses"
+              aria-label="Search courses"
+              className="w-full border border-zinc-300 bg-white p-2 text-xs focus:outline-none focus:border-[#C9A84C]"
+            />
 
             {/* Level Sorting Block */}
             <div className="space-y-2">
-              <h4 className="text-[10px] font-mono font-bold uppercase tracking-wider text-zinc-400">Experience Tier</h4>
+              <h4 className="text-[10px] font-mono font-bold uppercase tracking-wider text-zinc-400">Skill level</h4>
               <div className="flex flex-col gap-1">
                 {["All", "Beginner", "Intermediate", "Advanced"].map((level) => (
                   <button
@@ -87,11 +102,11 @@ export default function edXCoursesHub() {
 
             {/* Financial Sorting Block */}
             <div className="space-y-2 pt-4 border-t border-zinc-200">
-              <h4 className="text-[10px] font-mono font-bold uppercase tracking-wider text-zinc-400">Tuition Sort</h4>
+              <h4 className="text-[10px] font-mono font-bold uppercase tracking-wider text-zinc-400">Sort by price</h4>
               <select value={sortOrder} onChange={(e) => setSortOption(e.target.value)} className="w-full text-xs font-semibold bg-white border border-zinc-300 p-2 focus:outline-none focus:border-[#C9A84C]">
-                <option value="default">Default Matrix</option>
-                <option value="low-to-high">Tuition: Low to High</option>
-                <option value="high-to-low">Tuition: High to Low</option>
+                <option value="default">Recommended</option>
+                <option value="low-to-high">Price: Low to High</option>
+                <option value="high-to-low">Price: High to Low</option>
               </select>
             </div>
           </div>
@@ -99,14 +114,14 @@ export default function edXCoursesHub() {
           {/* RIGHT DATA YIELD LIST ROW (9 Columns) */}
           <div className="lg:col-span-9 space-y-4">
             <div className="flex justify-between items-center border-b border-zinc-900 pb-2 mb-4">
-              <span className="text-[10px] font-mono tracking-wider font-bold text-zinc-400 uppercase">Syllabus Program Tracks</span>
-              <span className="text-[10px] font-mono tracking-wider font-bold text-zinc-900 uppercase font-bold">{filteredCatalog.length} Matches Found</span>
+              <span className="text-[10px] font-mono tracking-wider font-bold text-zinc-400 uppercase">Courses</span>
+              <span className="text-[10px] font-mono tracking-wider font-bold text-zinc-900 uppercase font-bold">{filteredCatalog.length} {filteredCatalog.length === 1 ? "course" : "courses"}</span>
             </div>
 
             {loading ? (
-              <div className="py-24 text-center flex flex-col items-center justify-center gap-2"><Loader2 className="h-6 w-6 animate-spin text-[#C9A84C]" /><span className="text-xs font-mono uppercase tracking-wider text-zinc-400">Streaming Catalog Matrix...</span></div>
+              <div className="py-24 text-center flex flex-col items-center justify-center gap-2"><Loader2 className="h-6 w-6 animate-spin text-[#C9A84C]" /><span className="text-xs font-mono uppercase tracking-wider text-zinc-400">Loading courses...</span></div>
             ) : filteredCatalog.length === 0 ? (
-              <p className="text-zinc-400 font-mono text-xs uppercase text-center py-16 bg-zinc-50 border border-dashed border-zinc-200">No program parameters align with your active sidebar workspace filter tags.</p>
+              <p className="text-zinc-400 font-mono text-xs uppercase text-center py-16 bg-zinc-50 border border-dashed border-zinc-200">No courses match your search or filters.</p>
             ) : (
               <div className="divide-y divide-zinc-200 border-b border-zinc-200">
                 {filteredCatalog.map((course, idx) => (

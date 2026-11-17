@@ -88,7 +88,7 @@ function ApplyFormContent({ onSuccess }: { onSuccess: (name: string) => void }) 
       <div>
         <label style={labelStyle}>Select Targeted Track Program</label>
         {loadingCourses ? (
-          <div className="flex p-3 border border-zinc-200 bg-zinc-50 rounded-sm text-xs items-center gap-2"><Loader2 className="h-3.5 w-3.5 animate-spin text-[#C9A84C]" /> Synchronizing tracks...</div>
+          <div className="flex p-3 border border-zinc-200 bg-zinc-50 rounded-sm text-xs items-center gap-2"><Loader2 className="h-3.5 w-3.5 animate-spin text-[#C9A84C]" /> Loading courses...</div>
         ) : (
           <select name="course" value={form.course} onChange={handleChange} required className="custom-input" style={{ cursor: "pointer" }}>
             <option value="">Choose an instruction track...</option>
@@ -116,7 +116,7 @@ function ApplyFormContent({ onSuccess }: { onSuccess: (name: string) => void }) 
       {status === "error" && <p className="text-xs font-mono uppercase text-red-600 font-bold">Enrollment submission transaction rejected.</p>}
       
       <button type="submit" disabled={status === "loading" || loadingCourses} className="btn-submit w-full mt-2">
-        {status === "loading" ? "Processing application..." : "Commit Application Registry"}
+        {status === "loading" ? "Sending application..." : "Submit application"}
       </button>
     </form>
   );
@@ -160,7 +160,7 @@ export default function ApplyPage() {
               <h2 style={{ fontFamily: "var(--font-playfair), Georgia, serif" }} className="text-xl font-bold uppercase tracking-tight text-zinc-900">The Onboarding Sequence</h2>
               <div className="space-y-5">
                 {[
-                  { step: "01", title: "Submit File Credentials", desc: "File your training preference vectors using our centralized layout matrix." },
+                  { step: "01", title: "Share your details", desc: "Tell us about your training goals and preferences." },
                   { step: "02", title: "Apprentice Review Loop", desc: "Atelier board directory audits prior experience lines within 48 hours." },
                   { step: "03", title: "Studio Goal Allocation Call", desc: "Brief diagnostic synchronization check to evaluate patterns tracking expectations." }
                 ].map((item) => (
@@ -182,7 +182,7 @@ export default function ApplyPage() {
             </div>
 
             <div>
-              <Suspense fallback={<div className="text-xs font-mono text-zinc-400 uppercase py-12">Compiling registry modules...</div>}>
+              <Suspense fallback={<div className="text-xs font-mono text-zinc-400 uppercase py-12">Loading course options...</div>}>
                 <ApplyFormContent onSuccess={(name) => { setSubmittedName(name); setShowModal(true); }} />
               </Suspense>
             </div>

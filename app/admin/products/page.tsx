@@ -24,6 +24,7 @@ export default function ProductsManagementPage() {
   const [products, setProducts] = useState<ProductItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [processingId, setProcessingId] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Fetch store records on mount
   useEffect(() => {
@@ -96,6 +97,13 @@ export default function ProductsManagementPage() {
     }
   };
 
+  const visibleProducts = products.filter((product) => {
+    const query = searchQuery.trim().toLowerCase();
+    return !query || [product.name, product.category, product.gender, product.collectionGroup]
+      .filter(Boolean)
+      .some((value) => value.toLowerCase().includes(query));
+  });
+
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-8 text-left text-zinc-800">
       
@@ -103,7 +111,7 @@ export default function ProductsManagementPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-zinc-200 pb-5">
         <div>
           <span className="text-[10px] font-mono tracking-[0.2em] text-[#C9A84C] font-bold uppercase block">STOREFRONT INVENTORY</span>
-          <h1 style={{ fontFamily: "var(--font-playfair), serif" }} className="text-3xl font-bold mt-1 uppercase text-zinc-900">Garment Registry</h1>
+          <h1 style={{ fontFamily: "var(--font-playfair), serif" }} className="text-3xl font-bold mt-1 uppercase text-zinc-900">Products</h1>
         </div>
         
         <Link 
@@ -118,16 +126,26 @@ export default function ProductsManagementPage() {
       {loading ? (
         <div className="py-24 text-center flex flex-col items-center justify-center gap-3">
           <Loader2 className="h-8 w-8 animate-spin text-[#C9A84C]" />
-          <p className="text-xs font-mono tracking-wider text-zinc-400 uppercase">Loading Master Product Arrays...</p>
+          <p className="text-xs font-mono tracking-wider text-zinc-400 uppercase">Loading products...</p>
         </div>
       ) : products.length === 0 ? (
         <div className="p-12 text-center border border-dashed border-zinc-200 bg-zinc-50/50 rounded-sm space-y-3">
           <ImageIcon className="h-10 w-10 text-zinc-300 mx-auto" />
-          <h3 className="text-sm font-bold uppercase tracking-wider text-zinc-700">Catalog Registry Empty</h3>
-          <p className="text-xs text-zinc-400 max-w-sm mx-auto">No custom pieces uploaded yet. Initialize your digital showroom by adding products above.</p>
+          <h3 className="text-sm font-bold uppercase tracking-wider text-zinc-700">No products yet</h3>
+          <p className="text-xs text-zinc-400 max-w-sm mx-auto">Add your first product to get started.</p>
         </div>
       ) : (
         <div className="bg-white border border-zinc-200 rounded-sm shadow-sm overflow-hidden">
+          <div className="p-4 border-b border-zinc-200">
+            <input
+              type="search"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search products"
+              aria-label="Search products"
+              className="w-full max-w-sm border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-[#C9A84C]"
+            />
+          </div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm text-left border-collapse">
               <thead>
@@ -141,7 +159,7 @@ export default function ProductsManagementPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-zinc-100 font-sans">
-                {products.map((product) => (
+                {visibleProducts.map((product) => (
                   <tr key={product._id} className="hover:bg-zinc-50/70 transition-colors">
                     
                     {/* Image & Title Column */}

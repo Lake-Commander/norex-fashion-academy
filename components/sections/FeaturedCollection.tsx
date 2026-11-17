@@ -65,7 +65,7 @@ export default function FeaturedCollection() {
         {loading ? (
           <div className="py-12 flex flex-col items-center justify-center gap-2">
             <Loader2 className="h-6 w-6 animate-spin" style={{ color: goldColor }} />
-            <p className="text-xs font-mono uppercase tracking-wider text-zinc-400">Streaming Showcase Matrix...</p>
+            <p className="text-xs font-mono uppercase tracking-wider text-zinc-400">Loading featured products...</p>
           </div>
         ) : products.length === 0 ? (
           <div className="py-12 text-center text-zinc-400 text-xs font-mono uppercase tracking-wider">

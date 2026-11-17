@@ -91,7 +91,7 @@ export default function FeaturedProducts() {
         {loading ? (
           <div className="py-16 flex flex-col items-center justify-center gap-2">
             <Loader2 className="h-6 w-6 animate-spin text-[#C9A84C]" />
-            <p className="text-xs font-mono uppercase tracking-wider text-zinc-400">Streaming Active Grid...</p>
+            <p className="text-xs font-mono uppercase tracking-wider text-zinc-400">Loading collections...</p>
           </div>
         ) : products.length === 0 ? (
           <div className="text-center py-12 text-zinc-400 text-xs font-mono uppercase tracking-wider">

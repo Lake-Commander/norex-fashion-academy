@@ -20,7 +20,7 @@ export default function PaystackCheckoutButton({ shippingDetails }: { shippingDe
   const handlePaystackPayment = async () => {
     // 1. Guards
     if (!session?.user?.email) {
-      alert("Please sign in to your digital profile passport before checking out.");
+      alert("Please sign in before checking out.");
       return;
     }
 

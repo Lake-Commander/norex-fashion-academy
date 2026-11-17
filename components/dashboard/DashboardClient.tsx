@@ -183,7 +183,7 @@ export default function EnhancedEcosystemDashboard() {
         {/* Dynamic Welcome Heading */}
         <div className="px-1 py-1">
           <h2 className="text-xl md:text-2xl font-bold tracking-tight text-zinc-900">Welcome, {name || "Client"}</h2>
-          <p className="text-[10px] font-mono uppercase tracking-wider text-zinc-400 mt-1">Registry Identity Passport: {profile.email}</p>
+          <p className="text-[10px] font-mono uppercase tracking-wider text-zinc-400 mt-1">Account: {profile.email}</p>
         </div>
 
         {/* ================= CONDITION A: OVERVIEW PANEL ================= */}
@@ -229,7 +229,7 @@ export default function EnhancedEcosystemDashboard() {
                     <Sparkles className="h-2.5 w-2.5 animate-pulse" />
                     <span>Profile Registered</span>
                   </div>
-                  <h3 style={{ fontFamily: "var(--font-playfair), serif" }} className="text-lg uppercase tracking-tight text-white font-bold pt-1">Atelier Registry</h3>
+                  <h3 style={{ fontFamily: "var(--font-playfair), serif" }} className="text-lg uppercase tracking-tight text-white font-bold pt-1">Your account</h3>
                 </div>
                 <p className="text-xs text-zinc-300 font-light leading-relaxed font-serif italic pt-2">
                   Your custom measurement metrics, active wishlists, and order invoice ledgers are securely synchronized.
@@ -320,7 +320,7 @@ export default function EnhancedEcosystemDashboard() {
             </div>
 
             {applications.length === 0 ? (
-              <p className="text-center py-12 border border-dashed border-zinc-200 font-mono text-xs uppercase text-zinc-400 rounded-sm">No active academy profiles matched to this passport identifier.</p>
+              <p className="text-center py-12 border border-dashed border-zinc-200 font-mono text-xs uppercase text-zinc-400 rounded-sm">No active academy applications found.</p>
             ) : (
               <div className="border border-zinc-200 rounded-sm overflow-hidden bg-white">
                 <div className="p-4 bg-zinc-50/50 border-b border-zinc-200 grid grid-cols-12 text-[10px] font-mono font-black text-zinc-400 uppercase tracking-wider">
@@ -384,7 +384,7 @@ export default function EnhancedEcosystemDashboard() {
 
               <button type="submit" disabled={updating} style={{ backgroundColor: updating ? "#e4e4e7" : "#1a1a1a" }} className="w-full md:w-auto px-6 py-3.5 text-white font-bold text-xs uppercase tracking-widest hover:bg-[#C9A84C] flex items-center justify-center gap-2 rounded-sm transition-all border-none cursor-pointer shadow active:scale-[0.99]">
                 {updating ? <Loader2 className="h-4 w-4 animate-spin text-zinc-400" /> : <ClipboardList size={13} />}
-                <span>Save Registry Changes</span>
+                <span>Save changes</span>
               </button>
             </form>
           </div>

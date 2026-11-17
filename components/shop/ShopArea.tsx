@@ -18,6 +18,7 @@ export default function ShopArea() {
   const [loading, setLoading] = useState(true);
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
   const [sortOption, setSortOption] = useState("default");
+  const [searchQuery, setSearchQuery] = useState("");
 
   const selectedCategory = searchParams.get("category");
   const selectedColor = searchParams.get("color");
@@ -70,12 +71,20 @@ export default function ShopArea() {
     if (selectedStatus === "in-stock") result = result.filter((p) => p.inStock);
     if (selectedStatus === "featured") result = result.filter((p) => p.isFeatured);
     if (maxPriceParam) result = result.filter((p) => p.price <= Number(maxPriceParam));
+    if (searchQuery.trim()) {
+      const query = searchQuery.trim().toLowerCase();
+      result = result.filter((p) =>
+        [p.name, p.category, p.gender, p.collectionGroup]
+          .filter(Boolean)
+          .some((value) => String(value).toLowerCase().includes(query))
+      );
+    }
 
     if (sortOption === "low-to-high") result.sort((a, b) => a.price - b.price);
     else if (sortOption === "high-to-low") result.sort((a, b) => b.price - a.price);
 
     return result;
-  }, [products, selectedGender, selectedCategory, selectedColor, selectedStatus, maxPriceParam, sortOption]);
+  }, [products, selectedGender, selectedCategory, selectedColor, selectedStatus, maxPriceParam, sortOption, searchQuery]);
 
   const goldColor = "#C9A84C";
 
@@ -283,6 +292,16 @@ export default function ShopArea() {
 
       {/* Sticky Header Filter Control Row */}
       <div className="sticky-filter-bar">
+        <label className="relative flex items-center flex-1 max-w-sm">
+          <input
+            type="search"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search products"
+            aria-label="Search products"
+            className="w-full border border-zinc-200 bg-white px-3 py-2 text-xs text-zinc-800 outline-none focus:border-[#C9A84C]"
+          />
+        </label>
         <button 
           type="button"
           onClick={() => setIsMobileFilterOpen(true)}
@@ -318,7 +337,7 @@ export default function ShopArea() {
             {loading ? (
               <div className="py-12 text-center flex flex-col items-center justify-center gap-1">
                 <Loader2 className="h-5 w-5 animate-spin text-[#C9A84C]" />
-                <p className="text-[9px] font-mono uppercase tracking-wider text-zinc-400">Loading catalog...</p>
+                <p className="text-[9px] font-mono uppercase tracking-wider text-zinc-400">Loading products...</p>
               </div>
             ) : filteredProducts.length === 0 ? (
               <div style={{ textAlign: "center", padding: "2.5rem 0" }}>

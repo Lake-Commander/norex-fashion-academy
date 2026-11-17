@@ -135,7 +135,7 @@ export default function CourseFactoryPage() {
             {block.isComplete ? (
               <div className="p-12 text-center bg-emerald-50/30 border border-emerald-100 rounded-sm space-y-2 flex flex-col items-center">
                 <CheckCircle className="h-10 w-10 text-emerald-500" />
-                <h4 className="text-sm font-bold uppercase tracking-wider">Syllabus Registry Secured</h4>
+                <h4 className="text-sm font-bold uppercase tracking-wider">Course saved</h4>
                 <p className="text-xs text-zinc-400">Course entry written successfully to your MongoDB clusters.</p>
               </div>
             ) : (
@@ -217,7 +217,7 @@ export default function CourseFactoryPage() {
 
                   <button type="submit" disabled={block.isProcessing} style={{ backgroundColor: block.isProcessing ? "#e4e4e7" : "#1a1a1a" }} className="w-full py-4 text-white font-bold text-xs uppercase tracking-widest transition-all rounded-sm shadow-md flex items-center justify-center gap-2 cursor-pointer hover:bg-[#C9A84C]">
                     {block.isProcessing ? <Loader2 className="h-3.5 w-3.5 animate-spin text-zinc-400" /> : <BookOpen className="h-3.5 w-3.5" />}
-                    <span>Commit Course Framework</span>
+                    <span>Save course</span>
                   </button>
                 </div>
               </form>

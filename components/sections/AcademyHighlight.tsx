@@ -85,14 +85,14 @@ export default function FeaturedCourses() {
             Featured Programs
           </h2>
           <p className="text-sm text-muted-foreground mt-3 max-w-xl mx-auto font-light">
-            Train under professional master couturiers. Explore elite structural fashion modules actively curated inside our technical workshops.
+            Learn from professional fashion designers through practical courses created for every skill level.
           </p>
         </div>
 
         {loading ? (
           <div className="py-16 flex flex-col items-center justify-center gap-2">
             <Loader2 className="h-6 w-6 animate-spin text-[#C9A84C]" />
-            <p className="text-xs font-mono uppercase tracking-wider text-zinc-400">Streaming Active Showrooms...</p>
+            <p className="text-xs font-mono uppercase tracking-wider text-zinc-400">Loading courses...</p>
           </div>
         ) : courses.length === 0 ? (
           <div className="text-center py-12 text-zinc-400 text-xs font-mono uppercase tracking-wider">

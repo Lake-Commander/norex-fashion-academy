@@ -404,7 +404,7 @@ export default function MasterLedgerDashboard() {
                   className="px-5 py-3 text-white font-bold text-xs uppercase tracking-widest hover:bg-[#C9A84C] flex items-center gap-2 rounded-sm transition-all cursor-pointer border-none shadow"
                 >
                   {formProcessing ? <Loader2 className="h-3.5 w-3.5 animate-spin text-zinc-400" /> : <Save size={13} />}
-                  <span>Commit Custom Receipt Sheet</span>
+                  <span>Save payment record</span>
                 </button>
               </form>
             </div>

@@ -67,7 +67,7 @@ export default function FashionFilm() {
     return (
       <div className="bg-background py-24 text-center flex flex-col items-center justify-center gap-2 border-b border-border/25">
         <Loader2 className="h-6 w-6 animate-spin text-[#C9A84C]" />
-        <p className="text-xs font-mono uppercase tracking-wider text-zinc-400">Loading Cinema Nodes...</p>
+        <p className="text-xs font-mono uppercase tracking-wider text-zinc-400">Loading films...</p>
       </div>
     )
   }
