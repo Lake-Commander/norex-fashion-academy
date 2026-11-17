@@ -109,10 +109,12 @@ export default function ShopArea() {
 
           .shop-sidebar-container {
             position: sticky;
-            top: 6rem;
+            top: 9.5rem;
             align-self: flex-start;
-            max-height: calc(100vh - 7rem);
+            max-height: calc(100vh - 10.5rem);
             overflow-y: auto;
+            background: #ffffff;
+            z-index: 30;
           }
 
           .shop-sidebar-container::-webkit-scrollbar { width: 4px; }
@@ -125,6 +127,10 @@ export default function ShopArea() {
           min-width: 0;
           width: 100%;
           box-sizing: border-box;
+        }
+
+        .shop-content-container {
+          overflow-x: visible;
         }
 
         /* 📱 UNBREAKABLE TWIN-COLUMN ARCHITECTURE */
@@ -230,6 +236,7 @@ export default function ShopArea() {
           .desktop-only-stat { display: none !important; }
           .shop-sidebar-container { display: none !important; }
           .mobile-action-tray { display: flex !important; }
+          .shop-content-container { overflow-x: hidden; }
         }
         @media (min-width: 1024px) {
           .mobile-only-filter { display: none !important; }
@@ -342,7 +349,7 @@ export default function ShopArea() {
         </div>
       </div>
 
-      <div className="container-custom" style={{ paddingTop: "0.5rem", paddingBottom: "3rem", paddingLeft: "0.35rem", paddingRight: "0.35rem", boxSizing: "border-box", maxWidth: "100%", overflowX: "hidden" }}>
+      <div className="container-custom shop-content-container" style={{ paddingTop: "0.5rem", paddingBottom: "3rem", paddingLeft: "0.35rem", paddingRight: "0.35rem", boxSizing: "border-box", maxWidth: "100%" }}>
         <div className="shop-layout">
           <div className="shop-sidebar-container">
             <ShopSidebar isMobileOpen={isMobileFilterOpen} setIsMobileOpen={setIsMobileFilterOpen} />
