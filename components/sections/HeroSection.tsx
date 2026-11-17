@@ -159,9 +159,9 @@ export default function HeroSection() {
       <div className="w-full max-w-7xl mx-auto px-6 md:px-8 z-20 flex flex-col justify-end pt-32 pb-12 min-h-[95vh] md:min-h-screen relative">
         <div className="max-w-3xl space-y-6 md:space-y-7 text-left mt-auto">
           
-          <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[#C9A84C]/30 bg-[#C9A84C]/5 text-[#C9A84C] transition-all duration-700 ${isTransitioning ? 'opacity-0 -translate-y-4' : 'opacity-100 translate-y-0'}`}>
+          <div className={`inline-flex max-w-full items-center gap-2 px-3 py-1 rounded-full border border-[#C9A84C]/30 bg-[#C9A84C]/5 text-[#C9A84C] transition-all duration-700 ${isTransitioning ? 'opacity-0 -translate-y-4' : 'opacity-100 translate-y-0'}`}>
             <Sparkles className="h-3 w-3 animate-pulse text-[#C9A84C] shrink-0" />
-            <span className="text-[7px] sm:text-[8.5px] uppercase tracking-[0.12em] sm:tracking-[0.18em] font-black font-mono leading-tight text-center">{slide.season}</span>
+            <span className="min-w-0 whitespace-normal break-words text-[7px] sm:text-[8.5px] uppercase tracking-[0.12em] sm:tracking-[0.18em] font-black font-mono leading-tight text-left">{slide.season}</span>
           </div>
 
           <h1 
