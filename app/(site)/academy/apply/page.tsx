@@ -16,6 +16,8 @@ function ApplyFormContent({ onSuccess }: { onSuccess: (name: string) => void }) 
 
   const [courses, setCourses] = useState<any[]>([]);
   const [loadingCourses, setLoadingCourses] = useState(true);
+  const [feeSettings, setFeeSettings] = useState({ enabled: true, amount: 5000 });
+  const [loadingFeeSettings, setLoadingFeeSettings] = useState(true);
   const [status, setStatus] = useState("idle");
 
   const [form, setForm] = useState({
@@ -49,6 +51,17 @@ function ApplyFormContent({ onSuccess }: { onSuccess: (name: string) => void }) 
     fetchFormDropdowns();
   }, []);
 
+  useEffect(() => {
+    fetch("/api/application-settings")
+      .then(async (res) => {
+        if (!res.ok) throw new Error("Application fee settings could not be loaded.");
+        return res.json();
+      })
+      .then((data) => setFeeSettings({ enabled: data.enabled, amount: data.amount }))
+      .catch((error) => console.error(error))
+      .finally(() => setLoadingFeeSettings(false));
+  }, []);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
@@ -58,26 +71,35 @@ function ApplyFormContent({ onSuccess }: { onSuccess: (name: string) => void }) 
     if (!session?.user?.email) return;
     setStatus("loading");
     try {
+      const submitApplication = async (feeReference?: string) => {
+        const res = await fetch("/api/apply", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ...form, ...(feeReference ? { feeReference } : {}) }),
+        });
+        if (!res.ok) throw new Error("Application could not be saved.");
+        onSuccess(form.fullName.split(" ")[0]);
+        setForm({ fullName: session.user?.name || "", email: session.user?.email || "", phone: "", course: "", experienceLevel: "", message: "" });
+        setStatus("idle");
+      };
+
+      if (!feeSettings.enabled) {
+        await submitApplication();
+        return;
+      }
+
       const { default: PaystackPop } = await import("@paystack/inline-js");
       const paystack = new PaystackPop();
       paystack.newTransaction({
         key: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY!,
         email: session.user.email,
-        amount: 500000,
+        amount: feeSettings.amount * 100,
         currency: "NGN",
         ref: `NRX-APP-${Date.now()}-${Math.floor(Math.random() * 10000)}`,
-        metadata: { custom_fields: [], application_course: form.course, application_fee: "5000" },
+        metadata: { custom_fields: [], application_course: form.course, application_fee: String(feeSettings.amount) },
         onSuccess: async (payment: { reference: string }) => {
           try {
-            const res = await fetch("/api/apply", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ ...form, feeReference: payment.reference }),
-            });
-            if (!res.ok) throw new Error("Application could not be saved.");
-            onSuccess(form.fullName.split(" ")[0]);
-            setForm({ fullName: session.user?.name || "", email: session.user?.email || "", phone: "", course: "", experienceLevel: "", message: "" });
-            setStatus("idle");
+            await submitApplication(payment.reference);
           } catch {
             setStatus("error");
           }
@@ -144,8 +166,8 @@ function ApplyFormContent({ onSuccess }: { onSuccess: (name: string) => void }) 
       
       {status === "error" && <p className="text-xs font-mono uppercase text-red-600 font-bold">Enrollment submission transaction rejected.</p>}
       
-      <button type="submit" disabled={status === "loading" || loadingCourses} className="btn-submit w-full mt-2">
-        {status === "loading" ? "Opening secure payment..." : "Pay ₦5,000 & submit application"}
+      <button type="submit" disabled={status === "loading" || loadingCourses || loadingFeeSettings} className="btn-submit w-full mt-2">
+        {status === "loading" ? (feeSettings.enabled ? "Opening secure payment..." : "Sending application...") : feeSettings.enabled ? `Pay ₦${feeSettings.amount.toLocaleString()} & submit application` : "Submit application"}
       </button>
     </form>
   );

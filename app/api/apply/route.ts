@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import Application from "@/lib/models/ApplicationModel";
 import User from "@/lib/models/UserModel";
+import ApplicationSettings from "@/lib/models/ApplicationSettingsModel";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 
@@ -24,7 +25,7 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { fullName, email, phone, course, experienceLevel, message, feeReference } = body;
 
-    if (!fullName || !email || !phone || !course || !experienceLevel || !feeReference) {
+    if (!fullName || !email || !phone || !course || !experienceLevel) {
       return NextResponse.json(
         { error: "Missing required fields" },
         { status: 400 }
@@ -37,12 +38,21 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Use the email address on your account." }, { status: 400 });
     }
 
-    const paystackRes = await fetch(`https://api.paystack.co/transaction/verify/${encodeURIComponent(feeReference)}`, {
+    const settings = await ApplicationSettings.findOne().lean();
+    const feeEnabled = settings?.applicationFeeEnabled ?? true;
+    const applicationFee = settings?.applicationFee ?? 5000;
+    if (feeEnabled && !feeReference) {
+      return NextResponse.json({ error: "Please pay the application fee before submitting." }, { status: 400 });
+    }
+
+    if (feeEnabled) {
+      const paystackRes = await fetch(`https://api.paystack.co/transaction/verify/${encodeURIComponent(feeReference)}`, {
       headers: { Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}` }
-    });
-    const paystackData = await paystackRes.json();
-    if (!paystackData.success || paystackData.data.status !== "success" || paystackData.data.amount !== 500000) {
-      return NextResponse.json({ error: "Application fee payment could not be verified." }, { status: 400 });
+      });
+      const paystackData = await paystackRes.json();
+      if (!paystackData.success || paystackData.data.status !== "success" || paystackData.data.amount !== applicationFee * 100) {
+        return NextResponse.json({ error: "Application fee payment could not be verified." }, { status: 400 });
+      }
     }
 
     const user = await User.findOne({ email: accountEmail });
@@ -59,8 +69,8 @@ export async function POST(req: NextRequest) {
       experienceLevel,
       message,
       user: user._id,
-      applicationFee: 5000,
-      applicationFeeReference: feeReference,
+      applicationFee: feeEnabled ? applicationFee : 0,
+      applicationFeeReference: feeEnabled ? feeReference : undefined,
       status: "pending",
     });
 
