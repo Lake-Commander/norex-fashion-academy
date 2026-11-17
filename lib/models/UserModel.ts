@@ -7,6 +7,8 @@ const UserSchema = new mongoose.Schema({
   password: { type: String },
   role: { type: String, default: "student" },
   image: { type: String },
+  studentId: { type: String, unique: true, sparse: true },
+  profilePhoto: { type: String },
   
   // ⚡ Normalized to map perfectly with your Frontend CartItem typing keys
   cart: [

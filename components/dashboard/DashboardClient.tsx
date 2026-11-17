@@ -35,6 +35,7 @@ export default function EnhancedEcosystemDashboard() {
   const [whatsapp, setWhatsapp] = useState("");
   const [shippingAddress, setShippingAddress] = useState("");
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [photoUploading, setPhotoUploading] = useState(false);
 
   useEffect(() => {
     if (status === "unauthenticated") router.push("/login");
@@ -92,6 +93,28 @@ export default function EnhancedEcosystemDashboard() {
     }
   };
 
+  const handlePhotoUpload = async (file: File) => {
+    setPhotoUploading(true);
+    try {
+      const uploadData = new FormData();
+      uploadData.append("file", file);
+      const uploadResponse = await fetch("/api/admin/upload", { method: "POST", body: uploadData });
+      const uploadJson = await uploadResponse.json();
+      if (!uploadResponse.ok || !uploadJson.success) throw new Error(uploadJson.error || "Photo upload failed.");
+      const saveResponse = await fetch("/api/user/profile", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ profilePhoto: uploadJson.url })
+      });
+      if (!saveResponse.ok) throw new Error("Photo could not be saved.");
+      await loadDashboardEcosystem();
+    } catch (error) {
+      alert(error instanceof Error ? error.message : "Photo upload failed.");
+    } finally {
+      setPhotoUploading(false);
+    }
+  };
+
   if (status === "loading" || loading) {
     return (
       <div className="min-h-screen bg-[#FCFAF7] flex flex-col items-center justify-center gap-2">
@@ -104,6 +127,8 @@ export default function EnhancedEcosystemDashboard() {
   const profile = data?.profile || {};
   const applications = data?.applications || [];
   const orders = data?.orders || [];
+  const enrolledCourses = data?.enrolledCourses || [];
+  const acceptedApplications = applications.filter((application: any) => ["approved", "enrolled"].includes(application.status));
 
   return (
     <main className="min-h-screen bg-[#F8F9FA] text-zinc-800 text-left antialiased font-sans flex flex-col justify-between overflow-x-hidden pt-24">
@@ -198,6 +223,38 @@ export default function EnhancedEcosystemDashboard() {
                   <div className="flex justify-between text-xs border-b pb-2">
                     <span className="text-zinc-400">Orders</span>
                     <span className="font-bold font-mono text-zinc-900">{orders.length}</span>
+                  </div>
+
+                  <div className="kapella-card space-y-4">
+                    <div className="flex items-center justify-between border-b pb-3">
+                      <div>
+                        <p className="text-[10px] font-mono uppercase tracking-wider text-[#C9A84C]">Student portal</p>
+                        <h3 className="text-lg font-bold text-zinc-900">Your academy journey</h3>
+                      </div>
+                      <GraduationCap className="text-[#C9A84C]" size={22} />
+                    </div>
+                    {profile.studentId && <p className="text-sm text-zinc-600">Student ID: <strong className="text-zinc-900">{profile.studentId}</strong></p>}
+                    {acceptedApplications.length === 0 ? (
+                      <p className="text-sm text-zinc-500">Your application will appear here after it is accepted.</p>
+                    ) : (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        {acceptedApplications.map((application: any) => {
+                          const course = enrolledCourses.find((item: any) => item.slug === application.course);
+                          return (
+                            <div key={application._id} className="border border-zinc-200 p-4 space-y-3">
+                              <div>
+                                <p className="text-xs font-bold uppercase text-zinc-900">{course?.title || application.course}</p>
+                                <p className="text-[10px] text-emerald-700 uppercase font-bold mt-1">{application.status === "enrolled" ? "Enrolled" : "Accepted"}</p>
+                              </div>
+                              <div className="flex flex-wrap gap-2">
+                                <a href={`/academy/courses/${application.course}`} className="text-[10px] font-bold uppercase tracking-wider text-[#C9A84C]">View course</a>
+                                <button type="button" onClick={() => handleTabSwitch("academy")} className="text-[10px] font-bold uppercase tracking-wider text-zinc-600">Open portal</button>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
                   </div>
                   <div className="flex justify-between text-xs border-b pb-2">
                     <span className="text-zinc-400">Course applications</span>
@@ -345,6 +402,18 @@ export default function EnhancedEcosystemDashboard() {
                 </div>
               </div>
             )}
+            {acceptedApplications.length > 0 && (
+              <div className="border border-zinc-200 bg-zinc-50 p-5 space-y-3">
+                <h3 className="font-bold text-zinc-900">Course materials</h3>
+                <p className="text-sm text-zinc-600">Your course outline is ready below. Learning materials and your LMS link will appear here when they are added.</p>
+                {enrolledCourses.map((course: any) => (
+                  <div key={course._id} className="flex items-center justify-between gap-3 border-t border-zinc-200 pt-3">
+                    <span className="text-xs font-semibold">{course.title}</span>
+                    <a href={`/academy/courses/${course.slug}`} className="text-[10px] uppercase font-bold text-[#C9A84C]">View outline</a>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
 
@@ -357,6 +426,15 @@ export default function EnhancedEcosystemDashboard() {
             </div>
 
             <form onSubmit={handleUpdateProfileDetails} className="space-y-5">
+              <div className="flex items-center gap-4 border-b border-zinc-100 pb-5">
+                <div className="h-16 w-16 overflow-hidden rounded-full bg-zinc-100">
+                  {profile.profilePhoto ? <img src={profile.profilePhoto} alt="Your profile" className="h-full w-full object-cover" /> : <User className="m-5 text-zinc-400" size={24} />}
+                </div>
+                <div>
+                  <label className="text-[10px] font-mono font-black uppercase text-zinc-400 block mb-2">Profile photo</label>
+                  <input type="file" accept="image/jpeg,image/png,image/webp" disabled={photoUploading} onChange={(e) => e.target.files?.[0] && handlePhotoUpload(e.target.files[0])} className="text-xs" />
+                </div>
+              </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="space-y-1">
                   <label className="text-[10px] font-mono font-black uppercase text-zinc-400 flex items-center gap-1"><User size={11} /> Profile Identity Name</label>

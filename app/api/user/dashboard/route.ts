@@ -7,6 +7,7 @@ import Application from "@/lib/models/ApplicationModel";
 import Order from "@/lib/models/OrderModel";
 import Payment from "@/lib/models/PaymentModel";
 import Product from "@/lib/models/ProductModel";
+import Course from "@/lib/models/CourseModel";
 import mongoose from "mongoose";
 
 export async function GET() {
@@ -29,13 +30,19 @@ export async function GET() {
     const wishlistProducts = wishlistIds.length
       ? await Product.find({ _id: { $in: wishlistIds } }).lean()
       : [];
+    const courseSlugs = applications.map((application) => application.course);
+    const enrolledCourses = courseSlugs.length
+      ? await Course.find({ slug: { $in: courseSlugs } }).lean()
+      : [];
 
     return NextResponse.json({
       success: true,
       profile: {
         name: userProfile?.name || session.user.name,
         email: userEmail,
+        studentId: userProfile?.studentId || "",
         image: userProfile?.image || session.user.image,
+        profilePhoto: userProfile?.profilePhoto || "",
         phone: userProfile?.phone || "",
         whatsapp: userProfile?.whatsapp || "",
         shippingAddress: userProfile?.shippingAddress || "",
@@ -48,6 +55,7 @@ export async function GET() {
         wishlist: wishlistProducts
       },
       applications,
+      enrolledCourses,
       orders,
       payments
     });

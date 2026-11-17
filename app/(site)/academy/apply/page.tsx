@@ -4,12 +4,15 @@ import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { Loader2, CheckCircle, Upload, MessageCircle, X } from "lucide-react";
 import dynamic from "next/dynamic";
+import Link from "next/link";
+import { useSession } from "next-auth/react";
 
 const SuccessModal = dynamic(() => import("@/components/ui/SuccessModal"), { ssr: false });
 
 function ApplyFormContent({ onSuccess }: { onSuccess: (name: string) => void }) {
   const searchParams = useSearchParams();
   const preSelectedCourse = searchParams.get("course") || "";
+  const { data: session, status: sessionStatus } = useSession();
 
   const [courses, setCourses] = useState<any[]>([]);
   const [loadingCourses, setLoadingCourses] = useState(true);
@@ -25,6 +28,12 @@ function ApplyFormContent({ onSuccess }: { onSuccess: (name: string) => void }) 
   });
 
   // Sync available selection tracks straight from live database collections
+  useEffect(() => {
+    if (session?.user?.email) {
+      setForm((prev) => ({ ...prev, fullName: prev.fullName || session.user?.name || "", email: session.user?.email || "" }));
+    }
+  }, [session]);
+
   useEffect(() => {
     async function fetchFormDropdowns() {
       try {
@@ -46,20 +55,35 @@ function ApplyFormContent({ onSuccess }: { onSuccess: (name: string) => void }) 
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!session?.user?.email) return;
     setStatus("loading");
     try {
-      const res = await fetch("/api/apply", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+      const { default: PaystackPop } = await import("@paystack/inline-js");
+      const paystack = new PaystackPop();
+      paystack.newTransaction({
+        key: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY!,
+        email: session.user.email,
+        amount: 500000,
+        currency: "NGN",
+        ref: `NRX-APP-${Date.now()}-${Math.floor(Math.random() * 10000)}`,
+        metadata: { custom_fields: [], application_course: form.course, application_fee: "5000" },
+        onSuccess: async (payment: { reference: string }) => {
+          try {
+            const res = await fetch("/api/apply", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ ...form, feeReference: payment.reference }),
+            });
+            if (!res.ok) throw new Error("Application could not be saved.");
+            onSuccess(form.fullName.split(" ")[0]);
+            setForm({ fullName: session.user?.name || "", email: session.user?.email || "", phone: "", course: "", experienceLevel: "", message: "" });
+            setStatus("idle");
+          } catch {
+            setStatus("error");
+          }
+        },
+        onCancel: () => setStatus("idle"),
       });
-      if (res.ok) {
-        onSuccess(form.fullName.split(" ")[0]);
-        setForm({ fullName: "", email: "", phone: "", course: "", experienceLevel: "", message: "" });
-        setStatus("idle");
-      } else {
-        setStatus("error");
-      }
     } catch {
       setStatus("error");
     }
@@ -69,7 +93,12 @@ function ApplyFormContent({ onSuccess }: { onSuccess: (name: string) => void }) 
     display: "block", fontSize: "0.65rem", letterSpacing: "0.15em", textTransform: "uppercase", fontWeight: 700, color: "#1a1a1a", marginBottom: "0.4rem", textAlign: "left"
   };
 
-  return (
+  return sessionStatus !== "authenticated" ? (
+      <div className="space-y-4 border border-zinc-200 bg-zinc-50 p-5 text-sm text-zinc-600">
+        <p>You need a Norex account before you can apply. Your application and student record will be saved in your dashboard.</p>
+        <Link href="/login?callbackUrl=/academy/apply" className="btn-submit w-full">Sign in to apply</Link>
+      </div>
+    ) : (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="apply-input-row">
         <div>
@@ -78,7 +107,7 @@ function ApplyFormContent({ onSuccess }: { onSuccess: (name: string) => void }) 
         </div>
         <div>
           <label style={labelStyle}>Email Address</label>
-          <input name="email" type="email" value={form.email} onChange={handleChange} placeholder="your@email.com" required className="custom-input" />
+          <input name="email" type="email" value={form.email} readOnly required className="custom-input bg-zinc-100" />
         </div>
       </div>
       <div>
@@ -116,7 +145,7 @@ function ApplyFormContent({ onSuccess }: { onSuccess: (name: string) => void }) 
       {status === "error" && <p className="text-xs font-mono uppercase text-red-600 font-bold">Enrollment submission transaction rejected.</p>}
       
       <button type="submit" disabled={status === "loading" || loadingCourses} className="btn-submit w-full mt-2">
-        {status === "loading" ? "Sending application..." : "Submit application"}
+        {status === "loading" ? "Opening secure payment..." : "Pay ₦5,000 & submit application"}
       </button>
     </form>
   );

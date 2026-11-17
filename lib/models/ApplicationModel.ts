@@ -7,7 +7,12 @@ export interface IApplication extends Document {
   course: string;
   experienceLevel: string;
   message?: string;
+  user?: mongoose.Types.ObjectId;
+  studentId?: string;
+  applicationFee: number;
+  applicationFeeReference?: string;
   status: "pending" | "approved" | "enrolled" | "rejected";
+  acceptedAt?: Date;
   createdAt: Date;
 }
 
@@ -19,11 +24,16 @@ const ApplicationSchema = new Schema<IApplication>(
     course: { type: String, required: true },
     experienceLevel: { type: String, required: true },
     message: { type: String },
+    user: { type: Schema.Types.ObjectId, ref: "User" },
+    studentId: { type: String },
+    applicationFee: { type: Number, required: true, default: 5000 },
+    applicationFeeReference: { type: String },
     status: {
       type: String,
       enum: ["pending", "approved", "enrolled", "rejected"],
       default: "pending",
     },
+    acceptedAt: { type: Date },
   },
   { timestamps: true }
 );

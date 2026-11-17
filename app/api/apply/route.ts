@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import Application from "@/lib/models/ApplicationModel";
+import User from "@/lib/models/UserModel";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -13,10 +16,15 @@ const courseNames: Record<string, string> = {
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
-    const { fullName, email, phone, course, experienceLevel, message } = body;
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: "Please create an account or sign in before applying." }, { status: 401 });
+    }
 
-    if (!fullName || !email || !phone || !course || !experienceLevel) {
+    const body = await req.json();
+    const { fullName, email, phone, course, experienceLevel, message, feeReference } = body;
+
+    if (!fullName || !email || !phone || !course || !experienceLevel || !feeReference) {
       return NextResponse.json(
         { error: "Missing required fields" },
         { status: 400 }
@@ -24,6 +32,23 @@ export async function POST(req: NextRequest) {
     }
 
     await connectDB();
+    const accountEmail = session.user.email.toLowerCase().trim();
+    if (email.toLowerCase().trim() !== accountEmail) {
+      return NextResponse.json({ error: "Use the email address on your account." }, { status: 400 });
+    }
+
+    const paystackRes = await fetch(`https://api.paystack.co/transaction/verify/${encodeURIComponent(feeReference)}`, {
+      headers: { Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}` }
+    });
+    const paystackData = await paystackRes.json();
+    if (!paystackData.success || paystackData.data.status !== "success" || paystackData.data.amount !== 500000) {
+      return NextResponse.json({ error: "Application fee payment could not be verified." }, { status: 400 });
+    }
+
+    const user = await User.findOne({ email: accountEmail });
+    if (!user) return NextResponse.json({ error: "Your account could not be found." }, { status: 404 });
+    const existing = await Application.findOne({ user: user._id, status: { $in: ["pending", "approved", "enrolled"] } });
+    if (existing) return NextResponse.json({ error: "You already have an active academy application." }, { status: 409 });
 
     // 1. Commit and persist the record data into your MongoDB collections
     const application = await Application.create({
@@ -33,6 +58,9 @@ export async function POST(req: NextRequest) {
       course,
       experienceLevel,
       message,
+      user: user._id,
+      applicationFee: 5000,
+      applicationFeeReference: feeReference,
       status: "pending",
     });
 

@@ -14,7 +14,7 @@ export async function PATCH(request: Request) {
 
     await connectDB();
     const body = await request.json();
-    const { name, phone, whatsapp, shippingAddress, billingAddress, actionType, telemetryData } = body;
+    const { name, phone, whatsapp, shippingAddress, billingAddress, profilePhoto, actionType, telemetryData } = body;
     const userEmail = session.user.email.toLowerCase();
 
     if (actionType && telemetryData) {
@@ -30,7 +30,7 @@ export async function PATCH(request: Request) {
 
     const updatedProfile = await mongoose.models.User.findOneAndUpdate(
       { email: userEmail },
-      { $set: { name, phone, whatsapp, shippingAddress, billingAddress } },
+      { $set: { name, phone, whatsapp, shippingAddress, billingAddress, ...(profilePhoto ? { profilePhoto } : {}) } },
       { new: true }
     );
 

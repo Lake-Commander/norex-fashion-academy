@@ -8,6 +8,7 @@ import { formatPrice } from "@/lib/utils";
 
 // Dynamic Client Hydration Node: Safely bridges server-side layouts to user profile tracking arrays
 import CourseTelemetryTracker from "@/components/academy/CourseTelemetryTracker"; 
+import AcademyTuitionButton from "@/components/academy/AcademyTuitionButton";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -105,6 +106,8 @@ export default async function DynamicCourseDetailPage({ params }: { params: Prom
 
               <div style={{ height: "1px" }} className="bg-zinc-200" />
               <Link href={`/academy/apply?course=${course.slug}`} className="btn-apply-gold text-decoration-none">Initialize Enrollment</Link>
+              <AcademyTuitionButton course={{ slug: course.slug, title: course.title, price: course.price }} />
+              <p id="tuition" className="text-[10px] text-zinc-500 text-center">Tuition payment is available after your application is accepted.</p>
               <span className="text-[9px] font-mono text-zinc-400 uppercase tracking-widest text-center block font-bold">Apprentice processing logs review takes 48 hours</span>
             </div>
           </div>
