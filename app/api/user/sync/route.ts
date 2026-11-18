@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import connectDB from "@/lib/mongodb";
-import mongoose from "mongoose";
+import User from "@/lib/models/UserModel";
 
 export async function POST(request: Request) {
   const session = await getServerSession(authOptions);
@@ -26,13 +26,14 @@ export async function POST(request: Request) {
 
   try {
     await connectDB();
-    const { cart, wishlist } = await request.json();
+    const body = await request.json();
+    const cart = Array.isArray(body.cart) ? body.cart : [];
+    const wishlist = Array.isArray(body.wishlist)
+      ? body.wishlist.filter((id: unknown) => typeof id === "string")
+      : [];
 
-    // Resolves model straight from cached memory arrays instead of strict file imports
-    const UserModel = mongoose.connection.model("User");
-
-    await UserModel.updateOne(
-      { email: session.user.email },
+    await User.updateOne(
+      { email: session.user.email.toLowerCase().trim() },
       { $set: { cart, wishlist } }
     );
 

@@ -9,6 +9,7 @@ import Payment from "@/lib/models/PaymentModel";
 import Product from "@/lib/models/ProductModel";
 import Course from "@/lib/models/CourseModel";
 import mongoose from "mongoose";
+import User from "@/lib/models/UserModel";
 
 export async function GET() {
   try {
@@ -19,12 +20,12 @@ export async function GET() {
 
     await connectDB();
     const userEmail = session.user.email.toLowerCase();
-    const userProfile = await mongoose.models.User.findOne({ email: userEmail }).lean();
+    const userProfile = await User.findOne({ email: userEmail }).lean();
 
     const [applications, orders, payments] = await Promise.all([
       Application.find({ email: userEmail }).sort({ createdAt: -1 }),
-      Order.find({ customerEmail: userEmail }).sort({ createdAt: -1 }),
-      Payment.find({ studentEmail: userEmail }).sort({ createdAt: -1 })
+      Order.find({ $or: [{ email: userEmail }, ...(userProfile?._id ? [{ user: userProfile._id }] : [])] }).sort({ createdAt: -1 }),
+      Payment.find({ email: userEmail }).sort({ createdAt: -1 })
     ]);
     const wishlistIds = (userProfile?.wishlist || []).filter((id: string) => mongoose.Types.ObjectId.isValid(id));
     const wishlistProducts = wishlistIds.length

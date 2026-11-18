@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth"; // Fixed: Updated import route line
 import connectDB from "@/lib/mongodb";
-import mongoose from "mongoose";
+import User from "@/lib/models/UserModel";
 
 export async function PATCH(request: Request) {
   try {
@@ -24,11 +24,11 @@ export async function PATCH(request: Request) {
       if (actionType === "track_product") updatePush = { recentlyViewedProducts: { $each: [telemetryData], $slice: -6 } };
       if (actionType === "track_course") updatePush = { recentlyViewedCourses: { $each: [telemetryData], $slice: -6 } };
 
-      await mongoose.models.User.updateOne({ email: userEmail }, { $push: updatePush });
+      await User.updateOne({ email: userEmail }, { $push: updatePush });
       return NextResponse.json({ success: true, message: "Telemetry signal captured successfully." });
     }
 
-    const updatedProfile = await mongoose.models.User.findOneAndUpdate(
+    const updatedProfile = await User.findOneAndUpdate(
       { email: userEmail },
       { $set: { name, phone, whatsapp, shippingAddress, billingAddress, ...(profilePhoto ? { profilePhoto } : {}) } },
       { new: true }

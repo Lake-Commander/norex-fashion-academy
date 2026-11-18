@@ -9,6 +9,14 @@ const UserSchema = new mongoose.Schema({
   image: { type: String },
   studentId: { type: String, unique: true, sparse: true },
   profilePhoto: { type: String },
+  phone: { type: String, default: "" },
+  whatsapp: { type: String, default: "" },
+  shippingAddress: { type: String, default: "" },
+  billingAddress: { type: String, default: "" },
+  readHistory: [{ type: mongoose.Schema.Types.Mixed }],
+  watchHistory: [{ type: mongoose.Schema.Types.Mixed }],
+  recentlyViewedProducts: [{ type: String }],
+  recentlyViewedCourses: [{ type: String }],
   
   // ⚡ Normalized to map perfectly with your Frontend CartItem typing keys
   cart: [

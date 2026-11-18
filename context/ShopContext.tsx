@@ -80,11 +80,51 @@ export function ShopProvider({ children }: { children: React.ReactNode }) {
     async function hydrateShopState() {
       if (status === "authenticated") {
         try {
+          let guestCart: CartItem[] = [];
+          let guestWishlist: Product[] = [];
+          try {
+            guestCart = JSON.parse(localStorage.getItem("norex_cart") || "[]");
+            guestWishlist = JSON.parse(localStorage.getItem("norex_wishlist") || "[]");
+          } catch {
+            guestCart = [];
+            guestWishlist = [];
+          }
+
           const response = await fetch("/api/user/dashboard", { cache: "no-store" });
           const data = await response.json();
           if (!response.ok || !data.success) throw new Error(data.error || "Could not load your saved items.");
-          setCart(data.profile.cart || []);
-          setWishlist(data.profile.wishlist || []);
+
+          const accountCart: CartItem[] = data.profile.cart || [];
+          const accountWishlist: Product[] = data.profile.wishlist || [];
+          const mergedCart = [...accountCart];
+          for (const guestItem of guestCart) {
+            const guestId = guestItem.id || (guestItem as any)._id;
+            const existingIndex = mergedCart.findIndex((item) =>
+              (item.id || (item as any)._id) === guestId &&
+              item.selectedSize === guestItem.selectedSize &&
+              item.selectedColor === guestItem.selectedColor &&
+              item.selectedGender === guestItem.selectedGender
+            );
+            if (existingIndex >= 0) {
+              mergedCart[existingIndex] = {
+                ...mergedCart[existingIndex],
+                orderQuantity: mergedCart[existingIndex].orderQuantity + guestItem.orderQuantity,
+              };
+            } else {
+              mergedCart.push(guestItem);
+            }
+          }
+
+          const mergedWishlist = [...accountWishlist];
+          for (const guestItem of guestWishlist) {
+            const guestId = guestItem.id || (guestItem as any)._id;
+            if (!mergedWishlist.some((item) => (item.id || (item as any)._id) === guestId)) {
+              mergedWishlist.push(guestItem);
+            }
+          }
+
+          setCart(mergedCart);
+          setWishlist(mergedWishlist);
         } catch (error) {
           console.error("Could not load saved account items:", error);
           return;
