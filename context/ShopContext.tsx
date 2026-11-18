@@ -1,26 +1,19 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect, useRef } from "react";
+import React, { createContext, useContext, useEffect, useRef, useState } from "react";
 import { useSession } from "next-auth/react";
 import { Product } from "@/types";
 import { sounds } from "@/lib/sound-utils";
 
-/* ==========================================
-   TYPE DEFINITIONS & INTERFACES
-   ========================================== */
+export type Theme = "obsidian" | "cyber" | "ivory" | "emerald";
 
-// Defines the allowed global luxury themes across the brand's digital ecosystem
-export type Theme = 'obsidian' | 'cyber' | 'ivory' | 'emerald';
-
-// Extends the base Product type to explicitly track unique garment configurations chosen by the client
-export type CartItem = Product & { 
+export type CartItem = Product & {
   orderQuantity: number;
   selectedSize: string;
   selectedColor: string;
   selectedGender: string;
 };
 
-// Contract outlining all properties, state flags, and mutation functions exposed by the context engine
 interface ShopContextType {
   cart: CartItem[];
   wishlist: Product[];
@@ -31,7 +24,6 @@ interface ShopContextType {
   clearCart: () => void;
   toggleWishlist: (product: Product) => void;
   isInWishlist: (productId: string) => boolean;
-  
   theme: Theme;
   setTheme: (theme: Theme) => void;
   soundEnabled: boolean;
@@ -44,83 +36,91 @@ interface ShopContextType {
   setOracleOpen: (open: boolean) => void;
 }
 
-// Creates the actual React context instance (defaults to undefined until wrapped by the Provider)
 const ShopContext = createContext<ShopContextType | undefined>(undefined);
 
-/* ==========================================
-   STATE PROVIDER CORE ENGINE
-   ========================================== */
+function getItemId(item: any): string {
+  return String(item?.id || item?._id || "");
+}
+
+function readLocalArray(key: string): any[] {
+  try {
+    const value = JSON.parse(localStorage.getItem(key) || "[]");
+    return Array.isArray(value) ? value : [];
+  } catch {
+    return [];
+  }
+}
 
 export function ShopProvider({ children }: { children: React.ReactNode }) {
-  /* --- Core Data Memory Collections --- */
   const [cart, setCart] = useState<CartItem[]>([]);
   const [wishlist, setWishlist] = useState<Product[]>([]);
-  
-  /* --- UI Interface State Flags --- */
-  const [theme, setThemeState] = useState<Theme>('obsidian');
-  const [soundEnabled, setSoundEnabledState] = useState<boolean>(false);
-  const [isCartOpen, setCartOpen] = useState<boolean>(false);
-  const [isWishlistOpen, setWishlistOpen] = useState<boolean>(false);
-  const [isOracleOpen, setOracleOpen] = useState<boolean>(false);
+  const [theme, setThemeState] = useState<Theme>("obsidian");
+  const [soundEnabled, setSoundEnabledState] = useState(false);
+  const [isCartOpen, setCartOpen] = useState(false);
+  const [isWishlistOpen, setWishlistOpen] = useState(false);
+  const [isOracleOpen, setOracleOpen] = useState(false);
   const { data: session, status } = useSession();
 
-  /* --- Infrastructure Tracking Refs --- */
-  // Used to skip running database sync requests during the component's initial mounting layout pass
-  const hasHydrated = useRef(false);
+  const isHydrated = useRef(false);
   const hydratedEmail = useRef<string | null>(null);
-  const migrationCompleted = useRef(false);
-  const hasPendingChanges = useRef(false);
+  const mutationRevision = useRef(0);
+  const savedRevision = useRef(0);
+  const accountSyncInFlight = useRef(false);
 
-  /* ==========================================
-     SYNCHRONIZATION SIDE-EFFECTS (EFFECTS LOOP)
-     ========================================== */
+  const markLocalChange = () => {
+    mutationRevision.current += 1;
+  };
 
-  // Hook 1: Initial Hydration on Mount
-  // Safely loads cached data strings from browser LocalStorage to restore user state upon page reload
   useEffect(() => {
     if (status === "loading") return;
-    const sessionEmail = session?.user?.email?.toLowerCase().trim() || null;
-    if (status === "authenticated" && hydratedEmail.current === sessionEmail) return;
-    if (status === "unauthenticated" && hasHydrated.current) return;
-    hasHydrated.current = false;
 
-    async function hydrateShopState() {
+    const email = session?.user?.email?.toLowerCase().trim() || null;
+    if (status === "authenticated" && hydratedEmail.current === email) return;
+    if (status === "unauthenticated" && isHydrated.current && hydratedEmail.current === null) return;
+
+    let cancelled = false;
+
+    async function hydrate() {
       if (status === "authenticated") {
+        const migratedEmail = localStorage.getItem("norex_migrated_account");
+        const shouldMergeGuests = !migratedEmail || migratedEmail === "legacy";
+        const guestCart = shouldMergeGuests
+          ? readLocalArray("norex_guest_cart").length
+            ? readLocalArray("norex_guest_cart")
+            : readLocalArray("norex_cart")
+          : [];
+        const guestWishlist = shouldMergeGuests
+          ? readLocalArray("norex_guest_wishlist").length
+            ? readLocalArray("norex_guest_wishlist")
+            : readLocalArray("norex_wishlist")
+          : [];
+
         try {
-          let guestCart: CartItem[] = [];
-          let guestWishlist: Product[] = [];
-          const migratedForEmail = localStorage.getItem("norex_migrated_account");
-          const canReadGuestState = !migratedForEmail || migratedForEmail === "legacy";
-
-          if (canReadGuestState) {
-            try {
-              guestCart = JSON.parse(localStorage.getItem("norex_cart") || "[]");
-              guestWishlist = JSON.parse(localStorage.getItem("norex_wishlist") || "[]");
-            } catch {
-              guestCart = [];
-              guestWishlist = [];
-            }
-          }
-
-          const response = await fetch("/api/user/dashboard", { cache: "no-store" });
+          const response = await fetch("/api/user/sync", { cache: "no-store" });
           const data = await response.json();
-          if (!response.ok || !data.success) throw new Error(data.error || "Could not load your saved items.");
+          if (!response.ok || !data.success) throw new Error(data.error || "Could not load account state.");
 
-          const accountCart: CartItem[] = data.profile.cart || [];
-          const accountWishlist: Product[] = data.profile.wishlist || [];
+          if (cancelled) return;
+
+          const accountCart: CartItem[] = Array.isArray(data.cart) ? data.cart : [];
+          const accountWishlist: Product[] = Array.isArray(data.wishlist) ? data.wishlist : [];
+
           const mergedCart = [...accountCart];
-          for (const guestItem of guestCart) {
-            const guestId = guestItem.id || (guestItem as any)._id;
+          for (const guestItem of guestCart as CartItem[]) {
+            const guestId = getItemId(guestItem);
             const existingIndex = mergedCart.findIndex((item) =>
-              (item.id || (item as any)._id) === guestId &&
+              getItemId(item) === guestId &&
               item.selectedSize === guestItem.selectedSize &&
               item.selectedColor === guestItem.selectedColor &&
               item.selectedGender === guestItem.selectedGender
             );
+
             if (existingIndex >= 0) {
               mergedCart[existingIndex] = {
                 ...mergedCart[existingIndex],
-                orderQuantity: mergedCart[existingIndex].orderQuantity + guestItem.orderQuantity,
+                orderQuantity:
+                  (mergedCart[existingIndex].orderQuantity || 1) +
+                  (guestItem.orderQuantity || 1),
               };
             } else {
               mergedCart.push(guestItem);
@@ -129,301 +129,281 @@ export function ShopProvider({ children }: { children: React.ReactNode }) {
 
           const mergedWishlist = [...accountWishlist];
           for (const guestItem of guestWishlist) {
-            const guestId = guestItem.id || (guestItem as any)._id;
-            if (!mergedWishlist.some((item) => (item.id || (item as any)._id) === guestId)) {
+            const guestId = getItemId(guestItem);
+            if (guestId && !mergedWishlist.some((item) => getItemId(item) === guestId)) {
               mergedWishlist.push(guestItem);
             }
           }
 
-          localStorage.setItem("norex_cart", JSON.stringify(mergedCart));
-          localStorage.setItem("norex_wishlist", JSON.stringify(mergedWishlist));
-          hydratedEmail.current = sessionEmail;
-          migrationCompleted.current = guestCart.length > 0 || guestWishlist.length > 0;
+          hydratedEmail.current = email;
+          mutationRevision.current = 0;
+          savedRevision.current = 0;
+          isHydrated.current = true;
           setCart(mergedCart);
           setWishlist(mergedWishlist);
-        } catch (error) {
-          console.error("Could not load saved account items:", error);
-          const savedCart = localStorage.getItem("norex_cart");
-          const savedWishlist = localStorage.getItem("norex_wishlist");
-          try {
-            if (savedCart) setCart(JSON.parse(savedCart));
-            if (savedWishlist) setWishlist(JSON.parse(savedWishlist));
-          } catch {
-            setCart([]);
-            setWishlist([]);
+
+          localStorage.setItem("norex_cart", JSON.stringify(mergedCart));
+          localStorage.setItem("norex_wishlist", JSON.stringify(mergedWishlist));
+          if (email) localStorage.setItem("norex_migrated_account", email);
+
+          if (guestCart.length || guestWishlist.length) {
+            const wishlistIds = mergedWishlist.map(getItemId).filter(Boolean);
+            await fetch("/api/user/sync", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ cart: mergedCart, wishlist: wishlistIds }),
+              keepalive: true,
+            }).catch(() => undefined);
+            savedRevision.current = mutationRevision.current;
           }
-          hasHydrated.current = true;
-          hydratedEmail.current = sessionEmail;
-          return;
+        } catch (error) {
+          console.error("Account shop state could not be loaded:", error);
+          if (!cancelled) {
+            setCart(Array.isArray(guestCart) ? guestCart : []);
+            setWishlist(Array.isArray(guestWishlist) ? guestWishlist : []);
+            hydratedEmail.current = email;
+            isHydrated.current = true;
+          }
         }
-      } else {
-        hydratedEmail.current = null;
-        migrationCompleted.current = false;
-        const savedCart = localStorage.getItem("norex_cart");
-        const savedWishlist = localStorage.getItem("norex_wishlist");
-        try {
-          if (savedCart) setCart(JSON.parse(savedCart));
-          if (savedWishlist) setWishlist(JSON.parse(savedWishlist));
-        } catch {
-          setCart([]);
-          setWishlist([]);
-        }
+        return;
       }
-      hasHydrated.current = true;
+
+      hydratedEmail.current = null;
+      isHydrated.current = true;
+      const guestCart =
+        readLocalArray("norex_guest_cart").length
+          ? readLocalArray("norex_guest_cart")
+          : readLocalArray("norex_cart");
+      const guestWishlist =
+        readLocalArray("norex_guest_wishlist").length
+          ? readLocalArray("norex_guest_wishlist")
+          : readLocalArray("norex_wishlist");
+      setCart(guestCart as CartItem[]);
+      setWishlist(guestWishlist as Product[]);
     }
 
-    hydrateShopState();
+    isHydrated.current = false;
+    void hydrate();
+    return () => {
+      cancelled = true;
+    };
   }, [status, session?.user?.email]);
 
-  // Hook 2: State Persistence & Database Sync
-  // Monitored by [cart, wishlist] modifications. Writes changes to localStorage and debounces a sync fetch down to MongoDB
   useEffect(() => {
-    if (!hasHydrated.current) return;
-    localStorage.setItem("norex_cart", JSON.stringify(cart));
-    localStorage.setItem("norex_wishlist", JSON.stringify(wishlist));
+    if (!isHydrated.current) return;
+
+    if (status === "authenticated") {
+      localStorage.setItem("norex_cart", JSON.stringify(cart));
+      localStorage.setItem("norex_wishlist", JSON.stringify(wishlist));
+    } else {
+      localStorage.setItem("norex_guest_cart", JSON.stringify(cart));
+      localStorage.setItem("norex_guest_wishlist", JSON.stringify(wishlist));
+    }
+
     if (status !== "authenticated") return;
+    if (mutationRevision.current === savedRevision.current) return;
 
-    // Normalizes wishlist array map objects to contain clean product ID strings
-    const sanitizedWishlistIds = wishlist.map((item: any) => item.id || item._id);
+    const timeout = window.setTimeout(async () => {
+      if (accountSyncInFlight.current) return;
+      accountSyncInFlight.current = true;
+      const revisionToSave = mutationRevision.current;
 
-    // Dispatches state updates down to your Next.js API sync router pipeline
-    const syncDatabaseLedger = async () => {
       try {
         const response = await fetch("/api/user/sync", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            cart: cart,
-            wishlist: sanitizedWishlistIds
-          })
+            cart,
+            wishlist: wishlist.map(getItemId).filter(Boolean),
+          }),
+          keepalive: true,
         });
-        if (!response.ok) {
-          const data = await response.json().catch(() => null);
-          throw new Error(data?.error || "Account synchronization failed.");
-        }
-        hasPendingChanges.current = false;
-        if (migrationCompleted.current) {
-          migrationCompleted.current = false;
-          if (hydratedEmail.current) {
-            localStorage.setItem("norex_migrated_account", hydratedEmail.current);
-          }
-        }
-      } catch (err) {
-        console.error("Background ledger sync thread timeout:", err);
+        if (!response.ok) throw new Error("Account synchronization failed.");
+        savedRevision.current = revisionToSave;
+      } catch (error) {
+        console.error("Could not save shop state:", error);
+      } finally {
+        accountSyncInFlight.current = false;
       }
-    };
-
-    // Debounce rapid changes before saving the signed-in user's account state.
-    const debounceTimeout = setTimeout(() => {
-      syncDatabaseLedger();
     }, 300);
 
-    return () => clearTimeout(debounceTimeout);
+    return () => window.clearTimeout(timeout);
   }, [cart, wishlist, status]);
 
-  // Keep an already-open browser session synchronized with changes made on another device.
   useEffect(() => {
     if (status !== "authenticated") return;
 
-    const refreshFromAccount = async () => {
-      if (hasPendingChanges.current) {
-        try {
-          const response = await fetch("/api/user/sync", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              cart,
-              wishlist: wishlist.map((item: any) => item.id || item._id),
-            }),
-          });
-          if (response.ok) hasPendingChanges.current = false;
-        } catch {
-          // Retry on the next focus, visibility, or polling cycle.
-        }
-        return;
-      }
+    async function pullAccountState() {
+      if (mutationRevision.current !== savedRevision.current) return;
+
       try {
         const response = await fetch("/api/user/sync", { cache: "no-store" });
         const data = await response.json();
         if (!response.ok || !data.success) return;
-        if (hasPendingChanges.current) return;
+        if (mutationRevision.current !== savedRevision.current) return;
+
         setCart(Array.isArray(data.cart) ? data.cart : []);
         setWishlist(Array.isArray(data.wishlist) ? data.wishlist : []);
         localStorage.setItem("norex_cart", JSON.stringify(data.cart || []));
         localStorage.setItem("norex_wishlist", JSON.stringify(data.wishlist || []));
       } catch {
-        // A temporary network failure should not clear local account state.
+        // Preserve the last known local state during temporary network failures.
       }
-    };
+    }
 
-    const handleFocus = () => {
-      void refreshFromAccount();
-    };
-    const handleVisibility = () => {
-      if (document.visibilityState === "visible") void refreshFromAccount();
-    };
-
-    window.addEventListener("focus", handleFocus);
-    document.addEventListener("visibilitychange", handleVisibility);
-    const pollingInterval = window.setInterval(refreshFromAccount, 10000);
-
+    const interval = window.setInterval(pullAccountState, 5000);
+    window.addEventListener("focus", pullAccountState);
+    document.addEventListener("visibilitychange", pullAccountState);
     return () => {
-      window.removeEventListener("focus", handleFocus);
-      document.removeEventListener("visibilitychange", handleVisibility);
-      window.clearInterval(pollingInterval);
+      window.clearInterval(interval);
+      window.removeEventListener("focus", pullAccountState);
+      document.removeEventListener("visibilitychange", pullAccountState);
     };
-  }, [status, cart, wishlist]);
+  }, [status]);
 
-  // Send the latest state on page exit instead of relying only on a timer.
   useEffect(() => {
-    if (status !== "authenticated") return;
-
-    const saveBeforeExit = () => {
-      if (!hasPendingChanges.current) return;
-      const wishlistIds = wishlist.map((item: any) => item.id || item._id);
-      const payload = new Blob(
-        [JSON.stringify({ cart, wishlist: wishlistIds })],
-        { type: "application/json" }
-      );
-      navigator.sendBeacon("/api/user/sync", payload);
-    };
-
-    window.addEventListener("pagehide", saveBeforeExit);
-    return () => window.removeEventListener("pagehide", saveBeforeExit);
-  }, [cart, wishlist, status]);
-
-  // Hook 3: Global HTML Theme Node Painter
-  // Injects/clears the active visual theme class strings straight onto the browser DOM document root element
-  useEffect(() => {
-    if (typeof document !== 'undefined') {
+    if (typeof document !== "undefined") {
       const root = document.documentElement;
-      root.classList.remove('theme-obsidian', 'theme-cyber', 'theme-ivory', 'theme-emerald');
+      root.classList.remove("theme-obsidian", "theme-cyber", "theme-ivory", "theme-emerald");
       root.classList.add(`theme-${theme}`);
     }
   }, [theme]);
 
-  /* ==========================================
-     MUTATION CONTROLLERS (ACTION HANDLERS)
-     ========================================== */
-
-  // Swaps out themes globally and triggers an ambient audio notification sweep
   const setTheme = (newTheme: Theme) => {
     setThemeState(newTheme);
     if (soundEnabled) sounds.playSweep();
   };
 
-  // Configures global client audio parameters and plays a system sound chord verification check
   const setSoundEnabled = (enabled: boolean) => {
     setSoundEnabledState(enabled);
     sounds.enable(enabled);
-    if (enabled) {
-      setTimeout(() => { sounds.playChord(); }, 50);
-    }
+    if (enabled) window.setTimeout(() => sounds.playChord(), 50);
   };
 
-  // Adds or increments a product, treating unique size/color/gender configurations as distinct line entries
   const addToCart = (product: any, quantity = 1) => {
-    hasPendingChanges.current = true;
+    markLocalChange();
     const targetSize = product.selectedSize || "M";
     const targetColor = product.selectedColor || "Default Matrix";
     const targetGender = product.selectedGender || product.gender || "Female";
-    const targetId = product.id || product._id;
+    const targetId = getItemId(product);
 
-    setCart((prev) => {
-      // Identity check match closure criteria mapping
-      const isMatch = (item: CartItem) => 
-        item.id === targetId && 
-        item.selectedSize === targetSize && 
-        item.selectedColor === targetColor && 
+    setCart((previous) => {
+      const matches = (item: CartItem) =>
+        getItemId(item) === targetId &&
+        item.selectedSize === targetSize &&
+        item.selectedColor === targetColor &&
         item.selectedGender === targetGender;
+      const existing = previous.find(matches);
 
-      const existing = prev.find(isMatch);
       if (existing) {
-        // If an entry matching all properties exists, increment the quantity
-        return prev.map((item) =>
-          isMatch(item) ? { ...item, orderQuantity: item.orderQuantity + quantity } : item
+        return previous.map((item) =>
+          matches(item)
+            ? { ...item, orderQuantity: item.orderQuantity + quantity }
+            : item
         );
       }
-      
-      // If it's a completely distinct style variant setup, append a fresh object item node
-      return [...prev, { 
-        ...product, 
-        id: targetId,
-        selectedSize: targetSize, 
-        selectedColor: targetColor, 
-        selectedGender: targetGender, 
-        orderQuantity: quantity 
-      }];
+
+      return [
+        ...previous,
+        {
+          ...product,
+          id: targetId,
+          selectedSize: targetSize,
+          selectedColor: targetColor,
+          selectedGender: targetGender,
+          orderQuantity: quantity,
+        },
+      ];
     });
     if (soundEnabled) sounds.playSuccess();
   };
 
-  // Filters out specific items matching exact style variants from the collection
   const removeFromCart = (productId: string, size: string, color: string, gender: string) => {
-    hasPendingChanges.current = true;
-    setCart((prev) => prev.filter((item) => !(
-      item.id === productId && 
-      item.selectedSize === size && 
-      item.selectedColor === color && 
-      item.selectedGender === gender
-    )));
+    markLocalChange();
+    setCart((previous) =>
+      previous.filter((item) =>
+        !(getItemId(item) === productId &&
+          item.selectedSize === size &&
+          item.selectedColor === color &&
+          item.selectedGender === gender)
+      )
+    );
     if (soundEnabled) sounds.playPop();
   };
 
-  // Locates specific line item variants and assigns a fresh explicit order quantity value
-  const updateQuantity = (productId: string, size: string, color: string, gender: string, quantity: number) => {
+  const updateQuantity = (
+    productId: string,
+    size: string,
+    color: string,
+    gender: string,
+    quantity: number
+  ) => {
     if (quantity < 1) return;
-    hasPendingChanges.current = true;
-    setCart((prev) =>
-      prev.map((item) => (
-        item.id === productId && 
-        item.selectedSize === size && 
-        item.selectedColor === color && 
+    markLocalChange();
+    setCart((previous) =>
+      previous.map((item) =>
+        getItemId(item) === productId &&
+        item.selectedSize === size &&
+        item.selectedColor === color &&
         item.selectedGender === gender
-          ? { ...item, orderQuantity: quantity } 
+          ? { ...item, orderQuantity: quantity }
           : item
-      ))
+      )
     );
     if (soundEnabled) sounds.playClick();
   };
 
-  // Completely flushes out all active contents inside your cart array
   const clearCart = () => {
-    hasPendingChanges.current = true;
+    markLocalChange();
     setCart([]);
     if (soundEnabled) sounds.playPop();
   };
 
-  // Toggles items in or out of the user's wishlist depending on whether its ID is already saved
   const toggleWishlist = (product: Product) => {
-    hasPendingChanges.current = true;
-    const targetId = product.id || (product as any)._id;
-    setWishlist((prev) => {
-      const exists = prev.find((item) => (item.id || (item as any)._id) === targetId);
-      if (exists) {
+    markLocalChange();
+    const targetId = getItemId(product);
+    if (!targetId) return;
+
+    setWishlist((previous) => {
+      if (previous.some((item) => getItemId(item) === targetId)) {
         if (soundEnabled) sounds.playPop();
-        return prev.filter((item) => (item.id || (item as any)._id) !== targetId);
+        return previous.filter((item) => getItemId(item) !== targetId);
       }
       if (soundEnabled) sounds.playSuccess();
-      return [...prev, { ...product, id: targetId }];
+      return [...previous, { ...product, id: targetId }];
     });
   };
 
-  // Returns a quick boolean check assessing if a product ID matches an item in the current wishlist
-  const isInWishlist = (productId: string) => !!wishlist.find((item) => (item.id || (item as any)._id) === productId);
+  const isInWishlist = (productId: string) =>
+    wishlist.some((item) => getItemId(item) === productId);
 
-  /* ==========================================
-     COMPUTED DATA & RENDER PACKAGING
-     ========================================== */
-
-  // Dynamic accumulator computing the total cash cost of all items in the bag context
-  const cartTotal = cart.reduce((total, item) => total + item.price * item.orderQuantity, 0);
+  const cartTotal = cart.reduce(
+    (total, item) => total + item.price * item.orderQuantity,
+    0
+  );
 
   return (
-    <ShopContext.Provider 
-      value={{ 
-        cart, wishlist, cartTotal, addToCart, removeFromCart, updateQuantity, clearCart, toggleWishlist, isInWishlist,
-        theme, setTheme, soundEnabled, setSoundEnabled, isCartOpen, setCartOpen, isWishlistOpen, setWishlistOpen, isOracleOpen, setOracleOpen
+    <ShopContext.Provider
+      value={{
+        cart,
+        wishlist,
+        cartTotal,
+        addToCart,
+        removeFromCart,
+        updateQuantity,
+        clearCart,
+        toggleWishlist,
+        isInWishlist,
+        theme,
+        setTheme,
+        soundEnabled,
+        setSoundEnabled,
+        isCartOpen,
+        setCartOpen,
+        isWishlistOpen,
+        setWishlistOpen,
+        isOracleOpen,
+        setOracleOpen,
       }}
     >
       {children}
@@ -431,11 +411,6 @@ export function ShopProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
-/* ==========================================
-   CUSTOM INVOCATION HOOK ACCESS
-   ========================================== */
-
-// Exposes context parameters cleanly down to frontend sub-components, checking bounds safety automatically
 export const useShop = () => {
   const context = useContext(ShopContext);
   if (!context) throw new Error("useShop must be used within a ShopProvider");

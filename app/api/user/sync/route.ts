@@ -7,10 +7,17 @@ import User from "@/lib/models/UserModel";
 import Product from "@/lib/models/ProductModel";
 import mongoose from "mongoose";
 
+export const dynamic = "force-dynamic";
+
+const noStoreHeaders = { "Cache-Control": "no-store, max-age=0" };
+
 export async function GET() {
   const session = await getServerSession(authOptions);
   if (!session?.user?.email) {
-    return NextResponse.json({ success: false, error: "Unauthenticated session profile context." }, { status: 401 });
+    return NextResponse.json(
+      { success: false, error: "Unauthenticated session profile context." },
+      { status: 401, headers: noStoreHeaders }
+    );
   }
 
   try {
@@ -19,7 +26,10 @@ export async function GET() {
     const profile = await User.findOne({ email: normalizedEmail }).lean();
 
     if (!profile) {
-      return NextResponse.json({ success: false, error: "The authenticated account could not be found." }, { status: 404 });
+      return NextResponse.json(
+        { success: false, error: "The authenticated account could not be found." },
+        { status: 404, headers: noStoreHeaders }
+      );
     }
 
     const wishlistIds = (profile.wishlist || []).filter((id: string) =>
@@ -29,11 +39,10 @@ export async function GET() {
       ? await Product.find({ _id: { $in: wishlistIds } }).lean()
       : [];
 
-    return NextResponse.json({
-      success: true,
-      cart: profile.cart || [],
-      wishlist,
-    });
+    return NextResponse.json(
+      { success: true, cart: profile.cart || [], wishlist },
+      { headers: noStoreHeaders }
+    );
   } catch (error: any) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
