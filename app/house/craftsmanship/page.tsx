@@ -101,7 +101,7 @@ export default function CraftsmanshipPage() {
             
             <div className="lg:col-span-7">
               <div className="atelier-img-wrapper">
-                <img src="/runway/bts-05.avif" alt="Norex tailors finishing custom gown" className="atelier-img" style={{ filter: "grayscale(1) contrast(1.05)" }} />
+                <img src="/machinesew.png" alt="Norex tailors finishing custom gown" className="atelier-img" style={{ filter: "grayscale(1) contrast(1.05)" }} />
               </div>
             </div>
           </div>

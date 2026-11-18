@@ -106,7 +106,7 @@ export default function SustainabilityPage() {
             
             <div className="lg:col-span-7">
               <div className="vision-img-wrapper">
-                <img src="/runway/bts-06.avif" alt="Norex zero waste pattern cutting layout" className="vision-img" style={{ filter: "grayscale(1) contrast(1.05)" }} />
+                <img src="/zero-waste.jpeg" alt="Norex zero waste pattern cutting layout" className="vision-img" style={{ filter: "grayscale(1) contrast(1.05)" }} />
               </div>
             </div>
           </div>

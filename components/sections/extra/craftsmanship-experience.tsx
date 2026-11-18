@@ -23,7 +23,7 @@ export default function CraftsmanshipExperience() {
     {
       title: 'Bespoke Draping & Architecture',
       tag: '01 / Anatomical Drafting',
-      image: '/product-4.jpg',
+      image: '/Gown-craft.jpeg',
       story: 'Every single luxury bridal corset and custom evening dress silhouette undergoes deep canvas adjustments. Our master tailors trace contours explicitly to structural lines, balancing natural posture configurations with majestic drapes.',
       details: ['Hand-drawn anatomical drafts', 'Custom built-in inner bodices', 'Reinforced double-face seam settings']
     },
