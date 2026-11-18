@@ -69,6 +69,7 @@ export function ShopProvider({ children }: { children: React.ReactNode }) {
   const hasHydrated = useRef(false);
   const hydratedEmail = useRef<string | null>(null);
   const migrationCompleted = useRef(false);
+  const hasPendingChanges = useRef(false);
 
   /* ==========================================
      SYNCHRONIZATION SIDE-EFFECTS (EFFECTS LOOP)
@@ -200,6 +201,7 @@ export function ShopProvider({ children }: { children: React.ReactNode }) {
           const data = await response.json().catch(() => null);
           throw new Error(data?.error || "Account synchronization failed.");
         }
+        hasPendingChanges.current = false;
         if (migrationCompleted.current) {
           migrationCompleted.current = false;
           if (hydratedEmail.current) {
@@ -214,9 +216,80 @@ export function ShopProvider({ children }: { children: React.ReactNode }) {
     // Debounce rapid changes before saving the signed-in user's account state.
     const debounceTimeout = setTimeout(() => {
       syncDatabaseLedger();
-    }, 800);
+    }, 300);
 
     return () => clearTimeout(debounceTimeout);
+  }, [cart, wishlist, status]);
+
+  // Keep an already-open browser session synchronized with changes made on another device.
+  useEffect(() => {
+    if (status !== "authenticated") return;
+
+    const refreshFromAccount = async () => {
+      if (hasPendingChanges.current) {
+        try {
+          const response = await fetch("/api/user/sync", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              cart,
+              wishlist: wishlist.map((item: any) => item.id || item._id),
+            }),
+          });
+          if (response.ok) hasPendingChanges.current = false;
+        } catch {
+          // Retry on the next focus, visibility, or polling cycle.
+        }
+        return;
+      }
+      try {
+        const response = await fetch("/api/user/sync", { cache: "no-store" });
+        const data = await response.json();
+        if (!response.ok || !data.success) return;
+        if (hasPendingChanges.current) return;
+        setCart(Array.isArray(data.cart) ? data.cart : []);
+        setWishlist(Array.isArray(data.wishlist) ? data.wishlist : []);
+        localStorage.setItem("norex_cart", JSON.stringify(data.cart || []));
+        localStorage.setItem("norex_wishlist", JSON.stringify(data.wishlist || []));
+      } catch {
+        // A temporary network failure should not clear local account state.
+      }
+    };
+
+    const handleFocus = () => {
+      void refreshFromAccount();
+    };
+    const handleVisibility = () => {
+      if (document.visibilityState === "visible") void refreshFromAccount();
+    };
+
+    window.addEventListener("focus", handleFocus);
+    document.addEventListener("visibilitychange", handleVisibility);
+    const pollingInterval = window.setInterval(refreshFromAccount, 10000);
+
+    return () => {
+      window.removeEventListener("focus", handleFocus);
+      document.removeEventListener("visibilitychange", handleVisibility);
+      window.clearInterval(pollingInterval);
+    };
+  }, [status, cart, wishlist]);
+
+  // Send the latest state on page exit instead of relying only on a timer.
+  useEffect(() => {
+    if (status !== "authenticated") return;
+
+    const saveBeforeExit = () => {
+      if (!hasPendingChanges.current) return;
+      const wishlistIds = wishlist.map((item: any) => item.id || item._id);
+      const payload = new Blob(
+        [JSON.stringify({ cart, wishlist: wishlistIds })],
+        { type: "application/json" }
+      );
+      navigator.sendBeacon("/api/user/sync", payload);
+    };
+
+    window.addEventListener("pagehide", saveBeforeExit);
+    return () => window.removeEventListener("pagehide", saveBeforeExit);
   }, [cart, wishlist, status]);
 
   // Hook 3: Global HTML Theme Node Painter
@@ -250,6 +323,7 @@ export function ShopProvider({ children }: { children: React.ReactNode }) {
 
   // Adds or increments a product, treating unique size/color/gender configurations as distinct line entries
   const addToCart = (product: any, quantity = 1) => {
+    hasPendingChanges.current = true;
     const targetSize = product.selectedSize || "M";
     const targetColor = product.selectedColor || "Default Matrix";
     const targetGender = product.selectedGender || product.gender || "Female";
@@ -286,6 +360,7 @@ export function ShopProvider({ children }: { children: React.ReactNode }) {
 
   // Filters out specific items matching exact style variants from the collection
   const removeFromCart = (productId: string, size: string, color: string, gender: string) => {
+    hasPendingChanges.current = true;
     setCart((prev) => prev.filter((item) => !(
       item.id === productId && 
       item.selectedSize === size && 
@@ -298,6 +373,7 @@ export function ShopProvider({ children }: { children: React.ReactNode }) {
   // Locates specific line item variants and assigns a fresh explicit order quantity value
   const updateQuantity = (productId: string, size: string, color: string, gender: string, quantity: number) => {
     if (quantity < 1) return;
+    hasPendingChanges.current = true;
     setCart((prev) =>
       prev.map((item) => (
         item.id === productId && 
@@ -313,12 +389,14 @@ export function ShopProvider({ children }: { children: React.ReactNode }) {
 
   // Completely flushes out all active contents inside your cart array
   const clearCart = () => {
+    hasPendingChanges.current = true;
     setCart([]);
     if (soundEnabled) sounds.playPop();
   };
 
   // Toggles items in or out of the user's wishlist depending on whether its ID is already saved
   const toggleWishlist = (product: Product) => {
+    hasPendingChanges.current = true;
     const targetId = product.id || (product as any)._id;
     setWishlist((prev) => {
       const exists = prev.find((item) => (item.id || (item as any)._id) === targetId);
