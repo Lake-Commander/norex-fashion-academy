@@ -27,15 +27,34 @@ export async function POST(request: Request) {
   try {
     await connectDB();
     const body = await request.json();
-    const cart = Array.isArray(body.cart) ? body.cart : [];
+    const cart = Array.isArray(body.cart)
+      ? body.cart
+          .map((item: any) => ({
+            id: String(item.id || item._id || ""),
+            name: item.name,
+            price: Number(item.price || 0),
+            images: Array.isArray(item.images) ? item.images : [],
+            selectedColor: item.selectedColor || "Default Matrix",
+            selectedSize: item.selectedSize || "M",
+            selectedGender: item.selectedGender || item.gender || "Unisex",
+            orderQuantity: Math.max(1, Number(item.orderQuantity || 1)),
+          }))
+          .filter((item: any) => item.id)
+      : [];
     const wishlist = Array.isArray(body.wishlist)
       ? body.wishlist.filter((id: unknown) => typeof id === "string")
       : [];
 
-    await User.updateOne(
+    const result = await User.updateOne(
       { email: session.user.email.toLowerCase().trim() },
       { $set: { cart, wishlist } }
     );
+    if (!result.matchedCount) {
+      return NextResponse.json(
+        { success: false, error: "The authenticated account could not be found." },
+        { status: 404 }
+      );
+    }
 
     return NextResponse.json({ success: true, message: "Registry profiles synchronized." });
   } catch (error: any) {

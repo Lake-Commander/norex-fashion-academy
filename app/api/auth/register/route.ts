@@ -1,8 +1,8 @@
 // app/api/auth/register/route.ts
 import { NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
-import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
+import User from "@/lib/models/UserModel";
 
 export async function POST(request: Request) {
   try {
@@ -17,7 +17,7 @@ export async function POST(request: Request) {
     const cleanEmail = email.toLowerCase().trim();
 
     // Guardrail: Enforce baseline duplicate account checking
-    const userExists = await mongoose.connection.model("User").findOne({ email: cleanEmail });
+    const userExists = await User.findOne({ email: cleanEmail });
     if (userExists) {
       return NextResponse.json({ success: false, error: "This email is already linked to an active passport." }, { status: 409 });
     }
@@ -26,7 +26,7 @@ export async function POST(request: Request) {
     const salt = await bcrypt.genSalt(12);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    await mongoose.connection.model("User").create({
+    await User.create({
       name,
       email: cleanEmail,
       password: hashedPassword,

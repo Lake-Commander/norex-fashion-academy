@@ -62,11 +62,13 @@ export function ShopProvider({ children }: { children: React.ReactNode }) {
   const [isCartOpen, setCartOpen] = useState<boolean>(false);
   const [isWishlistOpen, setWishlistOpen] = useState<boolean>(false);
   const [isOracleOpen, setOracleOpen] = useState<boolean>(false);
-  const { status } = useSession();
+  const { data: session, status } = useSession();
 
   /* --- Infrastructure Tracking Refs --- */
   // Used to skip running database sync requests during the component's initial mounting layout pass
   const hasHydrated = useRef(false);
+  const hydratedEmail = useRef<string | null>(null);
+  const migrationCompleted = useRef(false);
 
   /* ==========================================
      SYNCHRONIZATION SIDE-EFFECTS (EFFECTS LOOP)
@@ -75,19 +77,28 @@ export function ShopProvider({ children }: { children: React.ReactNode }) {
   // Hook 1: Initial Hydration on Mount
   // Safely loads cached data strings from browser LocalStorage to restore user state upon page reload
   useEffect(() => {
-    if (status === "loading" || hasHydrated.current) return;
+    if (status === "loading") return;
+    const sessionEmail = session?.user?.email?.toLowerCase().trim() || null;
+    if (status === "authenticated" && hydratedEmail.current === sessionEmail) return;
+    if (status === "unauthenticated" && hasHydrated.current) return;
+    hasHydrated.current = false;
 
     async function hydrateShopState() {
       if (status === "authenticated") {
         try {
           let guestCart: CartItem[] = [];
           let guestWishlist: Product[] = [];
-          try {
-            guestCart = JSON.parse(localStorage.getItem("norex_cart") || "[]");
-            guestWishlist = JSON.parse(localStorage.getItem("norex_wishlist") || "[]");
-          } catch {
-            guestCart = [];
-            guestWishlist = [];
+          const migratedForEmail = localStorage.getItem("norex_migrated_account");
+          const canReadGuestState = !migratedForEmail || migratedForEmail === "legacy";
+
+          if (canReadGuestState) {
+            try {
+              guestCart = JSON.parse(localStorage.getItem("norex_cart") || "[]");
+              guestWishlist = JSON.parse(localStorage.getItem("norex_wishlist") || "[]");
+            } catch {
+              guestCart = [];
+              guestWishlist = [];
+            }
           }
 
           const response = await fetch("/api/user/dashboard", { cache: "no-store" });
@@ -123,31 +134,53 @@ export function ShopProvider({ children }: { children: React.ReactNode }) {
             }
           }
 
+          localStorage.setItem("norex_cart", JSON.stringify(mergedCart));
+          localStorage.setItem("norex_wishlist", JSON.stringify(mergedWishlist));
+          hydratedEmail.current = sessionEmail;
+          migrationCompleted.current = guestCart.length > 0 || guestWishlist.length > 0;
           setCart(mergedCart);
           setWishlist(mergedWishlist);
         } catch (error) {
           console.error("Could not load saved account items:", error);
+          const savedCart = localStorage.getItem("norex_cart");
+          const savedWishlist = localStorage.getItem("norex_wishlist");
+          try {
+            if (savedCart) setCart(JSON.parse(savedCart));
+            if (savedWishlist) setWishlist(JSON.parse(savedWishlist));
+          } catch {
+            setCart([]);
+            setWishlist([]);
+          }
+          hasHydrated.current = true;
+          hydratedEmail.current = sessionEmail;
           return;
         }
       } else {
+        hydratedEmail.current = null;
+        migrationCompleted.current = false;
         const savedCart = localStorage.getItem("norex_cart");
         const savedWishlist = localStorage.getItem("norex_wishlist");
-        if (savedCart) setCart(JSON.parse(savedCart));
-        if (savedWishlist) setWishlist(JSON.parse(savedWishlist));
+        try {
+          if (savedCart) setCart(JSON.parse(savedCart));
+          if (savedWishlist) setWishlist(JSON.parse(savedWishlist));
+        } catch {
+          setCart([]);
+          setWishlist([]);
+        }
       }
       hasHydrated.current = true;
     }
 
     hydrateShopState();
-  }, [status]);
+  }, [status, session?.user?.email]);
 
   // Hook 2: State Persistence & Database Sync
   // Monitored by [cart, wishlist] modifications. Writes changes to localStorage and debounces a sync fetch down to MongoDB
   useEffect(() => {
+    if (!hasHydrated.current) return;
     localStorage.setItem("norex_cart", JSON.stringify(cart));
     localStorage.setItem("norex_wishlist", JSON.stringify(wishlist));
-
-    if (!hasHydrated.current || status !== "authenticated") return;
+    if (status !== "authenticated") return;
 
     // Normalizes wishlist array map objects to contain clean product ID strings
     const sanitizedWishlistIds = wishlist.map((item: any) => item.id || item._id);
@@ -155,7 +188,7 @@ export function ShopProvider({ children }: { children: React.ReactNode }) {
     // Dispatches state updates down to your Next.js API sync router pipeline
     const syncDatabaseLedger = async () => {
       try {
-        await fetch("/api/user/sync", {
+        const response = await fetch("/api/user/sync", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -163,6 +196,16 @@ export function ShopProvider({ children }: { children: React.ReactNode }) {
             wishlist: sanitizedWishlistIds
           })
         });
+        if (!response.ok) {
+          const data = await response.json().catch(() => null);
+          throw new Error(data?.error || "Account synchronization failed.");
+        }
+        if (migrationCompleted.current) {
+          migrationCompleted.current = false;
+          if (hydratedEmail.current) {
+            localStorage.setItem("norex_migrated_account", hydratedEmail.current);
+          }
+        }
       } catch (err) {
         console.error("Background ledger sync thread timeout:", err);
       }
